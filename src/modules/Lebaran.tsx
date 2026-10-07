@@ -85,7 +85,10 @@ export default function LebaranView() {
       fill: { opacity: dark ? 0.18 : 0.1 },
       xaxis: {
         categories: dates,
-        labels: { formatter: (v: string) => `${relLabel(v)} ${v.slice(8)}/3` },
+        labels: {
+          formatter: (v: string | number) =>
+            typeof v === 'string' && v.length >= 10 ? `${relLabel(v)} ${v.slice(8)}/3` : '',
+        },
       },
       tooltip: { y: { formatter: (v: number | string) => `${fmtInt(Number(v))} pnp` } },
       annotations: {

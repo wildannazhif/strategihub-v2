@@ -57,7 +57,10 @@ export default function Overview() {
       xaxis: {
         categories: dates,
         tickAmount: 9,
-        labels: { formatter: (v: string) => v.slice(5).replace('-', '/') },
+        labels: {
+          formatter: (v: string | number) =>
+            typeof v === 'string' && v.length >= 10 ? v.slice(5).replace('-', '/') : '',
+        },
       },
       tooltip: { y: { formatter: (v: number) => fmtInt(v) } },
       annotations: {

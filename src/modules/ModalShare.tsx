@@ -191,7 +191,8 @@ export default function ModalShareView() {
           name: sep.label,
           type: 'bar',
           data: MODA_KEYS.map((m) => ({
-            y: Number(((sep[`share_${m}`] as number) ?? 0).toFixed(1)),
+            // horizontal bar: nilai pada sumbu x
+            x: Number(((sep[`share_${m}`] as number) ?? 0).toFixed(1)),
             fillColor: MODA[m].color,
           })),
         },

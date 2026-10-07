@@ -96,7 +96,8 @@ export default function TimelineView() {
         tickAmount: 12,
         labels: {
           hideOverlappingLabels: true,
-          formatter: (v: string) => v.slice(5).replace('-', '/'),
+          formatter: (v: string | number) =>
+            typeof v === 'string' && v.length >= 10 ? v.slice(5).replace('-', '/') : '',
         },
       },
       tooltip: { y: { formatter: (v: number | string) => `${fmtInt(Number(v))} ${unitShort}` } },

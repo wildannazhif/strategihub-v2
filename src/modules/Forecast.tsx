@@ -181,6 +181,7 @@ export default function ForecastView() {
   const yoyOptions = useMemo<ApexOptions>(
     () => ({
       colors: pts.map((p) => (p.yoy_pct >= 0 ? '#16a34a' : '#dc2626')),
+      legend: { show: false },
       plotOptions: { bar: { distributed: true, borderRadius: 3 } },
       xaxis: {
         categories: pts.map((p) => p.date),
@@ -350,7 +351,7 @@ export default function ForecastView() {
         <SectionHeader
           eyebrow="Perbandingan tahunan"
           title="Pertumbuhan YoY Harian vs 2025"
-          desc="Batang hijau di atas rata-rata 2025, merah di bawahnya \u2014 skenario aktif."
+          desc="Batang hijau di atas rata-rata 2025, merah di bawahnya — skenario aktif."
         />
         <Chart type="bar" series={yoySeries} options={yoyOptions} height={240} />
       </Card>
@@ -432,7 +433,7 @@ export default function ForecastView() {
                         {MODA[m].label}
                       </p>
                       <p className="num text-[11.5px] text-slate-400">
-                        {fmtCompact(b.passengers_2026)} pnp \u2022{' '}
+                        {fmtCompact(b.passengers_2026)} pnp •{' '}
                         {b.share_pct_2026.toLocaleString('id-ID', { maximumFractionDigits: 1 })}%
                       </p>
                     </div>
