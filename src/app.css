@@ -1,0 +1,117 @@
+@import 'tailwindcss';
+@import 'maplibre-gl/dist/maplibre-gl.css';
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Dark premium palette */
+  --color-void: #04060c;
+  --color-abyss: #070b15;
+  --color-panel: #0a101d;
+  --color-panel-2: #0d1424;
+  --color-edge: #ffffff12;
+  --color-ink: #e8eef7;
+  --color-ink-2: #a7b3c7;
+  --color-ink-3: #5d6b84;
+
+  --color-accent: #38bdf8;
+  --color-accent-2: #818cf8;
+  --color-gold: #f59e0b;
+
+  /* Moda colors — brightened for dark surfaces */
+  --color-moda-udara: #38bdf8;
+  --color-moda-ka: #fbbf24;
+  --color-moda-bus: #34d399;
+  --color-moda-asdp: #a78bfa;
+  --color-moda-laut: #22d3ee;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-void);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+/* Ambient background glows */
+.bg-scene {
+  background:
+    radial-gradient(900px 420px at 12% -8%, rgb(56 189 248 / 0.07), transparent 60%),
+    radial-gradient(800px 380px at 88% 4%, rgb(129 140 248 / 0.06), transparent 60%),
+    radial-gradient(700px 500px at 50% 110%, rgb(245 158 11 / 0.04), transparent 60%),
+    var(--color-void);
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: #ffffff1a;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: #ffffff2e; background-clip: content-box; border: 2px solid transparent; }
+
+/* ApexCharts dark polish */
+.apexcharts-tooltip {
+  border-radius: 12px !important;
+  background: #0d1424 !important;
+  border: 1px solid #ffffff1f !important;
+  box-shadow: 0 16px 40px -8px rgb(0 0 0 / 0.6) !important;
+  color: #e8eef7 !important;
+}
+.apexcharts-tooltip-title {
+  background: transparent !important;
+  border-bottom: 1px solid #ffffff14 !important;
+  color: #e8eef7 !important;
+  font-weight: 700 !important;
+}
+.apexcharts-menu {
+  background: #0d1424 !important;
+  border: 1px solid #ffffff1f !important;
+  border-radius: 10px !important;
+}
+.apexcharts-menu-item:hover { background: #ffffff10 !important; }
+.apexcharts-legend-text { color: #a7b3c7 !important; }
+
+/* MapLibre dark popup */
+.maplibre-popup-content {
+  background: #0d1424 !important;
+  border: 1px solid #ffffff1f !important;
+  border-radius: 12px !important;
+  padding: 0 !important;
+  overflow: hidden;
+  color: #e8eef7 !important;
+  box-shadow: 0 16px 40px -8px rgb(0 0 0 / 0.6) !important;
+}
+.maplibre-popup-tip { display: none; }
+.maplibre-popup-close-button { color: #8b98ad !important; font-size: 18px !important; }
+
+/* Animations */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+.animate-pulse-glow { animation: pulse-glow 2.2s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up, .animate-pulse-glow { animation: none; }
+}
