@@ -222,7 +222,7 @@ export default function TimelineView() {
   }, [dark, provData]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <SectionHeader
         eyebrow="Kronologi"
         title="Kronologi Harian"
@@ -278,37 +278,37 @@ export default function TimelineView() {
       </div>
 
       {/* Grafik utama */}
-      <Card className="p-5 sm:p-6">
+      <Card className="p-4 sm:p-5">
         <SectionHeader
           eyebrow="Tren Harian"
           title={`${DIR_LABEL[dir]} ${metric === 'pnp' ? 'Penumpang' : 'Armada'} per Moda`}
           desc="Seret untuk zoom, arahkan kursor untuk detail harian."
         />
-        <Chart type="line" series={mainSeries} options={mainOptions} height={400} />
+        <Chart type="line" series={mainSeries} options={mainOptions} height={360} />
       </Card>
 
       {/* Agregasi bulanan + pola mingguan */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card className="p-5 sm:p-6">
+        <Card className="p-4 sm:p-5">
           <SectionHeader
             eyebrow="Agregasi"
             title="Total Bulanan per Moda"
             desc={`${DIR_LABEL[dir].toLowerCase()} ${metric === 'pnp' ? 'penumpang' : 'armada'} — Januari hingga September 2026`}
           />
-          <Chart type="bar" series={monthlySeries} options={monthlyOptions} height={340} />
+          <Chart type="bar" series={monthlySeries} options={monthlyOptions} height={280} />
         </Card>
-        <Card className="p-5 sm:p-6">
+        <Card className="p-4 sm:p-5">
           <SectionHeader
             eyebrow="Musiman"
             title="Pola Hari dalam Minggu"
             desc="Rata-rata harian per hari — batang merah menandai akhir pekan."
           />
-          <Chart type="bar" series={dowSeries} options={dowOptions} height={340} />
+          <Chart type="bar" series={dowSeries} options={dowOptions} height={280} />
         </Card>
       </div>
 
       {/* Sorotan provinsi */}
-      <Card className="p-5 sm:p-6">
+      <Card className="p-4 sm:p-5">
         <SectionHeader
           eyebrow="Spasial"
           title="Sorotan Provinsi"
@@ -367,7 +367,7 @@ export default function TimelineView() {
               <p className="mb-2 text-[12.5px] font-bold text-slate-500 dark:text-slate-400">
                 Penumpang bulanan — {provEntry.provinsi} (batang kuning = bulan puncak)
               </p>
-              {provOptions && <Chart type="bar" series={provSeries} options={provOptions} height={260} />}
+              {provOptions && <Chart type="bar" series={provSeries} options={provOptions} height={200} />}
             </div>
           </div>
         ) : (

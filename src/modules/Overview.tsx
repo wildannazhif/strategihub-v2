@@ -124,9 +124,9 @@ export default function Overview() {
     timeline.filter((_, i) => i % 4 === 0).map((r) => r[m] as number);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-kemenhub-800 via-kemenhub-900 to-slate-950 p-6 text-white sm:p-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-kemenhub-800 via-kemenhub-900 to-slate-950 p-5 text-white sm:p-6">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
@@ -139,7 +139,7 @@ export default function Overview() {
             <Badge color="#38bdf8" className="bg-white/10 !text-sky-200">🇮🇩 Mobilitas Nasional 2026</Badge>
             <Badge color="#a7f3d0" className="bg-white/10 !text-emerald-200">{meta.days_count} hari • {fmtInt(meta.total_clean_rows)} baris terverifikasi</Badge>
           </div>
-          <h1 className="mt-3 max-w-3xl text-2xl font-extrabold leading-tight tracking-tight sm:text-[34px] sm:leading-[1.15]">
+          <h1 className="mt-3 max-w-3xl text-xl font-extrabold leading-tight tracking-tight sm:text-2xl">
             Dasbor Terpadu Pergerakan Penumpang Lintas 5 Moda Transportasi
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
@@ -197,20 +197,20 @@ export default function Overview() {
       </div>
 
       {/* Main chart */}
-      <Card className="p-5 sm:p-6">
+      <Card className="p-4 sm:p-5">
         <SectionHeader
           eyebrow="Kronologi"
           title="Arus Harian Penumpang per Moda"
           desc="Area bertumpuk 272 hari — seret untuk zoom, arahkan kursor untuk detail. Zona kuning menandai periode Lebaran 2026."
         />
-        <Chart type="area" series={areaSeries} options={areaOptions} height={420} />
+        <Chart type="area" series={areaSeries} options={areaOptions} height={360} />
       </Card>
 
       {/* Share + moda cards */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
         <Card className="p-5 sm:p-6 xl:col-span-2">
           <SectionHeader eyebrow="Komposisi" title="Pangsa Pasar Moda" desc="Akumulasi Jan–Sep 2026" />
-          <Chart type="donut" series={donutSeries} options={donutOptions} height={300} />
+          <Chart type="donut" series={donutSeries} options={donutOptions} height={240} />
         </Card>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:col-span-3 xl:grid-cols-3">
           {MODA_KEYS.map((m) => {
