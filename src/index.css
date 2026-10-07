@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+@import 'maplibre-gl/dist/maplibre-gl.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Kemenhub institutional navy */
+  --color-kemenhub-50: #f0f5fa;
+  --color-kemenhub-100: #dcebf5;
+  --color-kemenhub-200: #c0d9ec;
+  --color-kemenhub-300: #94bede;
+  --color-kemenhub-400: #639dcb;
+  --color-kemenhub-500: #3f80b4;
+  --color-kemenhub-600: #1a5287;
+  --color-kemenhub-700: #15426d;
+  --color-kemenhub-800: #113557;
+  --color-kemenhub-900: #0c243c;
+  --color-kemenhub-950: #071a2c;
+
+  /* Moda palette (continuity with original dashboard) */
+  --color-moda-udara: #0284c7;
+  --color-moda-ka: #d97706;
+  --color-moda-bus: #16a34a;
+  --color-moda-asdp: #9333ea;
+  --color-moda-laut: #0891b2;
+
+  /* Status */
+  --color-status-critical: #dc2626;
+  --color-status-high: #ea580c;
+  --color-status-moderate: #ca8a04;
+  --color-status-stable: #16a34a;
+
+  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.06);
+  --shadow-pop: 0 12px 32px -8px rgb(2 6 23 / 0.18);
+
+  --animate-fade-up: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-in: fade-in 0.4s ease both;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-slate-100 text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Slim scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(148 163 184 / 0.5) transparent;
+}
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgb(148 163 184 / 0.5);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::selection {
+  background: rgb(26 82 135 / 0.18);
+}
+
+/* ECharts tooltip polish */
+.echarts-tooltip {
+  border-radius: 12px !important;
+}
+
+/* MapLibre popup polish */
+.maplibre-popup-content {
+  border-radius: 14px !important;
+  padding: 0 !important;
+  overflow: hidden;
+  box-shadow: var(--shadow-pop) !important;
+  border: 1px solid rgb(226 232 240);
+  font-family: var(--font-sans) !important;
+}
+.dark .maplibre-popup-content {
+  background: #0f172a !important;
+  border-color: #1e293b;
+  color: #e2e8f0;
+}
+.maplibre-popup-tip {
+  display: none;
+}
+.maplibre-popup-close-button {
+  font-size: 18px !important;
+  padding: 6px 10px !important;
+  color: #64748b !important;
+}
