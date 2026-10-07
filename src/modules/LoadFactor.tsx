@@ -88,7 +88,7 @@ export default function LoadFactorView() {
   const asdp = stats.ASDP;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <SectionHeader
         eyebrow="Kinerja"
         title="Kinerja Load Factor"
@@ -96,7 +96,7 @@ export default function LoadFactorView() {
       />
 
       {/* Penjelasan konsep */}
-      <Card className="p-5 sm:p-6">
+      <Card className="p-4 sm:p-5">
         <div className="flex gap-4">
           <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400">
             <Info size={20} />
@@ -191,13 +191,13 @@ export default function LoadFactorView() {
       </div>
 
       {/* Grafik utama */}
-      <Card className="p-5 sm:p-6">
+      <Card className="p-4 sm:p-5">
         <SectionHeader
           eyebrow="Perbandingan"
           title="Normal vs Mudik vs Balik per Moda"
           desc="Tiga bar per moda dalam satuan penumpang per trip armada. Garis putus-putus ungu = ambang padat 100 pnp/trip."
         />
-        <Chart type="bar" series={barSeries} options={barOptions} height={400} />
+        <Chart type="bar" series={barSeries} options={barOptions} height={320} />
       </Card>
 
       {/* Sorotan ASDP */}

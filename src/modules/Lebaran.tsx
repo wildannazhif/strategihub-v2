@@ -85,7 +85,7 @@ export default function LebaranView() {
       fill: { opacity: dark ? 0.18 : 0.1 },
       xaxis: {
         categories: dates,
-        labels: { formatter: (v: string) => [relLabel(v), `${v.slice(8)}/3`] },
+        labels: { formatter: (v: string) => `${relLabel(v)} ${v.slice(8)}/3` },
       },
       tooltip: { y: { formatter: (v: number | string) => `${fmtInt(Number(v))} pnp` } },
       annotations: {
@@ -170,7 +170,7 @@ export default function LebaranView() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <SectionHeader
         eyebrow="Lebaran 1447 H"
         title="Puncak Lebaran 2026"
@@ -178,7 +178,7 @@ export default function LebaranView() {
       />
 
       {/* Strip fase H-8 s/d H+8 */}
-      <Card className="p-5 sm:p-6">
+      <Card className="p-4 sm:p-5">
         <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.14em] text-kemenhub-600 dark:text-kemenhub-300">
           Linimasa Fase
         </p>
@@ -254,23 +254,23 @@ export default function LebaranView() {
       </div>
 
       {/* Grafik 1 */}
-      <Card className="p-5 sm:p-6">
+      <Card className="p-4 sm:p-5">
         <SectionHeader
           eyebrow="Pergerakan Harian"
           title="Arus Penumpang per Moda selama Lebaran"
           desc="Pin menandai puncak tiap moda. Zona kuning = arus mudik, zona ungu = arus balik."
         />
-        <Chart type="area" series={lineSeries} options={lineOptions} height={400} />
+        <Chart type="area" series={lineSeries} options={lineOptions} height={320} />
       </Card>
 
       {/* Grafik 2 */}
-      <Card className="p-5 sm:p-6">
+      <Card className="p-4 sm:p-5">
         <SectionHeader
           eyebrow="Intensitas"
           title="Lonjakan per Moda vs Hari Normal"
           desc="Persentase kenaikan tiap fase terhadap baseline harian normal."
         />
-        <Chart type="bar" series={surgeSeries} options={surgeOptions} height={360} />
+        <Chart type="bar" series={surgeSeries} options={surgeOptions} height={300} />
         <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
           <span className="w-full text-[11.5px] font-bold uppercase tracking-wide text-slate-400">
             Status kepadatan (lonjakan tertinggi tiap moda)
@@ -289,7 +289,7 @@ export default function LebaranView() {
       </Card>
 
       {/* Tabel 17 hari */}
-      <Card className="p-5 sm:p-6">
+      <Card className="p-4 sm:p-5">
         <SectionHeader
           eyebrow="Rincian"
           title="Tabel Harian Periode Lebaran"

@@ -86,7 +86,7 @@ function HubBarChart({
     [names, color, unit, onSelect, dark],
   );
 
-  return <Chart type="bar" series={series} options={options} height={380} />;
+  return <Chart type="bar" series={series} options={options} height={320} />;
 }
 
 /* ================= HubsView ================= */
@@ -174,7 +174,7 @@ export default function HubsView() {
   const unit = sortBy === 'pnp' ? 'pnp' : 'trip';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <SectionHeader
         eyebrow="Registri Simpul"
         title="Registri Simpul Top 30"

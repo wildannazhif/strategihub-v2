@@ -7,7 +7,7 @@ export function Card({ children, className }: { children: ReactNode; className?:
   return (
     <div
       className={clsx(
-        'rounded-2xl border border-slate-200/80 bg-white shadow-[var(--shadow-card)]',
+        'rounded-lg border border-slate-200 bg-white',
         'dark:border-slate-800 dark:bg-slate-900',
         className,
       )}
@@ -30,17 +30,17 @@ export function SectionHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+    <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
       <div className="max-w-2xl">
         {eyebrow && (
-          <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-kemenhub-600 dark:text-kemenhub-300">
+          <p className="mb-0.5 text-[11px] font-bold uppercase tracking-[0.14em] text-kemenhub-600 dark:text-kemenhub-300">
             {eyebrow}
           </p>
         )}
-        <h2 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
+        <h2 className="text-[15px] font-bold tracking-tight text-slate-900 dark:text-white">
           {title}
         </h2>
-        {desc && <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{desc}</p>}
+        {desc && <p className="mt-0.5 text-[13px] text-slate-500 dark:text-slate-400">{desc}</p>}
       </div>
       {action}
     </div>
@@ -70,23 +70,23 @@ export function KpiCard({
   const positive = delta != null && delta > 0;
   const negative = delta != null && delta < 0;
   return (
-    <Card className={clsx('relative overflow-hidden p-5 animate-fade-up', className)}>
+    <Card className={clsx('relative overflow-hidden p-4 animate-fade-up', className)}>
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-1"
         style={{ background: `linear-gradient(90deg, ${accent}, transparent)` }}
       />
       <div className="flex items-start justify-between gap-2">
-        <p className="text-[12.5px] font-semibold text-slate-500 dark:text-slate-400">{label}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</p>
         {icon && (
           <span
-            className="grid size-9 shrink-0 place-items-center rounded-xl"
+            className="grid size-8 shrink-0 place-items-center rounded-lg"
             style={{ background: `${accent}1a`, color: accent }}
           >
             {icon}
           </span>
         )}
       </div>
-      <p className="num mt-2 text-[26px] font-bold tracking-tight text-slate-900 dark:text-white">
+      <p className="num mt-1.5 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
         {value}
       </p>
       <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">

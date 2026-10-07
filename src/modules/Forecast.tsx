@@ -94,7 +94,7 @@ export default function ForecastView() {
       {
         name: 'Interval 95%',
         type: 'rangeArea',
-        data: pts.map((p) => ({ x: p.date, y: [p.ci_lower, p.ci_upper] })),
+        data: pts.map((p) => [p.ci_lower, p.ci_upper]),
       },
       { name: 'Aktual 2025', type: 'line', data: pts.map((p) => p.pnp_2025) },
     ],
@@ -229,9 +229,9 @@ export default function ForecastView() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-kemenhub-800 via-kemenhub-900 to-slate-950 p-6 text-white sm:p-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-kemenhub-800 via-kemenhub-900 to-slate-950 p-5 text-white sm:p-6">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
@@ -248,7 +248,7 @@ export default function ForecastView() {
               3 skenario &bull; {fmtInt(meta.train_days)} hari data latih
             </Badge>
           </div>
-          <h1 className="mt-3 max-w-3xl text-2xl font-extrabold leading-tight tracking-tight sm:text-[34px] sm:leading-[1.15]">
+          <h1 className="mt-3 max-w-3xl text-xl font-extrabold leading-tight tracking-tight sm:text-2xl">
             Proyeksi Nataru 2026/2027
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
@@ -259,7 +259,7 @@ export default function ForecastView() {
       </div>
 
       {/* Selector skenario */}
-      <Card className="p-5 sm:p-6">
+      <Card className="p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-kemenhub-600 dark:text-kemenhub-300">
@@ -336,23 +336,23 @@ export default function ForecastView() {
       </div>
 
       {/* Grafik utama */}
-      <Card className="p-5 sm:p-6">
+      <Card className="p-4 sm:p-5">
         <SectionHeader
           eyebrow="Proyeksi harian"
           title={`Arus Penumpang Harian \u2014 Skenario ${activeScen.label}`}
           desc="Garis biru proyeksi 2026/2027 dengan pita interval kepercayaan 95%, garis abu-abu putus-putus realisasi 2025, zona merah periode Natal & Tahun Baru."
         />
-        <Chart type="line" series={mainSeries} options={mainOptions} height={440} />
+        <Chart type="line" series={mainSeries} options={mainOptions} height={380} />
       </Card>
 
       {/* Grafik YoY */}
-      <Card className="p-5 sm:p-6">
+      <Card className="p-4 sm:p-5">
         <SectionHeader
           eyebrow="Perbandingan tahunan"
           title="Pertumbuhan YoY Harian vs 2025"
           desc="Batang hijau di atas rata-rata 2025, merah di bawahnya \u2014 skenario aktif."
         />
-        <Chart type="bar" series={yoySeries} options={yoyOptions} height={300} />
+        <Chart type="bar" series={yoySeries} options={yoyOptions} height={240} />
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
@@ -406,7 +406,7 @@ export default function ForecastView() {
         </Card>
 
         {/* Breakdown moda */}
-        <Card className="p-5 sm:p-6">
+        <Card className="p-4 sm:p-5">
           <SectionHeader
             eyebrow="Komposisi"
             title="Kontribusi per Moda"

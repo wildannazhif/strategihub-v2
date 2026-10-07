@@ -260,7 +260,7 @@ export default function MetricsView() {
   }, [ms, meta]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <SectionHeader
         eyebrow="Indikator"
         title="Matriks 13 Indikator"

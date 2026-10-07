@@ -255,7 +255,7 @@ export default function ModalShareView() {
   const topLoser = deltas[deltas.length - 1];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <SectionHeader
         eyebrow="Pangsa Pasar"
         title="Pangsa Pasar Antar-Moda"
@@ -291,7 +291,7 @@ export default function ModalShareView() {
                 </button>
               ))}
             </div>
-            <Chart type="donut" series={donutSeries} options={donutOptions} height={330} />
+            <Chart type="donut" series={donutSeries} options={donutOptions} height={260} />
           </Card>
           <Card className="p-5 sm:p-6 xl:col-span-2">
             <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-kemenhub-600 dark:text-kemenhub-300">
@@ -327,24 +327,24 @@ export default function ModalShareView() {
       )}
 
       {mode === 'tren' && (
-        <Card className="p-5 sm:p-6">
+        <Card className="p-4 sm:p-5">
           <SectionHeader
             eyebrow="Tren"
             title="Pergeseran Preferensi Moda"
             desc="Stacked bar 100% per bulan (sumbu kiri) + garis total penumpang dalam juta (sumbu kanan). Garis putus-putus menandai Maret — bulan Lebaran 2026."
           />
-          <Chart type="bar" series={trenSeries} options={trenOptions} height={430} />
+          <Chart type="bar" series={trenSeries} options={trenOptions} height={360} />
         </Card>
       )}
 
       {mode === 'banding' && (
-        <Card className="p-5 sm:p-6">
+        <Card className="p-4 sm:p-5">
           <SectionHeader
             eyebrow="Perbandingan"
             title={`${monthly[0].label} vs ${monthly[monthly.length - 1].label} 2026`}
             desc="Share tiap moda di awal vs akhir periode. Angka di kanan bar menunjukkan perubahan dalam poin persentase (pp)."
           />
-          <Chart type="bar" series={bandingSeries} options={bandingOptions} height={380} />
+          <Chart type="bar" series={bandingSeries} options={bandingOptions} height={300} />
         </Card>
       )}
 

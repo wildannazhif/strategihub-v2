@@ -89,7 +89,7 @@ export default function AppShell({
   return (
     <div className="flex min-h-screen">
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen w-[268px] shrink-0 flex-col border-r border-slate-200/80 bg-white/80 backdrop-blur-xl lg:flex dark:border-slate-800 dark:bg-slate-900/70">
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200/80 bg-white/80 backdrop-blur-xl lg:flex dark:border-slate-800 dark:bg-slate-900/70">
         <Brand />
         {navList}
         <div className="border-t border-slate-200/80 p-4 dark:border-slate-800">
@@ -114,7 +114,7 @@ export default function AppShell({
       {/* Mobile drawer */}
       <div className={clsx('fixed inset-0 z-50 lg:hidden', open ? 'block' : 'hidden')}>
         <div className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm" onClick={() => setOpen(false)} />
-        <aside className="absolute inset-y-0 left-0 flex w-[280px] flex-col bg-white shadow-2xl dark:bg-slate-900 animate-fade-in">
+        <aside className="absolute inset-y-0 left-0 flex w-64 flex-col bg-white shadow-2xl dark:bg-slate-900 animate-fade-in">
           <div className="flex items-center justify-between pr-4">
             <Brand />
             <button onClick={() => setOpen(false)} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
@@ -154,7 +154,7 @@ export default function AppShell({
             </span>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 sm:px-6">
+        <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-5 sm:px-5">
           <div key={view} className="animate-fade-up">
             {children}
           </div>
