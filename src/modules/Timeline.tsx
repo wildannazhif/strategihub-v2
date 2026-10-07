@@ -223,7 +223,7 @@ export default function TimelineView() {
   }, [dark, provData]);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <SectionHeader
         eyebrow="Kronologi"
         title="Kronologi Harian"
