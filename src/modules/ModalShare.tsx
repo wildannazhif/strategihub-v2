@@ -256,7 +256,7 @@ export default function ModalShareView() {
   const topLoser = deltas[deltas.length - 1];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <SectionHeader
         eyebrow="Pangsa Pasar"
         title="Pangsa Pasar Antar-Moda"

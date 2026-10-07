@@ -226,7 +226,7 @@ export default function SpatialMapView() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <SectionHeader
         eyebrow="Spasial"
         title="Peta Spasial Simpul"

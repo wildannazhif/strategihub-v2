@@ -230,7 +230,7 @@ export default function ForecastView() {
   ];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-kemenhub-800 via-kemenhub-900 to-slate-950 p-5 text-white sm:p-6">
         <div

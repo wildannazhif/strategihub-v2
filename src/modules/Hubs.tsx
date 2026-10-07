@@ -174,7 +174,7 @@ export default function HubsView() {
   const unit = sortBy === 'pnp' ? 'pnp' : 'trip';
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <SectionHeader
         eyebrow="Registri Simpul"
         title="Registri Simpul Top 30"

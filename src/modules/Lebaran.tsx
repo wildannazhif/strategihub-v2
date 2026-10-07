@@ -173,7 +173,7 @@ export default function LebaranView() {
   );
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <SectionHeader
         eyebrow="Lebaran 1447 H"
         title="Puncak Lebaran 2026"
