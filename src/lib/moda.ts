@@ -1,4 +1,4 @@
-import type { ModaKey } from '../data/types';
+import type { ModaKey } from './data/types';
 
 export interface ModaMeta {
   key: ModaKey;
@@ -16,8 +16,8 @@ export const MODA: Record<ModaKey, ModaMeta> = {
     label: 'Angkutan Udara',
     short: 'Udara',
     icon: 'Plane',
-    color: '#0284c7',
-    colorSoft: 'rgba(2,132,199,.12)',
+    color: '#38bdf8',
+    colorSoft: 'rgba(56,189,248,.14)',
     desc: 'Penerbangan komersial berjadwal',
   },
   KA: {
@@ -25,8 +25,8 @@ export const MODA: Record<ModaKey, ModaMeta> = {
     label: 'Kereta Api',
     short: 'KA',
     icon: 'TrainFront',
-    color: '#d97706',
-    colorSoft: 'rgba(217,119,6,.12)',
+    color: '#fbbf24',
+    colorSoft: 'rgba(251,191,36,.14)',
     desc: 'KA penumpang PT KAI',
   },
   BUS: {
@@ -34,8 +34,8 @@ export const MODA: Record<ModaKey, ModaMeta> = {
     label: 'Bus AKAP',
     short: 'Bus',
     icon: 'Bus',
-    color: '#16a34a',
-    colorSoft: 'rgba(22,163,74,.12)',
+    color: '#34d399',
+    colorSoft: 'rgba(52,211,153,.14)',
     desc: 'Bus antar-kota antar-provinsi',
   },
   ASDP: {
@@ -43,8 +43,8 @@ export const MODA: Record<ModaKey, ModaMeta> = {
     label: 'ASDP Penyeberangan',
     short: 'ASDP',
     icon: 'Ship',
-    color: '#9333ea',
-    colorSoft: 'rgba(147,51,234,.12)',
+    color: '#a78bfa',
+    colorSoft: 'rgba(167,139,250,.14)',
     desc: 'Kapal feri penyeberangan',
   },
   LAUT: {
@@ -52,8 +52,8 @@ export const MODA: Record<ModaKey, ModaMeta> = {
     label: 'Transportasi Laut',
     short: 'Laut',
     icon: 'Anchor',
-    color: '#0891b2',
-    colorSoft: 'rgba(8,145,178,.12)',
+    color: '#22d3ee',
+    colorSoft: 'rgba(34,211,238,.14)',
     desc: 'Kapal laut penumpang',
   },
 };
@@ -69,5 +69,5 @@ export function densityStatus(surgePct: number): { status: DensityStatus; label:
     return { status: 'high', label: 'Padat Tinggi', color: '#ea580c', bg: 'rgba(234,88,12,.1)' };
   if (surgePct >= 25)
     return { status: 'moderate', label: 'Sibuk Terkendali', color: '#ca8a04', bg: 'rgba(202,138,4,.12)' };
-  return { status: 'stable', label: 'Stabil', color: '#16a34a', bg: 'rgba(22,163,74,.1)' };
+  return { status: 'stable', label: 'Stabil', color: '#34d399', bg: 'rgba(22,163,74,.1)' };
 }
