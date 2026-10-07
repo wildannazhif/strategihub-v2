@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import { Flame, Undo2, CalendarDays } from 'lucide-react';
-import Chart, { baseTooltip, axisStyle, legendStyle, FONT, MONO, fmtNum } from '../components/Chart';
+import Chart, { FONT, MONO } from '../components/Chart';
 import { Card, SectionHeader, KpiCard, Badge } from '../components/ui';
 import { useDark } from '../components/theme';
 import { data, MODA_KEYS } from '../data';
 import { MODA, densityStatus } from '../lib/moda';
 import { fmtCompact, fmtInt, fmtPct, fmtDateShort } from '../lib/format';
-import type { EChartsCoreOption } from 'echarts/core';
+import type { ApexOptions } from 'apexcharts';
 
 const MUDIK_END = '2026-03-20';
 const HARI_H = '2026-03-21';
@@ -58,145 +58,105 @@ export default function LebaranView() {
     };
   }, [days, surge]);
 
-  /* ---------- Grafik 1: multi-line per moda 17 hari ---------- */
-  const lineOption = useMemo<EChartsCoreOption>(() => {
+  /* ---------- Grafik 1: multi-line + area per moda, 17 hari ---------- */
+  const lineSeries = useMemo<ApexOptions['series']>(
+    () => MODA_KEYS.map((m) => ({ name: MODA[m].label, data: days.map((r) => r[m] as number) })),
+    [days],
+  );
+
+  const lineOptions = useMemo<ApexOptions>(() => {
     const dates = days.map((r) => r.date);
+    const peaks = MODA_KEYS.map((m) => {
+      let pIdx = 0;
+      days.forEach((r, i) => {
+        if ((r[m] as number) > (days[pIdx][m] as number)) pIdx = i;
+      });
+      return { x: dates[pIdx], y: days[pIdx][m] as number, color: MODA[m].color };
+    });
+    const zoneLabel = (color: string) => ({
+      color,
+      fontSize: '11px',
+      fontWeight: 700,
+      fontFamily: FONT,
+    });
     return {
-      animationDuration: 900,
-      tooltip: {
-        ...baseTooltip(dark),
-        valueFormatter: (v: unknown) => (typeof v === 'number' ? `${fmtNum(v)} pnp` : v),
+      colors: MODA_KEYS.map((m) => MODA[m].color),
+      legend: { position: 'top', horizontalAlign: 'left' },
+      fill: { opacity: dark ? 0.18 : 0.1 },
+      xaxis: {
+        categories: dates,
+        labels: { formatter: (v: string) => [relLabel(v), `${v.slice(8)}/3`] },
       },
-      legend: { ...legendStyle(dark), top: 0, data: MODA_KEYS.map((m) => MODA[m].label) },
-      grid: { left: 8, right: 12, top: 44, bottom: 8, containLabel: true },
-      xAxis: {
-        type: 'category',
-        data: dates,
-        ...axisStyle(dark),
-        axisLabel: {
-          ...axisStyle(dark).axisLabel,
-          formatter: (v: string) => `${relLabel(v)}\n${v.slice(8)}/3`,
-        },
-      },
-      yAxis: {
-        type: 'value',
-        ...axisStyle(dark),
-        axisLabel: {
-          ...axisStyle(dark).axisLabel,
-          formatter: (v: number) =>
-            v >= 1e6
-              ? `${(v / 1e6).toLocaleString('id-ID', { maximumFractionDigits: 1 })} jt`
-              : `${Math.round(v / 1e3)} rb`,
-        },
-      },
-      series: MODA_KEYS.map((m, si) => {
-        let pIdx = 0;
-        days.forEach((r, i) => {
-          if (r[m] > days[pIdx][m]) pIdx = i;
-        });
-        const pDate = dates[pIdx];
-        const pVal = days[pIdx][m] as number;
-        return {
-          name: MODA[m].label,
-          type: 'line' as const,
-          data: days.map((r) => r[m]),
-          smooth: true,
-          symbol: 'none',
-          lineStyle: { width: 2, color: MODA[m].color },
-          areaStyle: { color: MODA[m].color, opacity: dark ? 0.16 : 0.08 },
-          emphasis: { focus: 'series' as const },
-          markPoint: {
-            symbol: 'pin',
-            symbolSize: 44,
-            itemStyle: { color: MODA[m].color },
-            label: {
-              color: '#fff',
-              fontFamily: MONO,
-              fontSize: 9,
-              fontWeight: 700,
-              formatter: fmtCompact(pVal),
-            },
-            data: [{ coord: [pDate, pVal] }],
+      tooltip: { y: { formatter: (v: number | string) => `${fmtInt(Number(v))} pnp` } },
+      annotations: {
+        xaxis: [
+          {
+            x: MUDIK_START,
+            x2: MUDIK_END,
+            fillColor: '#d97706',
+            opacity: 0.08,
+            label: { text: 'Arus Mudik', style: zoneLabel('#d97706') },
           },
-          ...(si === 0
-            ? {
-                markArea: {
-                  silent: true,
-                  itemStyle: { color: dark ? 'rgba(217,119,6,.10)' : 'rgba(217,119,6,.07)' },
-                  label: { color: '#d97706', fontFamily: FONT, fontSize: 11, fontWeight: 700 },
-                  data: [[{ name: 'Arus Mudik', xAxis: MUDIK_START }, { xAxis: MUDIK_END }]],
-                },
-              }
-            : {}),
-          ...(si === 1
-            ? {
-                markArea: {
-                  silent: true,
-                  itemStyle: { color: dark ? 'rgba(124,58,237,.10)' : 'rgba(124,58,237,.07)' },
-                  label: { color: '#7c3aed', fontFamily: FONT, fontSize: 11, fontWeight: 700 },
-                  data: [[{ name: 'Arus Balik', xAxis: '2026-03-22' }, { xAxis: BALIK_END }]],
-                },
-              }
-            : {}),
-        };
-      }),
+          {
+            x: '2026-03-22',
+            x2: BALIK_END,
+            fillColor: '#7c3aed',
+            opacity: 0.08,
+            label: { text: 'Arus Balik', style: zoneLabel('#7c3aed') },
+          },
+        ],
+        points: peaks.map((p) => ({
+          x: p.x,
+          y: p.y,
+          marker: { size: 5, fillColor: p.color, strokeColor: '#ffffff', strokeWidth: 2 },
+          label: {
+            text: fmtCompact(p.y),
+            style: {
+              color: '#ffffff',
+              background: p.color,
+              fontSize: '10px',
+              fontWeight: 700,
+              fontFamily: MONO,
+            },
+          },
+        })),
+      },
     };
   }, [dark, days]);
 
   /* ---------- Grafik 2: lonjakan per moda (grouped bar) ---------- */
-  const surgeOption = useMemo<EChartsCoreOption>(
+  const surgeSeries = useMemo<ApexOptions['series']>(
+    () => [
+      { name: 'Mudik', data: MODA_KEYS.map((m) => surge[m].surge_mudik_pct) },
+      { name: 'Balik I', data: MODA_KEYS.map((m) => surge[m].surge_balik1_pct) },
+      { name: 'Balik II', data: MODA_KEYS.map((m) => surge[m].surge_balik2_pct) },
+    ],
+    [surge],
+  );
+
+  const surgeOptions = useMemo<ApexOptions>(
     () => ({
-      animationDuration: 800,
-      tooltip: {
-        ...baseTooltip(dark),
-        valueFormatter: (v: unknown) => (typeof v === 'number' ? fmtPct(v, 1) : v),
-      },
-      legend: { ...legendStyle(dark), top: 0, data: ['Mudik', 'Balik I', 'Balik II'] },
-      grid: { left: 8, right: 12, top: 44, bottom: 8, containLabel: true },
-      xAxis: { type: 'category', data: MODA_KEYS.map((m) => MODA[m].short), ...axisStyle(dark) },
-      yAxis: {
-        type: 'value',
-        ...axisStyle(dark),
-        axisLabel: { ...axisStyle(dark).axisLabel, formatter: (v: number) => `${v}%` },
-      },
-      series: [
-        {
-          name: 'Mudik',
-          type: 'bar' as const,
-          data: MODA_KEYS.map((m) => surge[m].surge_mudik_pct),
-          itemStyle: { color: '#d97706', borderRadius: [5, 5, 0, 0] },
-          barMaxWidth: 34,
-          markLine: {
-            silent: true,
-            symbol: 'none',
-            lineStyle: { color: '#dc2626', type: 'dashed' as const, width: 1.2 },
+      colors: ['#d97706', '#dc2626', '#7c3aed'],
+      legend: { position: 'top', horizontalAlign: 'left' },
+      plotOptions: { bar: { borderRadius: 5, columnWidth: '62%' } },
+      xaxis: { categories: MODA_KEYS.map((m) => MODA[m].short) },
+      yaxis: { labels: { formatter: (v: number | string) => `${v}%` } },
+      tooltip: { y: { formatter: (v: number | string) => fmtPct(Number(v), 1) } },
+      annotations: {
+        yaxis: [
+          {
+            y: 80,
+            borderColor: '#dc2626',
+            strokeDashArray: 4,
             label: {
-              color: '#dc2626',
-              fontFamily: FONT,
-              fontSize: 10,
-              fontWeight: 700,
-              formatter: 'Ambang Sangat Kritis 80%',
+              text: 'Ambang Sangat Kritis 80%',
+              style: { color: '#dc2626', fontSize: '11px', fontWeight: 700, fontFamily: FONT },
             },
-            data: [{ yAxis: 80 }],
           },
-        },
-        {
-          name: 'Balik I',
-          type: 'bar' as const,
-          data: MODA_KEYS.map((m) => surge[m].surge_balik1_pct),
-          itemStyle: { color: '#dc2626', borderRadius: [5, 5, 0, 0] },
-          barMaxWidth: 34,
-        },
-        {
-          name: 'Balik II',
-          type: 'bar' as const,
-          data: MODA_KEYS.map((m) => surge[m].surge_balik2_pct),
-          itemStyle: { color: '#7c3aed', borderRadius: [5, 5, 0, 0] },
-          barMaxWidth: 34,
-        },
-      ],
+        ],
+      },
     }),
-    [dark, surge],
+    [surge],
   );
 
   const densityBadges = useMemo(
@@ -300,7 +260,7 @@ export default function LebaranView() {
           title="Arus Penumpang per Moda selama Lebaran"
           desc="Pin menandai puncak tiap moda. Zona kuning = arus mudik, zona ungu = arus balik."
         />
-        <Chart option={lineOption} height={400} />
+        <Chart type="area" series={lineSeries} options={lineOptions} height={400} />
       </Card>
 
       {/* Grafik 2 */}
@@ -310,7 +270,7 @@ export default function LebaranView() {
           title="Lonjakan per Moda vs Hari Normal"
           desc="Persentase kenaikan tiap fase terhadap baseline harian normal."
         />
-        <Chart option={surgeOption} height={360} />
+        <Chart type="bar" series={surgeSeries} options={surgeOptions} height={360} />
         <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
           <span className="w-full text-[11.5px] font-bold uppercase tracking-wide text-slate-400">
             Status kepadatan (lonjakan tertinggi tiap moda)

@@ -1,19 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import * as echarts from 'echarts/core';
-import { BarChart } from 'echarts/charts';
-import { GridComponent, TooltipComponent } from 'echarts/components';
-import { CanvasRenderer } from 'echarts/renderers';
-import type { EChartsCoreOption } from 'echarts/core';
+import { useEffect, useMemo, useState } from 'react';
 import { Search, ChevronLeft, ChevronRight, Ship } from 'lucide-react';
-import { baseTooltip, axisStyle, MONO } from '../components/Chart';
+import type { ApexOptions } from 'apexcharts';
+import Chart, { MONO } from '../components/Chart';
 import { Card, SectionHeader, Badge, Segmented, EmptyState } from '../components/ui';
 import { useDark } from '../components/theme';
 import { data, MODA_KEYS } from '../data';
 import { MODA, densityStatus } from '../lib/moda';
 import { fmtInt, fmtCompact, fmtPct } from '../lib/format';
 import type { ModaKey, HubRow, SimpulRecommendation } from '../data/types';
-
-echarts.use([BarChart, GridComponent, TooltipComponent, CanvasRenderer]);
 
 type Periode = 'peak' | 'ytd';
 type SortBy = 'pnp' | 'arm';
@@ -38,84 +32,65 @@ function recColor(statusText: string): string {
 
 /* ---------- Horizontal bar chart (top 10), click -> select hub ---------- */
 function HubBarChart({
-  names, values, color, dark, unit, onSelect,
+  names, values, color, unit, onSelect,
 }: {
-  names: string[]; values: number[]; color: string; dark: boolean; unit: string;
+  names: string[]; values: number[]; color: string; unit: string;
   onSelect: (name: string) => void;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<echarts.ECharts | null>(null);
-  const selectRef = useRef(onSelect);
-  selectRef.current = onSelect;
-
-  useEffect(() => {
-    if (!ref.current) return;
-    const chart = echarts.init(ref.current, undefined, { renderer: 'canvas' });
-    chartRef.current = chart;
-    chart.on('click', (p: unknown) => {
-      const name = (p as { name?: unknown }).name;
-      if (typeof name === 'string') selectRef.current(name);
-    });
-    const ro = new ResizeObserver(() => chart.resize());
-    ro.observe(ref.current);
-    return () => {
-      ro.disconnect();
-      chart.dispose();
-      chartRef.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    const option: EChartsCoreOption = {
-      animationDuration: 700,
-      tooltip: {
-        ...baseTooltip(dark),
-        valueFormatter: (v: unknown) => (typeof v === 'number' ? `${fmtInt(v)} ${unit}` : v),
-      },
-      grid: { left: 8, right: 48, top: 8, bottom: 8, containLabel: true },
-      xAxis: {
-        type: 'value',
-        ...axisStyle(dark),
-        axisLabel: { ...axisStyle(dark).axisLabel, formatter: (v: number) => fmtCompact(v) },
-      },
-      yAxis: {
-        type: 'category',
-        inverse: true,
-        data: names,
-        ...axisStyle(dark),
-        axisLabel: {
-          ...axisStyle(dark).axisLabel,
-          formatter: (v: string) => (v.length > 22 ? `${v.slice(0, 21)}…` : v),
-        },
-      },
-      series: [
-        {
-          type: 'bar',
-          data: values,
-          barWidth: '58%',
-          itemStyle: { color, borderRadius: [0, 6, 6, 0] },
-          label: {
-            show: true,
-            position: 'right',
-            fontFamily: MONO,
-            fontSize: 10.5,
-            color: dark ? '#cbd5e1' : '#475569',
-            formatter: (p: { value?: unknown }) =>
-              typeof p.value === 'number' ? fmtCompact(p.value) : '',
+  const dark = useDark();
+  const series = useMemo<ApexOptions['series']>(
+    () => [{ name: unit === 'pnp' ? 'Penumpang' : 'Armada', data: values }],
+    [values, unit],
+  );
+  const options = useMemo<ApexOptions>(
+    () => ({
+      chart: {
+        events: {
+          dataPointSelection: (_e: unknown, _c?: unknown, config?: { dataPointIndex: number }) => {
+            const i = config?.dataPointIndex;
+            if (typeof i === 'number' && names[i]) onSelect(names[i]);
           },
-          emphasis: { itemStyle: { opacity: 0.82 } },
         },
-      ],
-    };
-    chartRef.current?.setOption(option, { notMerge: true });
-  }, [names, values, color, dark, unit]);
+      },
+      colors: [color],
+      plotOptions: {
+        bar: {
+          horizontal: true,
+          borderRadius: 6,
+          barHeight: '60%',
+          dataLabels: { position: 'top' },
+        },
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: (v: number) => fmtCompact(v),
+        offsetX: 10,
+        style: { fontFamily: MONO, fontSize: '11px', colors: [dark ? '#cbd5e1' : '#475569'] },
+      },
+      xaxis: { categories: names },
+      yaxis: {
+        reversed: true,
+        labels: {
+          formatter: (v: string | number) =>
+            typeof v === 'string' && v.length > 22 ? `${v.slice(0, 21)}…` : String(v),
+        },
+      },
+      grid: {
+        padding: { right: 48 },
+        xaxis: { lines: { show: true } },
+      },
+      tooltip: {
+        y: { formatter: (v: number) => `${fmtInt(v)} ${unit}` },
+      },
+    }),
+    [names, color, unit, onSelect, dark],
+  );
 
-  return <div ref={ref} style={{ height: 380, width: '100%' }} />;
+  return <Chart type="bar" series={series} options={options} height={380} />;
 }
 
 /* ================= HubsView ================= */
 export default function HubsView() {
-  const dark = useDark();
   const [moda, setModa] = useState<ModaKey>('UDARA');
   const [periode, setPeriode] = useState<Periode>('peak');
   const [search, setSearch] = useState('');
@@ -285,7 +260,6 @@ export default function HubsView() {
               names={chartRows.map((r) => r.nama_prasarana)}
               values={chartRows.map((r) => metricOf(r, sortBy, arah))}
               color={MODA[moda].color}
-              dark={dark}
               unit={unit}
               onSelect={handleSelect}
             />

@@ -2,13 +2,13 @@ import { useMemo } from 'react';
 import {
   Users, Bus, CalendarDays, Flame, Plane, TrainFront, Ship, Anchor,
 } from 'lucide-react';
-import Chart, { baseTooltip, axisStyle, legendStyle, FONT, MONO, fmtNum } from '../components/Chart';
+import type { ApexOptions } from 'apexcharts';
+import Chart from '../components/Chart';
 import { Card, SectionHeader, KpiCard, Badge } from '../components/ui';
 import { useDark } from '../components/theme';
 import { data, MODA_KEYS } from '../data';
 import { MODA } from '../lib/moda';
 import { fmtCompact, fmtInt, fmtPct, fmtDate } from '../lib/format';
-import type { EChartsCoreOption } from 'echarts/core';
 
 const MODA_ICONS = {
   UDARA: <Plane size={18} />,
@@ -32,115 +32,93 @@ export default function Overview() {
 
   const grandTotal = MODA_KEYS.reduce((s, m) => s + totalByModa[m], 0);
 
-  const areaOption = useMemo<EChartsCoreOption>(() => {
+  // Stacked area per moda + garis Total (type 'line' tidak ikut stacking di ApexCharts)
+  const areaSeries: ApexOptions['series'] = useMemo(
+    () => [
+      ...MODA_KEYS.map((m) => ({
+        name: MODA[m].label,
+        type: 'area' as const,
+        data: timeline.map((r) => r[m] as number),
+      })),
+      { name: 'Total', type: 'line' as const, data: timeline.map((r) => r.TOTAL) },
+    ],
+    [timeline],
+  );
+
+  const areaOptions: ApexOptions = useMemo(() => {
     const dates = timeline.map((r) => r.date);
+    const totalColor = dark ? '#f8fafc' : '#0f172a';
     return {
-      animationDuration: 900,
-      tooltip: {
-        ...baseTooltip(dark),
-        valueFormatter: (v: unknown) => (typeof v === 'number' ? fmtNum(v) : v),
+      chart: { stacked: true },
+      colors: [...MODA_KEYS.map((m) => MODA[m].color), totalColor],
+      legend: { position: 'top' },
+      stroke: { width: [1.5, 1.5, 1.5, 1.5, 1.5, 2.5] },
+      fill: { type: 'solid', opacity: [0.16, 0.16, 0.16, 0.16, 0.16, 0] },
+      xaxis: {
+        categories: dates,
+        tickAmount: 9,
+        labels: { formatter: (v: string) => v.slice(5).replace('-', '/') },
       },
-      legend: { ...legendStyle(dark), top: 0, data: [...MODA_KEYS.map((m) => MODA[m].label), 'Total'] },
-      grid: { left: 8, right: 12, top: 44, bottom: 8, containLabel: true },
-      xAxis: {
-        type: 'category',
-        data: dates,
-        ...axisStyle(dark),
-        axisLabel: {
-          ...axisStyle(dark).axisLabel,
-          formatter: (v: string) => v.slice(5).replace('-', '/'),
-          interval: 29,
-        },
-      },
-      yAxis: {
-        type: 'value',
-        ...axisStyle(dark),
-        axisLabel: {
-          ...axisStyle(dark).axisLabel,
-          formatter: (v: number) => (v >= 1e6 ? `${(v / 1e6).toLocaleString('id-ID', { maximumFractionDigits: 1 })} jt` : `${Math.round(v / 1e3)} rb`),
-        },
-      },
-      dataZoom: [
-        { type: 'inside', xAxisIndex: 0, filterMode: 'none' },
-        {
-          type: 'slider', height: 22, bottom: 0,
-          borderColor: 'transparent',
-          backgroundColor: dark ? '#1e293b' : '#f1f5f9',
-          fillerColor: dark ? 'rgba(26,82,135,.35)' : 'rgba(26,82,135,.18)',
-          handleStyle: { color: '#1a5287' },
-          textStyle: { color: dark ? '#94a3b8' : '#64748b', fontFamily: MONO, fontSize: 10 },
-        },
-      ],
-      series: [
-        ...MODA_KEYS.map((m) => ({
-          name: MODA[m].label,
-          type: 'line' as const,
-          stack: 'moda',
-          data: timeline.map((r) => r[m]),
-          smooth: true,
-          symbol: 'none',
-          lineStyle: { width: 1.5, color: MODA[m].color },
-          areaStyle: { color: MODA[m].color, opacity: dark ? 0.28 : 0.16 },
-          emphasis: { focus: 'series' as const },
-        })),
-        {
-          name: 'Total',
-          type: 'line' as const,
-          data: timeline.map((r) => r.TOTAL),
-          smooth: true,
-          symbol: 'none',
-          lineStyle: { width: 2.5, color: dark ? '#f8fafc' : '#0f172a' },
-          z: 10,
-          markArea: {
-            silent: true,
-            itemStyle: { color: dark ? 'rgba(217,119,6,.10)' : 'rgba(217,119,6,.08)' },
-            label: { color: '#d97706', fontFamily: FONT, fontSize: 11, fontWeight: 700 },
-            data: [[{ name: 'Lebaran 2026', xAxis: '2026-03-13' }, { xAxis: '2026-03-29' }]],
+      tooltip: { y: { formatter: (v: number) => fmtInt(v) } },
+      annotations: {
+        xaxis: [
+          {
+            x: '2026-03-13',
+            x2: '2026-03-29',
+            fillColor: '#d97706',
+            opacity: 0.08,
+            label: {
+              text: 'Lebaran 2026',
+              style: { color: '#d97706', fontWeight: 700 },
+            },
           },
-          markLine: {
-            silent: true,
-            symbol: 'none',
-            lineStyle: { color: '#dc2626', type: 'dashed' as const, width: 1.5 },
-            label: { color: '#dc2626', fontFamily: FONT, fontSize: 10.5, fontWeight: 700, formatter: 'Puncak {c}' },
-            data: [{ xAxis: meta.all_time_peak_date, value: fmtCompact(meta.all_time_peak_val) }],
+          {
+            x: meta.all_time_peak_date,
+            borderColor: '#dc2626',
+            strokeDashArray: 4,
+            label: {
+              text: 'Puncak',
+              style: { color: '#dc2626', fontWeight: 700 },
+            },
           },
-        },
-      ],
+        ],
+      },
     };
   }, [dark, timeline, meta]);
 
-  const donutOption = useMemo<EChartsCoreOption>(() => ({
-    animationDuration: 800,
-    tooltip: {
-      ...baseTooltip(dark),
-      trigger: 'item' as const,
-      valueFormatter: (v: unknown) => (typeof v === 'number' ? `${fmtNum(v)} pnp` : v),
-      // @ts-expect-error echarts percent passthrough
-      formatter: (p) => `${p.marker} <b>${p.name}</b><br/><span style="font-family:${MONO}">${fmtNum(p.value)} pnp • ${p.percent?.toFixed(1)}%</span>`,
-    },
-    legend: { ...legendStyle(dark), bottom: 0 },
-    series: [
-      {
-        type: 'pie',
-        radius: ['52%', '76%'],
-        center: ['50%', '44%'],
-        padAngle: 2,
-        itemStyle: { borderRadius: 8 },
-        label: {
-          color: dark ? '#cbd5e1' : '#475569',
-          fontFamily: MONO,
-          fontSize: 11,
-          formatter: '{d}%',
+  const donutSeries: ApexOptions['series'] = useMemo(
+    () => MODA_KEYS.map((m) => totalByModa[m]),
+    [totalByModa],
+  );
+
+  const donutOptions: ApexOptions = useMemo(
+    () => ({
+      labels: MODA_KEYS.map((m) => MODA[m].label),
+      colors: MODA_KEYS.map((m) => MODA[m].color),
+      legend: { position: 'bottom' },
+      plotOptions: {
+        pie: {
+          donut: {
+            size: '68%',
+            labels: {
+              show: true,
+              total: {
+                show: true,
+                label: 'Total',
+                formatter: () => fmtCompact(grandTotal),
+              },
+            },
+          },
         },
-        emphasis: { scale: true, scaleSize: 6 },
-        data: MODA_KEYS.map((m) => ({
-          name: MODA[m].label,
-          value: totalByModa[m],
-          itemStyle: { color: MODA[m].color },
-        })),
       },
-    ],
-  }), [dark, totalByModa]);
+      dataLabels: {
+        enabled: true,
+        formatter: (v: number) => `${v.toFixed(1)}%`,
+      },
+      tooltip: { y: { formatter: (v: number) => `${fmtInt(v)} pnp` } },
+    }),
+    [grandTotal],
+  );
 
   const spark = (m: (typeof MODA_KEYS)[number]) =>
     timeline.filter((_, i) => i % 4 === 0).map((r) => r[m] as number);
@@ -225,14 +203,14 @@ export default function Overview() {
           title="Arus Harian Penumpang per Moda"
           desc="Area bertumpuk 272 hari — seret untuk zoom, arahkan kursor untuk detail. Zona kuning menandai periode Lebaran 2026."
         />
-        <Chart option={areaOption} height={420} />
+        <Chart type="area" series={areaSeries} options={areaOptions} height={420} />
       </Card>
 
       {/* Share + moda cards */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
         <Card className="p-5 sm:p-6 xl:col-span-2">
           <SectionHeader eyebrow="Komposisi" title="Pangsa Pasar Moda" desc="Akumulasi Jan–Sep 2026" />
-          <Chart option={donutOption} height={300} />
+          <Chart type="donut" series={donutSeries} options={donutOptions} height={300} />
         </Card>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:col-span-3 xl:grid-cols-3">
           {MODA_KEYS.map((m) => {

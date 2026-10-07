@@ -1,17 +1,12 @@
 import { useMemo } from 'react';
-import * as echarts from 'echarts/core';
-import { GaugeChart } from 'echarts/charts';
 import { Plane, TrainFront, Bus, Ship, Anchor, Info, AlertTriangle } from 'lucide-react';
-import Chart, { baseTooltip, axisStyle, legendStyle, FONT, MONO } from '../components/Chart';
+import Chart, { FONT, MONO } from '../components/Chart';
 import { Card, SectionHeader, Badge } from '../components/ui';
 import { useDark } from '../components/theme';
 import { data, MODA_KEYS } from '../data';
 import { MODA } from '../lib/moda';
 import { fmtPct } from '../lib/format';
-import type { EChartsCoreOption } from 'echarts/core';
-import type { ModaKey } from '../data/types';
-
-echarts.use([GaugeChart]);
+import type { ApexOptions, ApexAxisChartSeries } from 'apexcharts';
 
 const MODA_ICONS = {
   UDARA: <Plane size={18} />,
@@ -30,110 +25,65 @@ export default function LoadFactorView() {
   const dark = useDark();
   const stats = data.load_factor_stats;
 
-  /* ---------- Gauge per moda (peak_lf, skala 0–300) ---------- */
-  const gauges = useMemo(() => {
-    const g = {} as Record<ModaKey, EChartsCoreOption>;
-    for (const m of MODA_KEYS) {
-      const v = stats[m].peak_lf;
-      const color = gaugeColor(v);
-      g[m] = {
-        animationDuration: 800,
-        series: [
+  /* ---------- Grouped bar: Normal / Mudik / Balik + ambang padat ---------- */
+  const barSeries = useMemo(
+    (): ApexAxisChartSeries => {
+      const f = (v: number) => Number(v.toFixed(1));
+      return [
+        { name: 'Normal', type: 'bar', data: MODA_KEYS.map((m) => f(stats[m].baseline_lf)) },
+        { name: 'Mudik', type: 'bar', data: MODA_KEYS.map((m) => f(stats[m].mudik_lf)) },
+        { name: 'Balik', type: 'bar', data: MODA_KEYS.map((m) => f(stats[m].balik_lf)) },
+      ];
+    },
+    [stats],
+  );
+
+  const barOptions = useMemo<ApexOptions>(
+    () => ({
+      colors: [dark ? '#64748b' : '#94a3b8', '#d97706', '#dc2626'],
+      stroke: { width: 0 },
+      legend: { position: 'top', horizontalAlign: 'left' },
+      plotOptions: { bar: { horizontal: false, borderRadius: 6, columnWidth: '55%' } },
+      xaxis: { categories: MODA_KEYS.map((m) => MODA[m].short) },
+      yaxis: {
+        title: {
+          text: 'pnp / trip',
+          style: {
+            fontFamily: FONT,
+            fontSize: '11px',
+            fontWeight: 600,
+            color: dark ? '#94a3b8' : '#64748b',
+          },
+        },
+      },
+      annotations: {
+        yaxis: [
           {
-            type: 'gauge',
-            min: 0,
-            max: 300,
-            radius: '100%',
-            center: ['50%', '62%'],
-            startAngle: 180,
-            endAngle: 0,
-            progress: { show: true, width: 14, roundCap: true, itemStyle: { color } },
-            axisLine: { lineStyle: { width: 14, color: [[1, dark ? '#1e293b' : '#e2e8f0']] } },
-            axisTick: { show: false },
-            splitLine: { show: false },
-            axisLabel: { show: false },
-            pointer: { show: false },
-            anchor: { show: false },
-            title: { show: false },
-            detail: {
-              valueAnimation: true,
-              offsetCenter: [0, '-8%'],
-              formatter: (val: number) => val.toFixed(1),
-              fontFamily: MONO,
-              fontSize: 26,
-              fontWeight: 800,
-              color,
+            y: 100,
+            borderColor: '#7c3aed',
+            strokeDashArray: 4,
+            label: {
+              text: 'Ambang padat (100)',
+              style: {
+                color: '#fff',
+                background: '#7c3aed',
+                fontFamily: FONT,
+                fontSize: '11px',
+                fontWeight: 700,
+              },
             },
-            data: [{ value: v }],
           },
         ],
-      };
-    }
-    return g;
-  }, [dark, stats]);
-
-  /* ---------- Grouped bar: Normal / Mudik / Balik + ambang padat ---------- */
-  const barOption = useMemo<EChartsCoreOption>(() => {
-    const f = (v: number) => Number(v.toFixed(1));
-    return {
-      animationDuration: 900,
+      },
       tooltip: {
-        ...baseTooltip(dark),
-        valueFormatter: (v: unknown) =>
-          typeof v === 'number' ? `${v.toLocaleString('id-ID', { maximumFractionDigits: 1 })} pnp/trip` : v,
-      },
-      legend: { ...legendStyle(dark), top: 0 },
-      grid: { left: 8, right: 12, top: 44, bottom: 8, containLabel: true },
-      xAxis: {
-        type: 'category',
-        data: MODA_KEYS.map((m) => MODA[m].short),
-        ...axisStyle(dark),
-      },
-      yAxis: {
-        type: 'value',
-        name: 'pnp / trip',
-        nameTextStyle: { color: dark ? '#94a3b8' : '#64748b', fontFamily: FONT, fontSize: 11 },
-        ...axisStyle(dark),
-      },
-      series: [
-        {
-          name: 'Normal',
-          type: 'bar' as const,
-          data: MODA_KEYS.map((m) => f(stats[m].baseline_lf)),
-          itemStyle: { color: dark ? '#64748b' : '#94a3b8', borderRadius: [6, 6, 0, 0] },
-          barWidth: 20,
+        y: {
+          formatter: (v: number) =>
+            `${v.toLocaleString('id-ID', { maximumFractionDigits: 1 })} pnp/trip`,
         },
-        {
-          name: 'Mudik',
-          type: 'bar' as const,
-          data: MODA_KEYS.map((m) => f(stats[m].mudik_lf)),
-          itemStyle: { color: '#d97706', borderRadius: [6, 6, 0, 0] },
-          barWidth: 20,
-        },
-        {
-          name: 'Balik',
-          type: 'bar' as const,
-          data: MODA_KEYS.map((m) => f(stats[m].balik_lf)),
-          itemStyle: { color: '#dc2626', borderRadius: [6, 6, 0, 0] },
-          barWidth: 20,
-          markLine: {
-            silent: true,
-            symbol: 'none',
-            lineStyle: { color: '#7c3aed', type: 'dashed' as const, width: 1.5 },
-            label: {
-              color: '#7c3aed',
-              fontFamily: FONT,
-              fontSize: 11,
-              fontWeight: 700,
-              position: 'insideEndTop' as const,
-              formatter: 'Ambang padat (100)',
-            },
-            data: [{ yAxis: 100 }],
-          },
-        },
-      ],
-    };
-  }, [dark, stats]);
+      },
+    }),
+    [dark, stats],
+  );
 
   const asdp = stats.ASDP;
 
@@ -167,6 +117,7 @@ export default function LoadFactorView() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {MODA_KEYS.map((m) => {
           const s = stats[m];
+          const color = gaugeColor(s.peak_lf);
           const surgeColor = s.surge_lf_pct >= 100 ? '#dc2626' : s.surge_lf_pct >= 50 ? '#ea580c' : '#16a34a';
           const rows: Array<[string, number]> = [
             ['Normal', s.baseline_lf],
@@ -191,7 +142,36 @@ export default function LoadFactorView() {
                   </p>
                 </div>
               </div>
-              <Chart option={gauges[m]} height={150} />
+              <Chart
+                type="radialBar"
+                height={150}
+                series={[Math.min(100, (s.peak_lf / 300) * 100)]}
+                options={{
+                  colors: [color],
+                  chart: { toolbar: { show: false } },
+                  plotOptions: {
+                    radialBar: {
+                      startAngle: -90,
+                      endAngle: 90,
+                      hollow: { size: '62%' },
+                      track: { background: dark ? '#1e293b' : '#e2e8f0' },
+                      dataLabels: {
+                        name: { show: false },
+                        value: {
+                          fontFamily: MONO,
+                          fontSize: '20px',
+                          fontWeight: 700,
+                          color: dark ? '#f1f5f9' : '#0f172a',
+                          formatter: () => s.peak_lf.toFixed(1),
+                        },
+                      },
+                    },
+                  },
+                  stroke: { lineCap: 'round' },
+                  tooltip: { enabled: false },
+                  legend: { show: false },
+                }}
+              />
               <div className="mt-1 space-y-1.5">
                 {rows.map(([label, v]) => (
                   <div key={label} className="flex items-center justify-between text-[12.5px]">
@@ -217,7 +197,7 @@ export default function LoadFactorView() {
           title="Normal vs Mudik vs Balik per Moda"
           desc="Tiga bar per moda dalam satuan penumpang per trip armada. Garis putus-putus ungu = ambang padat 100 pnp/trip."
         />
-        <Chart option={barOption} height={400} />
+        <Chart type="bar" series={barSeries} options={barOptions} height={400} />
       </Card>
 
       {/* Sorotan ASDP */}

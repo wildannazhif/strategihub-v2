@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
 import { TrendingDown, TrendingUp } from 'lucide-react';
-import Chart, { baseTooltip, axisStyle, legendStyle, FONT, MONO } from '../components/Chart';
+import Chart, { FONT, MONO } from '../components/Chart';
 import { Card, SectionHeader, Segmented } from '../components/ui';
 import { useDark } from '../components/theme';
 import { data, MODA_KEYS } from '../data';
 import { MODA } from '../lib/moda';
 import { fmtCompact } from '../lib/format';
-import type { EChartsCoreOption } from 'echarts/core';
+import type { ApexOptions, ApexAxisChartSeries } from 'apexcharts';
 import type { ModaKey } from '../data/types';
 
 type Mode = 'donat' | 'tren' | 'banding';
@@ -36,198 +36,208 @@ export default function ModalShareView() {
   );
   const maxRank = Math.max(...ranking.map((r) => r.value));
 
-  const donutOption = useMemo<EChartsCoreOption>(
+  const donutSeries = useMemo(() => MODA_KEYS.map((m) => row[m] as number), [row]);
+
+  const donutOptions = useMemo<ApexOptions>(
     () => ({
-      animationDuration: 800,
-      tooltip: {
-        ...baseTooltip(dark),
-        trigger: 'item' as const,
-        // @ts-expect-error echarts percent passthrough
-        formatter: (p) =>
-          `${p.marker} <b>${p.name}</b><br/><span style="font-family:${MONO}">${fmtCompact(p.value)} pnp • ${p.percent?.toFixed(1)}%</span>`,
-      },
-      legend: { ...legendStyle(dark), bottom: 0 },
-      title: {
-        text: fmtCompact(row.TOTAL),
-        subtext: `${row.label} 2026 • penumpang`,
-        left: 'center',
-        top: '36%',
-        itemGap: 4,
-        textStyle: {
-          fontFamily: MONO,
-          fontSize: 24,
-          fontWeight: 800,
-          color: dark ? '#f1f5f9' : '#0f172a',
-        },
-        subtextStyle: {
-          fontFamily: FONT,
-          fontSize: 11.5,
-          color: dark ? '#94a3b8' : '#64748b',
-        },
-      },
-      series: [
-        {
-          type: 'pie',
-          radius: ['54%', '78%'],
-          center: ['50%', '44%'],
-          padAngle: 2,
-          itemStyle: { borderRadius: 8 },
-          label: {
-            color: dark ? '#cbd5e1' : '#475569',
-            fontFamily: MONO,
-            fontSize: 11,
-            formatter: '{d}%',
+      labels: MODA_KEYS.map((m) => MODA[m].label),
+      colors: MODA_KEYS.map((m) => MODA[m].color),
+      legend: { position: 'bottom' },
+      stroke: { width: 2, colors: [dark ? '#0f172a' : '#ffffff'] },
+      plotOptions: {
+        pie: {
+          donut: {
+            size: '68%',
+            labels: {
+              show: true,
+              name: { fontFamily: FONT, fontSize: '12px', fontWeight: 600 },
+              value: {
+                fontFamily: MONO,
+                fontSize: '22px',
+                fontWeight: 800,
+                color: dark ? '#f1f5f9' : '#0f172a',
+              },
+              total: {
+                show: true,
+                label: `${row.label} 2026`,
+                fontSize: '13px',
+                fontWeight: 700,
+                color: dark ? '#94a3b8' : '#64748b',
+                formatter: () => fmtCompact(row.TOTAL),
+              },
+            },
           },
-          emphasis: { scale: true, scaleSize: 6 },
-          data: MODA_KEYS.map((m) => ({
-            name: MODA[m].label,
-            value: row[m] as number,
-            itemStyle: { color: MODA[m].color },
-          })),
         },
-      ],
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: (_v: number, opts: any) =>
+          fmtShare(row[`share_${MODA_KEYS[opts.seriesIndex]}`] as number),
+        style: { fontFamily: MONO, fontSize: '11px', fontWeight: 700 },
+      },
+      tooltip: {
+        y: {
+          formatter: (v: number, opts: any) =>
+            `${fmtCompact(v)} pnp • ${fmtShare(row[`share_${MODA_KEYS[opts.seriesIndex]}`] as number)}`,
+          title: { formatter: (name: string) => name },
+        },
+      },
     }),
     [dark, row],
   );
 
   /* ---------- Tren: stacked bar 100% + line total ---------- */
-  const trenOption = useMemo<EChartsCoreOption>(() => {
+  const trenSeries = useMemo(
+    (): ApexAxisChartSeries => [
+      ...MODA_KEYS.map((m) => ({
+        name: MODA[m].short,
+        type: 'bar' as const,
+        data: monthly.map((r) => Number(((r[`share_${m}`] as number) ?? 0).toFixed(1))),
+      })),
+      {
+        name: 'Total (jt)',
+        type: 'line' as const,
+        data: monthly.map((r) => Number((r.TOTAL / 1e6).toFixed(1))),
+      },
+    ],
+    [monthly],
+  );
+
+  const trenOptions = useMemo<ApexOptions>(() => {
     const months = monthly.map((r) => r.label.slice(0, 3));
     const lebaran =
       monthly.find((r) => r.label.toLowerCase().startsWith('mar'))?.label.slice(0, 3) ?? 'Mar';
+    const fg = dark ? '#f1f5f9' : '#0f172a';
+    const fgSoft = dark ? '#cbd5e1' : '#475569';
     return {
-      animationDuration: 900,
-      tooltip: {
-        ...baseTooltip(dark),
-        formatter: (ps: any) => {
-          const list = ps as Array<{ seriesName: string; value: number; marker: string; dataIndex: number }>;
-          const r = monthly[list[0].dataIndex];
-          let html = `<b style="font-family:${FONT}">${r.label} 2026</b><br/>`;
-          for (const p of list) {
-            if (p.seriesName === 'Total (jt)') {
-              html += `${p.marker} ${p.seriesName}: <b style="font-family:${MONO}">${fmtCompact(r.TOTAL)} pnp</b><br/>`;
-            } else {
-              html += `${p.marker} ${p.seriesName}: <b style="font-family:${MONO}">${Number(p.value).toFixed(1)}%</b><br/>`;
-            }
-          }
-          return html;
-        },
-      },
-      legend: { ...legendStyle(dark), top: 0 },
-      grid: { left: 8, right: 8, top: 44, bottom: 8, containLabel: true },
-      xAxis: { type: 'category', data: months, ...axisStyle(dark) },
-      yAxis: [
-        {
-          type: 'value',
-          max: 100,
-          ...axisStyle(dark),
-          axisLabel: { ...axisStyle(dark).axisLabel, formatter: '{value}%' },
-        },
-        {
-          type: 'value',
-          ...axisStyle(dark),
-          splitLine: { show: false },
-          axisLabel: { ...axisStyle(dark).axisLabel, formatter: '{value} jt' },
-        },
-      ],
-      series: [
+      chart: { stacked: true, stackType: '100%' },
+      colors: [...MODA_KEYS.map((m) => MODA[m].color), dark ? '#f8fafc' : '#0f172a'],
+      stroke: { width: [0, 0, 0, 0, 0, 2.5] },
+      legend: { position: 'top', horizontalAlign: 'left' },
+      plotOptions: { bar: { horizontal: false, columnWidth: '58%' } },
+      xaxis: { categories: months },
+      yaxis: [
         ...MODA_KEYS.map((m) => ({
-          name: MODA[m].short,
-          type: 'bar' as const,
-          stack: 'share',
-          data: monthly.map((r) => Number(((r[`share_${m}`] as number) ?? 0).toFixed(1))),
-          itemStyle: { color: MODA[m].color },
-          barWidth: '58%',
-          emphasis: { focus: 'series' as const },
+          seriesName: MODA[m].short,
+          max: 100,
+          labels: { formatter: (v: number) => `${Math.round(v)}%` },
         })),
         {
-          name: 'Total (jt)',
-          type: 'line' as const,
-          yAxisIndex: 1,
-          data: monthly.map((r) => Number((r.TOTAL / 1e6).toFixed(1))),
-          smooth: true,
-          symbol: 'circle',
-          symbolSize: 6,
-          lineStyle: { width: 2.5, color: dark ? '#f8fafc' : '#0f172a' },
-          itemStyle: { color: dark ? '#f8fafc' : '#0f172a' },
-          z: 10,
-          markLine: {
-            silent: true,
-            symbol: 'none',
-            lineStyle: { color: '#d97706', type: 'dashed' as const, width: 1.5 },
-            label: {
-              color: '#d97706',
-              fontFamily: FONT,
-              fontSize: 11,
-              fontWeight: 700,
-              formatter: 'Lebaran',
-            },
-            data: [{ xAxis: lebaran }],
-          },
+          seriesName: 'Total (jt)',
+          opposite: true,
+          labels: { formatter: (v: number) => `${v} jt` },
         },
       ],
+      annotations: {
+        xaxis: [
+          {
+            x: lebaran,
+            borderColor: '#d97706',
+            strokeDashArray: 4,
+            label: {
+              text: 'Lebaran',
+              style: {
+                color: '#fff',
+                background: '#d97706',
+                fontFamily: FONT,
+                fontSize: '11px',
+                fontWeight: 700,
+              },
+            },
+          },
+        ],
+      },
+      tooltip: {
+        shared: true,
+        custom: (opts: any) => {
+          const r = monthly[opts.dataPointIndex];
+          const rows = MODA_KEYS.map((m) => {
+            const v = Number((((r[`share_${m}`] as number) ?? 0)).toFixed(1));
+            return (
+              `<div style="display:flex;align-items:center;gap:8px;margin-top:3px">` +
+              `<span style="width:8px;height:8px;border-radius:50%;background:${MODA[m].color};flex-shrink:0"></span>` +
+              `<span style="color:${fgSoft}">${MODA[m].short}</span>` +
+              `<span style="margin-left:auto;font-family:${MONO};font-weight:700;color:${fg}">${v.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%</span>` +
+              `</div>`
+            );
+          }).join('');
+          return (
+            `<div style="padding:10px 12px;min-width:190px">` +
+            `<div style="font-weight:800;margin-bottom:5px;color:${fg};font-family:${FONT}">${r.label} 2026</div>` +
+            rows +
+            `<div style="display:flex;align-items:center;gap:8px;margin-top:7px;padding-top:7px;border-top:1px solid ${dark ? '#1e293b' : '#e2e8f0'}">` +
+            `<span style="width:8px;height:8px;border-radius:50%;background:${dark ? '#f8fafc' : '#0f172a'};flex-shrink:0"></span>` +
+            `<span style="color:${fgSoft}">Total</span>` +
+            `<span style="margin-left:auto;font-family:${MONO};font-weight:700;color:${fg}">${fmtCompact(r.TOTAL)} pnp</span>` +
+            `</div></div>`
+          );
+        },
+      },
     };
   }, [dark, monthly]);
 
   /* ---------- Perbandingan: Jan vs Sep ---------- */
-  const bandingOption = useMemo<EChartsCoreOption>(() => {
-    const jan = monthly[0];
-    const sep = monthly[monthly.length - 1];
-    const dMap: Record<ModaKey, number> = {} as Record<ModaKey, number>;
-    for (const m of MODA_KEYS) dMap[m] = (sep[`share_${m}`] as number) - (jan[`share_${m}`] as number);
-    return {
-      animationDuration: 800,
-      tooltip: {
-        ...baseTooltip(dark),
-        valueFormatter: (v: unknown) => (typeof v === 'number' ? `${v.toFixed(1)}%` : v),
-      },
-      legend: { ...legendStyle(dark), top: 0 },
-      grid: { left: 8, right: 96, top: 40, bottom: 8, containLabel: true },
-      xAxis: {
-        type: 'value',
-        max: 40,
-        ...axisStyle(dark),
-        axisLabel: { ...axisStyle(dark).axisLabel, formatter: '{value}%' },
-      },
-      yAxis: {
-        type: 'category',
-        inverse: true,
-        data: MODA_KEYS.map((m) => MODA[m].label),
-        ...axisStyle(dark),
-        axisLabel: {
-          ...axisStyle(dark).axisLabel,
-          fontFamily: FONT,
-          fontSize: 12,
-          color: dark ? '#e2e8f0' : '#0f172a',
-        },
-      },
-      series: [
+  const bandingSeries = useMemo(
+    (): ApexAxisChartSeries => {
+      const jan = monthly[0];
+      const sep = monthly[monthly.length - 1];
+      return [
         {
           name: jan.label,
-          type: 'bar' as const,
+          type: 'bar',
           data: MODA_KEYS.map((m) => Number(((jan[`share_${m}`] as number) ?? 0).toFixed(1))),
-          itemStyle: { color: dark ? '#475569' : '#cbd5e1', borderRadius: [0, 6, 6, 0] },
-          barWidth: 14,
         },
         {
           name: sep.label,
-          type: 'bar' as const,
+          type: 'bar',
           data: MODA_KEYS.map((m) => ({
-            value: Number(((sep[`share_${m}`] as number) ?? 0).toFixed(1)),
-            itemStyle: { color: MODA[m].color, borderRadius: [0, 6, 6, 0] },
+            y: Number(((sep[`share_${m}`] as number) ?? 0).toFixed(1)),
+            fillColor: MODA[m].color,
           })),
-          barWidth: 14,
-          label: {
-            show: true,
-            position: 'right' as const,
-            fontFamily: MONO,
-            fontSize: 11,
-            fontWeight: 700,
-            color: dark ? '#cbd5e1' : '#475569',
-            formatter: (p: any) => fmtPp(dMap[MODA_KEYS[p.dataIndex]]),
-          },
         },
-      ],
+      ];
+    },
+    [monthly],
+  );
+
+  const bandingOptions = useMemo<ApexOptions>(() => {
+    const jan = monthly[0];
+    const sep = monthly[monthly.length - 1];
+    const dMap = {} as Record<ModaKey, number>;
+    for (const m of MODA_KEYS) dMap[m] = (sep[`share_${m}`] as number) - (jan[`share_${m}`] as number);
+    return {
+      colors: [dark ? '#475569' : '#cbd5e1', '#94a3b8'],
+      stroke: { width: 0 },
+      legend: { position: 'top', horizontalAlign: 'left' },
+      plotOptions: {
+        bar: {
+          horizontal: true,
+          borderRadius: 6,
+          barHeight: '55%',
+          dataLabels: { position: 'top' },
+        },
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: (_v: number, opts: any) =>
+          opts.seriesIndex === 1 ? fmtPp(dMap[MODA_KEYS[opts.dataPointIndex]]) : '',
+        style: {
+          fontFamily: MONO,
+          fontSize: '11px',
+          fontWeight: 700,
+          colors: [dark ? '#cbd5e1' : '#475569'],
+        },
+        offsetX: 10,
+      },
+      xaxis: { categories: MODA_KEYS.map((m) => MODA[m].label) },
+      yaxis: {
+        max: 40,
+        labels: { formatter: (v: number) => `${v}%` },
+      },
+      grid: { padding: { right: 64 } },
+      tooltip: {
+        y: { formatter: (v: number) => `${v.toFixed(1)}%` },
+      },
     };
   }, [dark, monthly]);
 
@@ -281,7 +291,7 @@ export default function ModalShareView() {
                 </button>
               ))}
             </div>
-            <Chart option={donutOption} height={330} />
+            <Chart type="donut" series={donutSeries} options={donutOptions} height={330} />
           </Card>
           <Card className="p-5 sm:p-6 xl:col-span-2">
             <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-kemenhub-600 dark:text-kemenhub-300">
@@ -323,7 +333,7 @@ export default function ModalShareView() {
             title="Pergeseran Preferensi Moda"
             desc="Stacked bar 100% per bulan (sumbu kiri) + garis total penumpang dalam juta (sumbu kanan). Garis putus-putus menandai Maret — bulan Lebaran 2026."
           />
-          <Chart option={trenOption} height={430} />
+          <Chart type="bar" series={trenSeries} options={trenOptions} height={430} />
         </Card>
       )}
 
@@ -334,7 +344,7 @@ export default function ModalShareView() {
             title={`${monthly[0].label} vs ${monthly[monthly.length - 1].label} 2026`}
             desc="Share tiap moda di awal vs akhir periode. Angka di kanan bar menunjukkan perubahan dalam poin persentase (pp)."
           />
-          <Chart option={bandingOption} height={380} />
+          <Chart type="bar" series={bandingSeries} options={bandingOptions} height={380} />
         </Card>
       )}
 
