@@ -7,12 +7,35 @@ export function Card({ children, className }: { children: ReactNode; className?:
   return (
     <div
       className={clsx(
-        'rounded-lg border border-slate-200 bg-white',
-        'dark:border-slate-800 dark:bg-slate-900',
+        'rounded-xl border border-slate-200/90 bg-white shadow-[0_1px_3px_rgb(15_23_42/0.05)]',
+        'dark:border-slate-800 dark:bg-slate-900 dark:shadow-none',
         className,
       )}
     >
       {children}
+    </div>
+  );
+}
+
+/* ---------- Card header: ikon kecil + judul tebal (gaya referensi) ---------- */
+export function CardHeader({
+  icon,
+  title,
+  action,
+  className,
+}: {
+  icon?: ReactNode;
+  title: string;
+  action?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={clsx('mb-3 flex items-center justify-between gap-2', className)}>
+      <h3 className="flex items-center gap-2 text-[14px] font-bold tracking-tight text-slate-800 dark:text-slate-100">
+        {icon && <span className="text-slate-400 dark:text-slate-500">{icon}</span>}
+        {title}
+      </h3>
+      {action}
     </div>
   );
 }
@@ -70,32 +93,30 @@ export function KpiCard({
   const positive = delta != null && delta > 0;
   const negative = delta != null && delta < 0;
   return (
-    <Card className={clsx('relative overflow-hidden p-4 animate-fade-up', className)}>
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-1"
-        style={{ background: `linear-gradient(90deg, ${accent}, transparent)` }}
-      />
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</p>
+    <Card className={clsx('p-4 animate-fade-up sm:p-5', className)}>
+      <div className="flex items-center gap-3.5">
         {icon && (
           <span
-            className="grid size-8 shrink-0 place-items-center rounded-lg"
+            className="grid size-11 shrink-0 place-items-center rounded-full"
             style={{ background: `${accent}1a`, color: accent }}
           >
             {icon}
           </span>
         )}
+        <div className="min-w-0">
+          <p className="truncate text-[12.5px] font-medium text-slate-500 dark:text-slate-400">{label}</p>
+          <p className="num mt-0.5 text-[26px] font-extrabold leading-none tracking-tight text-slate-900 dark:text-white">
+            {value}
+          </p>
+        </div>
       </div>
-      <p className="num mt-1.5 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-        {value}
-      </p>
-      <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+      <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1">
         {delta != null && (
           <span
             className={clsx(
-              'num inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold',
-              positive && 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-              negative && 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
+              'num inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-bold',
+              positive && 'bg-emerald-500/12 text-emerald-600 dark:text-emerald-400',
+              negative && 'bg-rose-500/12 text-rose-600 dark:text-rose-400',
               !positive && !negative && 'bg-slate-500/10 text-slate-500',
             )}
           >
@@ -104,7 +125,7 @@ export function KpiCard({
             {delta.toLocaleString('id-ID', { maximumFractionDigits: 1 })}%
           </span>
         )}
-        {deltaLabel && <span className="text-[11.5px] text-slate-400">{deltaLabel}</span>}
+        {deltaLabel && <span className="text-[11.5px] text-slate-400">vs. {deltaLabel}</span>}
         {sub && !deltaLabel && <span className="text-[11.5px] text-slate-400">{sub}</span>}
       </div>
       {sub && deltaLabel && <p className="mt-1 text-[11.5px] text-slate-400">{sub}</p>}
