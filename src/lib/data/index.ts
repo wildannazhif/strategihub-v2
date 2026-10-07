@@ -1,4 +1,4 @@
-import type { DashboardData } from '../../data/types';
+import type { DashboardData } from './types';
 
 /**
  * Data dimuat dari chunk JSON kecil (src/data/chunks/*.json) agar tiap file
@@ -37,4 +37,4 @@ for (const path of Object.keys(modules).sort()) {
 
 export const data = merged as unknown as DashboardData;
 export type { DashboardData };
-export * from '../../data/types';
+export * from './types';

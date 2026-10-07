@@ -124,7 +124,7 @@
       offsetX: 8,
       style: { fontFamily: MONO, fontSize: '11px', fontWeight: 700, colors: ['#a7b3c7'] },
     },
-    xaxis: { categories: top5.map((s) => s.name) },
+    xaxis: { categories: top5.map((s) => s.name), max: Math.max(...top5.map((s) => s.pnpPuncak)) * 1.22 },
     yaxis: {
       labels: {
         style: { fontFamily: FONT, colors: '#a7b3c7' },

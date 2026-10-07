@@ -1,4 +1,4 @@
-import type { ModaKey } from './data/types';
+import type { ModaKey } from '../data/types';
 
 export interface ModaMeta {
   key: ModaKey;
