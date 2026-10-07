@@ -3,13 +3,13 @@ import {
   Users, TrendingUp, Bus, Star, CalendarDays, Flame,
   Cpu, Database, CalendarClock, Timer, SlidersHorizontal, Activity, Info,
 } from 'lucide-react';
-import Chart, { baseTooltip, axisStyle, legendStyle, FONT, MONO, fmtNum } from '../components/Chart';
+import type { ApexOptions } from 'apexcharts';
+import Chart, { FONT, MONO } from '../components/Chart';
 import { Card, SectionHeader, KpiCard, Badge, Segmented } from '../components/ui';
 import { useDark } from '../components/theme';
 import { data, MODA_KEYS } from '../data';
 import { MODA } from '../lib/moda';
 import { fmtCompact, fmtInt, fmtPct, fmtDate } from '../lib/format';
-import type { EChartsCoreOption } from 'echarts/core';
 import type { ForecastPoint } from '../data/types';
 
 type ScenarioKey = 'moderat' | 'optimis' | 'konservatif';
@@ -49,6 +49,9 @@ interface ModeBreakdown {
   share_pct_2026: number;
 }
 
+const fmtDay = (v: string | number) =>
+  typeof v === 'string' ? v.slice(5).replace('-', '/') : String(v);
+
 export default function ForecastView() {
   const dark = useDark();
   const [scen, setScen] = useState<ScenarioKey>('moderat');
@@ -85,198 +88,120 @@ export default function ForecastView() {
   const params = meta.parameters ?? {};
 
   /* ---------- Grafik utama: proyeksi + CI + benchmark ---------- */
-  const mainOption = useMemo<EChartsCoreOption>(() => {
-    const dates = pts.map((p) => p.date);
-    const ciColor = dark ? 'rgba(26,82,135,.28)' : 'rgba(26,82,135,.14)';
+  const mainSeries = useMemo<ApexOptions['series']>(
+    () => [
+      { name: 'Proyeksi 2026/2027', type: 'line', data: pts.map((p) => p.TOTAL) },
+      {
+        name: 'Interval 95%',
+        type: 'rangeArea',
+        data: pts.map((p) => ({ x: p.date, y: [p.ci_lower, p.ci_upper] })),
+      },
+      { name: 'Aktual 2025', type: 'line', data: pts.map((p) => p.pnp_2025) },
+    ],
+    [pts],
+  );
+
+  const mainOptions = useMemo<ApexOptions>(() => {
+    const zoneFill = dark ? 0.1 : 0.07;
     return {
-      animationDuration: 900,
+      colors: ['#1a5287', '#94a3b8', '#94a3b8'],
+      stroke: { width: [2.5, 0, 2], dashArray: [0, 0, 6], curve: 'smooth' },
+      fill: { opacity: [1, 0.22, 1], type: ['solid', 'solid', 'solid'] },
+      markers: { size: [0, 0, 0] },
+      xaxis: {
+        categories: pts.map((p) => p.date),
+        tickAmount: 10,
+        labels: { formatter: fmtDay },
+      },
       tooltip: {
-        ...baseTooltip(dark),
-        formatter: (ps: unknown) => {
-          const items = ps as Array<{ dataIndex: number }>;
-          const i = items[0]?.dataIndex ?? 0;
-          const p = pts[i];
-          if (!p) return '';
-          const yoyC = p.yoy_pct >= 0 ? '#16a34a' : '#dc2626';
-          return (
-            `<div style="font-family:${FONT}">` +
-            `<div style="font-weight:800;margin-bottom:6px">${fmtDate(p.date)}</div>` +
-            `<div style="margin:2px 0"><span style="color:#1a5287">\u25CF</span> Proyeksi ` +
-            `<b style="font-family:${MONO}">${fmtNum(p.TOTAL)}</b> pnp</div>` +
-            `<div style="margin:2px 0;color:#64748b">CI 95%: ` +
-            `<span style="font-family:${MONO}">${fmtNum(p.ci_lower)} \u2013 ${fmtNum(p.ci_upper)}</span></div>` +
-            `<div style="margin:2px 0;color:#64748b">Aktual 2025: ` +
-            `<span style="font-family:${MONO}">${fmtNum(p.pnp_2025)}</span></div>` +
-            `<div style="margin:2px 0">YoY: <b style="color:${yoyC}">${fmtPct(p.yoy_pct)}</b></div></div>`
-          );
+        shared: true,
+        x: {
+          formatter: (v: string | number) => (typeof v === 'string' ? fmtDate(v) : String(v)),
         },
-      },
-      legend: { ...legendStyle(dark), top: 0, data: ['Proyeksi 2026/2027', 'Aktual 2025'] },
-      grid: { left: 8, right: 12, top: 44, bottom: 8, containLabel: true },
-      xAxis: {
-        type: 'category',
-        data: dates,
-        ...axisStyle(dark),
-        axisLabel: {
-          ...axisStyle(dark).axisLabel,
-          formatter: (v: string) => v.slice(5).replace('-', '/'),
-          interval: 9,
-        },
-      },
-      yAxis: {
-        type: 'value',
-        ...axisStyle(dark),
-        axisLabel: {
-          ...axisStyle(dark).axisLabel,
-          formatter: (v: number) =>
-            v >= 1e6
-              ? `${(v / 1e6).toLocaleString('id-ID', { maximumFractionDigits: 1 })} jt`
-              : `${Math.round(v / 1e3)} rb`,
-        },
-      },
-      dataZoom: [
-        { type: 'inside', xAxisIndex: 0, filterMode: 'none' },
-        {
-          type: 'slider', height: 22, bottom: 0,
-          borderColor: 'transparent',
-          backgroundColor: dark ? '#1e293b' : '#f1f5f9',
-          fillerColor: dark ? 'rgba(26,82,135,.35)' : 'rgba(26,82,135,.18)',
-          handleStyle: { color: '#1a5287' },
-          textStyle: { color: dark ? '#94a3b8' : '#64748b', fontFamily: MONO, fontSize: 10 },
-        },
-      ],
-      series: [
-        {
-          name: 'Batas bawah CI',
-          type: 'line',
-          stack: 'ci',
-          data: pts.map((p) => p.ci_lower),
-          symbol: 'none',
-          silent: true,
-          lineStyle: { opacity: 0 },
-          z: 1,
-        },
-        {
-          name: 'Rentang CI 95%',
-          type: 'line',
-          stack: 'ci',
-          data: pts.map((p) => Math.max(0, p.ci_upper - p.ci_lower)),
-          symbol: 'none',
-          silent: true,
-          lineStyle: { opacity: 0 },
-          areaStyle: { color: ciColor },
-          z: 1,
-        },
-        {
-          name: 'Aktual 2025',
-          type: 'line',
-          data: pts.map((p) => p.pnp_2025),
-          symbol: 'none',
-          lineStyle: { width: 1.5, type: 'dashed' as const, color: dark ? '#64748b' : '#94a3b8' },
-          z: 5,
-        },
-        {
-          name: 'Proyeksi 2026/2027',
-          type: 'line',
-          data: pts.map((p) => p.TOTAL),
-          smooth: true,
-          symbol: 'none',
-          lineStyle: { width: 2.5, color: '#1a5287' },
-          z: 10,
-          markArea: {
-            silent: true,
-            itemStyle: { color: dark ? 'rgba(220,38,38,.09)' : 'rgba(220,38,38,.07)' },
-            label: { color: '#dc2626', fontFamily: FONT, fontSize: 10.5, fontWeight: 700 },
-            data: [
-              [{ name: 'Natal', xAxis: '2026-12-24' }, { xAxis: '2026-12-26' }],
-              [{ name: 'Tahun Baru', xAxis: '2026-12-31' }, { xAxis: '2027-01-01' }],
-            ],
+        y: [
+          { formatter: (v: number) => `${fmtInt(v)} pnp` },
+          {
+            formatter: (v: number | number[]) =>
+              Array.isArray(v) ? `CI: ${fmtInt(v[0])} – ${fmtInt(v[1])}` : fmtInt(v),
           },
-          markPoint: {
-            symbol: 'pin',
-            symbolSize: 46,
-            itemStyle: { color: '#dc2626' },
+          { formatter: (v: number) => `${fmtInt(v)} pnp` },
+        ],
+      },
+      annotations: {
+        xaxis: [
+          {
+            x: '2026-12-24',
+            x2: '2026-12-26',
+            fillColor: '#dc2626',
+            opacity: zoneFill,
             label: {
-              color: '#fff',
-              fontFamily: MONO,
-              fontSize: 9,
-              formatter: () => fmtCompact(peak.TOTAL),
+              text: 'Natal',
+              style: { color: '#dc2626', fontFamily: FONT, fontSize: '11px', fontWeight: 700 },
             },
-            data: [{ coord: [peak.date, peak.TOTAL], name: 'Puncak' }],
           },
-        },
-      ],
+          {
+            x: '2026-12-31',
+            x2: '2027-01-01',
+            fillColor: '#dc2626',
+            opacity: zoneFill,
+            label: {
+              text: 'Tahun Baru',
+              style: { color: '#dc2626', fontFamily: FONT, fontSize: '11px', fontWeight: 700 },
+            },
+          },
+        ],
+        points: [
+          {
+            x: peak.date,
+            y: peak.TOTAL,
+            marker: { size: 5, fillColor: '#dc2626', strokeColor: '#fff', strokeWidth: 2 },
+            label: {
+              text: fmtCompact(peak.TOTAL),
+              borderColor: '#dc2626',
+              style: {
+                color: '#fff',
+                background: '#dc2626',
+                fontFamily: MONO,
+                fontSize: '10px',
+                fontWeight: 700,
+              },
+            },
+          },
+        ],
+      },
     };
   }, [dark, pts, peak]);
 
   /* ---------- Grafik YoY harian ---------- */
-  const yoyOption = useMemo<EChartsCoreOption>(() => {
-    const up = '#16a34a';
-    const down = '#dc2626';
-    return {
-      animationDuration: 800,
+  const yoySeries = useMemo<ApexOptions['series']>(
+    () => [{ name: 'YoY harian', data: pts.map((p) => Number(p.yoy_pct.toFixed(1))) }],
+    [pts],
+  );
+
+  const yoyOptions = useMemo<ApexOptions>(
+    () => ({
+      colors: pts.map((p) => (p.yoy_pct >= 0 ? '#16a34a' : '#dc2626')),
+      plotOptions: { bar: { distributed: true, borderRadius: 3 } },
+      xaxis: {
+        categories: pts.map((p) => p.date),
+        tickAmount: 14,
+        labels: { formatter: fmtDay },
+      },
+      yaxis: {
+        labels: { formatter: (v: number) => `${v.toLocaleString('id-ID')}%` },
+      },
       tooltip: {
-        ...baseTooltip(dark),
-        formatter: (ps: unknown) => {
-          const items = ps as Array<{ dataIndex: number }>;
-          const i = items[0]?.dataIndex ?? 0;
-          const p = pts[i];
-          if (!p) return '';
-          const c = p.yoy_pct >= 0 ? up : down;
-          return (
-            `<div style="font-family:${FONT}"><div style="font-weight:800;margin-bottom:4px">${fmtDate(p.date)}</div>` +
-            `YoY vs 2025: <b style="font-family:${MONO};color:${c}">${fmtPct(p.yoy_pct)}</b></div>`
-          );
+        x: {
+          formatter: (v: string | number) => (typeof v === 'string' ? fmtDate(v) : String(v)),
         },
+        y: { formatter: (v: number) => fmtPct(v) },
       },
-      grid: { left: 8, right: 12, top: 16, bottom: 8, containLabel: true },
-      xAxis: {
-        type: 'category',
-        data: pts.map((p) => p.date),
-        ...axisStyle(dark),
-        axisLabel: {
-          ...axisStyle(dark).axisLabel,
-          formatter: (v: string) => v.slice(5).replace('-', '/'),
-          interval: 14,
-        },
+      annotations: {
+        yaxis: [{ y: 0, borderColor: '#94a3b8', strokeDashArray: 4 }],
       },
-      yAxis: {
-        type: 'value',
-        ...axisStyle(dark),
-        axisLabel: {
-          ...axisStyle(dark).axisLabel,
-          formatter: (v: number) => `${v.toLocaleString('id-ID')}%`,
-        },
-      },
-      dataZoom: [
-        { type: 'inside', xAxisIndex: 0, filterMode: 'none' },
-        {
-          type: 'slider', height: 22, bottom: 0,
-          borderColor: 'transparent',
-          backgroundColor: dark ? '#1e293b' : '#f1f5f9',
-          fillerColor: dark ? 'rgba(26,82,135,.35)' : 'rgba(26,82,135,.18)',
-          handleStyle: { color: '#1a5287' },
-          textStyle: { color: dark ? '#94a3b8' : '#64748b', fontFamily: MONO, fontSize: 10 },
-        },
-      ],
-      series: [
-        {
-          name: 'YoY harian',
-          type: 'bar',
-          data: pts.map((p) => ({
-            value: Number(p.yoy_pct.toFixed(1)),
-            itemStyle: { color: p.yoy_pct >= 0 ? up : down, borderRadius: [2, 2, 0, 0] },
-          })),
-          markLine: {
-            silent: true,
-            symbol: 'none',
-            lineStyle: { color: dark ? '#475569' : '#cbd5e1', type: 'dashed' as const },
-            data: [{ yAxis: 0 }],
-          },
-        },
-      ],
-    };
-  }, [dark, pts]);
+    }),
+    [pts],
+  );
 
   const activeScen = SCENARIOS.find((s) => s.key === scen)!;
 
@@ -417,7 +342,7 @@ export default function ForecastView() {
           title={`Arus Penumpang Harian \u2014 Skenario ${activeScen.label}`}
           desc="Garis biru proyeksi 2026/2027 dengan pita interval kepercayaan 95%, garis abu-abu putus-putus realisasi 2025, zona merah periode Natal & Tahun Baru."
         />
-        <Chart option={mainOption} height={440} />
+        <Chart type="line" series={mainSeries} options={mainOptions} height={440} />
       </Card>
 
       {/* Grafik YoY */}
@@ -427,7 +352,7 @@ export default function ForecastView() {
           title="Pertumbuhan YoY Harian vs 2025"
           desc="Batang hijau di atas rata-rata 2025, merah di bawahnya \u2014 skenario aktif."
         />
-        <Chart option={yoyOption} height={300} />
+        <Chart type="bar" series={yoySeries} options={yoyOptions} height={300} />
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">

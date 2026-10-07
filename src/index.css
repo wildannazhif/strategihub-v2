@@ -85,9 +85,33 @@ body {
   background: rgb(26 82 135 / 0.18);
 }
 
-/* ECharts tooltip polish */
-.echarts-tooltip {
+/* ApexCharts polish */
+.apexcharts-tooltip {
   border-radius: 12px !important;
+  box-shadow: 0 12px 32px -8px rgb(2 6 23 / 0.18) !important;
+  border: 1px solid rgb(226 232 240) !important;
+  font-family: var(--font-sans) !important;
+}
+.dark .apexcharts-tooltip {
+  border-color: #1e293b !important;
+}
+.apexcharts-tooltip-title {
+  font-family: var(--font-sans) !important;
+  font-weight: 700 !important;
+  background: transparent !important;
+  border-bottom: 1px solid rgb(226 232 240) !important;
+  margin-bottom: 4px !important;
+}
+.dark .apexcharts-tooltip-title {
+  border-bottom-color: #1e293b !important;
+}
+.apexcharts-menu {
+  border-radius: 10px !important;
+  font-family: var(--font-sans) !important;
+  font-size: 12px !important;
+}
+.apexcharts-legend-text {
+  font-family: var(--font-sans) !important;
 }
 
 /* MapLibre popup polish */
