@@ -1,0 +1,8 @@
+node_modules/
+dist/
+dist-ssr/
+*.local
+.DS_Store
+
+# local-only original data source (chunks in src/data/chunks are committed)
+scripts/dashboard-source.json
