@@ -13,9 +13,11 @@
   import { data, MODA_KEYS } from '$lib/data';
   import { MODA } from '$lib/moda';
   import { fmtCompact, fmtInt } from '$lib/format';
+  import { themeStore, chartTheme } from '$lib/theme.svelte';
   import type { ModaKey, SpatialNode } from '$lib/data/types';
 
-  const DARK_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
+  const ct = $derived(chartTheme(themeStore.current === 'dark'));
+
   const HOME: [number, number] = [118, -2.5];
   const HOME_ZOOM = 4.2;
 
@@ -34,15 +36,16 @@
   }
 
   function popupHtml(p: NodeProps): string {
+    const t = chartTheme(themeStore.current === 'dark');
     const moda = MODA[p.moda];
     const pa = p.arm > 0 ? p.pnp / p.arm : 0;
     const row = (l: string, v: string) =>
       `<div style="display:flex;justify-content:space-between;gap:12px;padding:3px 0;font-size:12px">` +
-      `<span style="color:#8b98ad">${l}</span><b style="font-family:Arial,Helvetica,sans-serif;color:#e8eef7">${v}</b></div>`;
+      `<span style="color:${t.popupSoft}">${l}</span><b style="font-family:Arial,Helvetica,sans-serif;color:${t.popupFg}">${v}</b></div>`;
     return (
       `<div style="font-family:Arial,Helvetica,sans-serif;min-width:210px;padding:14px 16px">` +
-      `<div style="font-weight:800;font-size:13.5px;color:#e8eef7;line-height:1.3">${p.nama}</div>` +
-      `<div style="font-size:11.5px;color:#8b98ad;margin:2px 0 8px">${p.tipe} &bull; ${p.prov}</div>` +
+      `<div style="font-weight:800;font-size:13.5px;color:${t.popupFg};line-height:1.3">${p.nama}</div>` +
+      `<div style="font-size:11.5px;color:${t.popupSoft};margin:2px 0 8px">${p.tipe} &bull; ${p.prov}</div>` +
       `<span style="display:inline-block;background:${moda.color}26;color:${moda.color};` +
       `font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px;margin-bottom:8px">${moda.label}</span>` +
       row('Penumpang', fmtInt(p.pnp)) +
@@ -163,7 +166,7 @@
     ml = await import('maplibre-gl');
     const m = new ml.Map({
       container,
-      style: DARK_STYLE,
+      style: ct.mapStyle,
       center: HOME,
       zoom: HOME_ZOOM,
       attributionControl: { compact: true },
@@ -213,6 +216,12 @@
     map = null;
   });
 
+  // Ganti basemap saat tema berubah (ensureLayers terikat ke 'styledata' → layer dibangun ulang)
+  $effect(() => {
+    const style = ct.mapStyle;
+    if (map && map.isStyleLoaded()) map.setStyle(style);
+  });
+
   const metricOpts = [
     { value: 'pnp' as MetricKey, label: 'Penumpang' },
     { value: 'arm' as MetricKey, label: 'Armada' },
@@ -228,7 +237,7 @@
     {#snippet action()}
       <button
         onclick={resetView}
-        class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.04] px-3.5 py-2 text-[12.5px] font-semibold text-ink-2 transition hover:bg-white/[0.08] hover:text-ink"
+        class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-line bg-fill px-3.5 py-2 text-[12.5px] font-semibold text-ink-2 transition hover:bg-fill hover:text-ink"
       >
         <Crosshair size={15} />
         Pusatkan Indonesia
@@ -247,7 +256,7 @@
             class={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-[12.5px] font-semibold transition ${
               active
                 ? 'shadow-sm'
-                : 'border-white/[0.07] text-ink-3 opacity-60 hover:opacity-100'
+                : 'border-line text-ink-3 opacity-60 hover:opacity-100'
             }`}
             style={active
               ? `background:${MODA[m].color}1a;color:${MODA[m].color};border-color:${MODA[m].color}66`
@@ -278,7 +287,7 @@
             oninput={() => (showSug = true)}
             onfocus={() => (showSug = true)}
             placeholder="cth: Soekarno Hatta, Gambir…"
-            class="w-full rounded-xl border border-white/[0.07] bg-white/[0.03] py-2 pl-9 pr-9 text-[13px] text-ink outline-none placeholder:text-ink-3 focus:border-white/20"
+            class="w-full rounded-xl border border-line bg-fill py-2 pl-9 pr-9 text-[13px] text-ink outline-none placeholder:text-ink-3 focus:border-line"
           />
           {#if query}
             <button
@@ -292,12 +301,12 @@
         </div>
         {#if showSug && suggestions.length > 0}
           <div
-            class="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-xl border border-white/[0.07] bg-[#0d1424] shadow-xl"
+            class="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-xl border border-line bg-panel-2 shadow-xl"
           >
             {#each suggestions as n}
               <button
                 onclick={() => pickNode(n)}
-                class="flex w-full cursor-pointer items-center gap-2.5 px-3.5 py-2.5 text-left transition hover:bg-white/[0.05]"
+                class="flex w-full cursor-pointer items-center gap-2.5 px-3.5 py-2.5 text-left transition hover:bg-fill"
               >
                 <span class="size-2.5 shrink-0 rounded-full" style={`background:${MODA[n.m].color}`}></span>
                 <span class="min-w-0">
@@ -312,12 +321,12 @@
     </div>
   </Card>
 
-  <div class="relative overflow-hidden rounded-2xl border border-white/[0.07]">
+  <div class="relative overflow-hidden rounded-2xl border border-line">
     <div bind:this={container} class="h-[520px] w-full"></div>
 
     <div class="absolute left-3 top-3 z-10">
       <div
-        class="inline-flex items-center gap-1.5 rounded-full border border-white/[0.07] bg-[#0d1424]/90 px-3 py-1.5 text-[11.5px] font-bold text-ink-2 shadow-sm backdrop-blur"
+        class="inline-flex items-center gap-1.5 rounded-full border border-line bg-panel-2/90 px-3 py-1.5 text-[11.5px] font-bold text-ink-2 shadow-sm backdrop-blur"
       >
         <MapPin size={13} class="text-ink-3" />
         <span class="num">{fmtInt(mapped.length)} terpetakan</span>
@@ -327,7 +336,7 @@
     </div>
 
     <div class="absolute bottom-9 left-3 z-10">
-      <div class="rounded-xl border border-white/[0.07] bg-[#0d1424]/90 p-3 shadow-sm backdrop-blur">
+      <div class="rounded-xl border border-line bg-panel-2/90 p-3 shadow-sm backdrop-blur">
         <p class="mb-2 text-[10.5px] font-bold uppercase tracking-[0.12em] text-ink-3">Legenda moda</p>
         <div class="space-y-1.5">
           {#each MODA_KEYS as m}
@@ -338,7 +347,7 @@
             </div>
           {/each}
         </div>
-        <p class="mt-2 border-t border-white/[0.07] pt-2 text-[10.5px] text-ink-3">
+        <p class="mt-2 border-t border-line pt-2 text-[10.5px] text-ink-3">
           Ukuran lingkaran ∝ {metric === 'pnp' ? 'penumpang' : 'armada'}
         </p>
       </div>

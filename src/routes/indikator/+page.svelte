@@ -231,7 +231,7 @@
           {fmtCompact(m.ytd)}
         </p>
         <p class="text-[11px] text-ink-3">{m.unit} • akumulasi YTD</p>
-        <div class="mt-3 grid grid-cols-2 gap-2.5 border-t border-white/[0.06] pt-3">
+        <div class="mt-3 grid grid-cols-2 gap-2.5 border-t border-line pt-3">
           <div>
             <p class="text-[10px] font-bold uppercase tracking-wider text-ink-3">Rata-rata harian</p>
             <p class="num mt-1 text-[14px] font-bold text-ink">{fmtCompact(m.avg)}</p>
@@ -240,7 +240,7 @@
             <p class="text-[10px] font-bold uppercase tracking-wider text-ink-3">Baseline Februari</p>
             <p class="num mt-1 text-[14px] font-bold text-ink">{fmtCompact(m.baseline_feb)}</p>
           </div>
-          <div class="col-span-2 rounded-xl bg-white/[0.03] p-2.5">
+          <div class="col-span-2 rounded-xl bg-fill p-2.5">
             <div class="flex items-center justify-between gap-2">
               <p class="text-[10px] font-bold uppercase tracking-wider text-ink-3">
                 Puncak • {m.peak_tag}
@@ -252,7 +252,7 @@
               <span class="text-[11px] font-normal text-ink-3">{fmtDate(m.peak_date)}</span>
             </p>
           </div>
-          <div class="col-span-2 rounded-xl bg-white/[0.03] p-2.5">
+          <div class="col-span-2 rounded-xl bg-fill p-2.5">
             <div class="flex items-center justify-between gap-2">
               <p class="text-[10px] font-bold uppercase tracking-wider text-ink-3">
                 Mudik • {m.mudik_tag}
@@ -308,10 +308,10 @@
     >
       {#snippet icon()}<Table2 size={16} />{/snippet}
     </CardHeader>
-    <div class="max-h-[560px] overflow-auto rounded-xl border border-white/[0.06]">
+    <div class="max-h-[560px] overflow-auto rounded-xl border border-line">
       <table class="w-full min-w-[980px] text-left text-[13px]">
         <thead class="sticky top-0 z-10">
-          <tr class="border-y border-white/[0.06] bg-white/[0.02]">
+          <tr class="border-y border-line bg-fill">
             {#each ['Indikator', 'Formula', 'YTD', 'Rata-rata', 'Puncak', 'Lonjakan'] as h (h)}
               <th
                 class="whitespace-nowrap px-4 py-2.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-3"
@@ -323,7 +323,7 @@
         </thead>
         <tbody>
           {#each d.matrix as r (r.indikator)}
-            <tr class="border-b border-white/[0.04] transition-colors hover:bg-white/[0.02]">
+            <tr class="border-b border-line transition-colors hover:bg-fill">
               <td class="px-4 py-2.5 font-bold text-ink">{r.indikator}</td>
               <td class="whitespace-nowrap px-4 py-2.5 font-mono text-[11px] text-ink-3">
                 {r.formula}

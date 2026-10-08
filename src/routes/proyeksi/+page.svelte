@@ -10,6 +10,7 @@
   import { data, MODA_KEYS } from '$lib/data';
   import { MODA } from '$lib/moda';
   import { fmtCompact, fmtInt, fmtPct, fmtDate } from '$lib/format';
+  import { themeStore, chartTheme } from '$lib/theme.svelte';
   import type { ForecastPoint } from '$lib/data';
   import Users from 'lucide-svelte/icons/users';
   import TrendingUp from 'lucide-svelte/icons/trending-up';
@@ -98,6 +99,8 @@
   const params = meta.parameters ?? {};
 
   /* ---------- Grafik utama: proyeksi + CI + benchmark ---------- */
+  const ct = $derived(chartTheme(themeStore.current === 'dark'));
+
   const mainSeries = $derived<ApexOptions['series']>([
     { name: 'Proyeksi 2026/2027', type: 'line', data: pts.map((p) => p.TOTAL) },
     {
@@ -109,7 +112,7 @@
   ]);
 
   const mainOptions = $derived<ApexOptions>({
-    colors: ['#38bdf8', '#8b98ad', '#8b98ad'],
+    colors: ['#38bdf8', ct.faint, ct.faint],
     stroke: { width: [2.5, 0, 2], dashArray: [0, 0, 6], curve: 'smooth' },
     fill: { opacity: [1, 0.22, 1], type: ['solid', 'solid', 'solid'] },
     markers: { size: [0, 0, 0] },
@@ -119,6 +122,7 @@
       labels: { formatter: fmtDay },
     },
     tooltip: {
+      theme: ct.tooltipMode,
       shared: true,
       x: {
         formatter: (v: string | number) => (typeof v === 'string' ? fmtDate(v) : String(v)),
@@ -194,13 +198,14 @@
       labels: { formatter: (v: number) => `${v.toLocaleString('id-ID')}%` },
     },
     tooltip: {
+      theme: ct.tooltipMode,
       x: {
         formatter: (v: string | number) => (typeof v === 'string' ? fmtDate(v) : String(v)),
       },
       y: { formatter: (v: number) => fmtPct(v) },
     },
     annotations: {
-      yaxis: [{ y: 0, borderColor: '#8b98ad', strokeDashArray: 4 }],
+      yaxis: [{ y: 0, borderColor: ct.faint, strokeDashArray: 4 }],
     },
   });
 
@@ -352,10 +357,10 @@
       >
         {#snippet icon()}<ListChecks size={15} />{/snippet}
       </CardHeader>
-      <dl class="divide-y divide-white/[0.06]">
+      <dl class="divide-y divide-line">
         {#each methodRows as r}
           <div class="flex gap-3 py-3">
-            <span class="mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg border border-white/[0.07] bg-white/[0.04] text-ink-2">
+            <span class="mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg border border-line bg-fill text-ink-2">
               <r.icon size={16} />
             </span>
             <div class="min-w-0">
@@ -370,7 +375,7 @@
           <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-3">Parameter Holt-Winters</p>
           <div class="flex flex-wrap gap-1.5">
             {#each Object.entries(params) as [k, v]}
-              <span class="num rounded-lg border border-white/[0.07] bg-white/[0.04] px-2.5 py-1 text-[11px] font-semibold text-ink-2">
+              <span class="num rounded-lg border border-line bg-fill px-2.5 py-1 text-[11px] font-semibold text-ink-2">
                 {k}: {String(v)}
               </span>
             {/each}
@@ -399,7 +404,7 @@
             {@const b = breakdown[m]}
             {#if b}
               {@const pos = b.yoy_pct >= 0}
-              <div class="flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">
+              <div class="flex items-center gap-3 rounded-xl border border-line bg-fill p-3">
                 <span class="size-3 shrink-0 rounded-full" style={`background: ${MODA[m].color}`}></span>
                 <div class="min-w-0 flex-1">
                   <p class="truncate text-[13px] font-bold text-ink">{MODA[m].label}</p>

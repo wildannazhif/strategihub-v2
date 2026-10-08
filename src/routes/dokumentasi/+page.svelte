@@ -48,7 +48,7 @@
 
 <div class="space-y-4">
   <!-- Header Banner -->
-  <div class="rounded-xl border border-white/[0.07] bg-[#0a101d] p-5 sm:p-6">
+  <div class="rounded-xl border border-line bg-panel p-5 sm:p-6">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
         <div class="mb-2 flex items-center gap-2">
@@ -66,7 +66,7 @@
       </div>
       <div class="flex items-center gap-2">
         <BookOpen size={18} class="text-sky-400" />
-        <span class="rounded-lg border border-white/[0.1] bg-white/[0.04] px-3 py-1.5 text-xs text-sky-300">
+        <span class="rounded-lg border border-line bg-fill px-3 py-1.5 text-xs text-sky-300">
           100% Notasi Matematis Terverifikasi
         </span>
       </div>
@@ -74,13 +74,13 @@
   </div>
 
   <!-- Sticky Quick Jump Nav -->
-  <nav class="sticky top-16 z-20 rounded-xl border border-white/[0.07] bg-[#04060c]/90 backdrop-blur-xl px-4 py-2.5">
+  <nav class="sticky top-16 z-20 rounded-xl border border-line bg-abyss/90 backdrop-blur-xl px-4 py-2.5">
     <div class="flex flex-wrap items-center gap-2 text-xs">
       <span class="mr-1 text-[11px] font-bold uppercase tracking-wider text-sky-300">Lompat Cepat:</span>
       {#each CHIPS as chip, i (chip)}
         <a
           href={`#rumus-sec-${i + 1}`}
-          class="rounded-md bg-white/[0.06] px-2.5 py-1 text-ink-2 transition-colors hover:bg-white/[0.12] hover:text-ink"
+          class="rounded-md bg-fill px-2.5 py-1 text-ink-2 transition-colors hover:bg-fill hover:text-ink"
         >
           {chip}
         </a>
@@ -90,8 +90,8 @@
 
   <div id="dok-artikel" class="space-y-4">
     <!-- Section 1: Sumber Data & Integritas Dataset -->
-    <section id="rumus-sec-1" class="scroll-mt-32 space-y-4 rounded-xl border border-white/[0.07] bg-[#0a101d] p-5 sm:p-6">
-      <div class="flex items-center justify-between border-b border-white/[0.06] pb-3">
+    <section id="rumus-sec-1" class="scroll-mt-32 space-y-4 rounded-xl border border-line bg-panel p-5 sm:p-6">
+      <div class="flex items-center justify-between border-b border-line pb-3">
         <div class="flex items-center gap-2.5">
           <span class="h-3 w-3 rounded-full bg-indigo-500"></span>
           <h3 class="text-sm font-bold uppercase tracking-tight text-ink">
@@ -104,26 +104,26 @@
       </div>
 
       <p class="text-[13px] leading-relaxed text-ink-2">
-        Seluruh data operasional di dalam dashboard bersumber dari transaksi log harian <strong>StrategiHub PUSDATIN Kementerian Perhubungan 2026</strong> (<code class="rounded border border-white/[0.08] bg-white/[0.06] px-1.5 py-0.5 text-[11px] text-indigo-300">strategihub_multimoda_2026.csv</code>, 18,3 MB).
+        Seluruh data operasional di dalam dashboard bersumber dari transaksi log harian <strong>StrategiHub PUSDATIN Kementerian Perhubungan 2026</strong> (<code class="rounded border border-line bg-fill px-1.5 py-0.5 text-[11px] text-indigo-300">strategihub_multimoda_2026.csv</code>, 18,3 MB).
       </p>
 
       <div class="grid grid-cols-1 gap-3 text-xs sm:grid-cols-2 lg:grid-cols-4">
-        <div class="rounded-lg border border-white/[0.06] bg-white/[0.03] p-3.5">
+        <div class="rounded-lg border border-line bg-fill p-3.5">
           <div class="text-[10px] font-bold uppercase tracking-wider text-ink-3">Total Baris Tervalidasi</div>
           <div class="num mt-1 text-lg font-black text-ink">209.964 Baris</div>
           <div class="mt-0.5 text-[11px] text-ink-3">Dibersihkan dari 211.361 log mentah</div>
         </div>
-        <div class="rounded-lg border border-white/[0.06] bg-white/[0.03] p-3.5">
+        <div class="rounded-lg border border-line bg-fill p-3.5">
           <div class="text-[10px] font-bold uppercase tracking-wider text-ink-3">Rentang Pengamatan</div>
           <div class="num mt-1 text-lg font-black text-ink">272 Hari</div>
           <div class="mt-0.5 text-[11px] text-ink-3">1 Jan s.d. 29 Sep 2026</div>
         </div>
-        <div class="rounded-lg border border-white/[0.06] bg-white/[0.03] p-3.5">
+        <div class="rounded-lg border border-line bg-fill p-3.5">
           <div class="text-[10px] font-bold uppercase tracking-wider text-ink-3">Cakupan Prasarana</div>
           <div class="num mt-1 text-lg font-black text-ink">1.208 Simpul</div>
           <div class="mt-0.5 text-[11px] text-ink-3">1.014 koordinat valid, 194 perintis</div>
         </div>
-        <div class="rounded-lg border border-white/[0.06] bg-white/[0.03] p-3.5">
+        <div class="rounded-lg border border-line bg-fill p-3.5">
           <div class="text-[10px] font-bold uppercase tracking-wider text-ink-3">Cakupan Moda</div>
           <div class="num mt-1 text-lg font-black text-ink">5 Moda Transportasi</div>
           <div class="mt-0.5 text-[11px] text-ink-3">Udara, KA, Bus, ASDP, Laut</div>
@@ -132,8 +132,8 @@
     </section>
 
     <!-- Section 2: Rumus Metrik Dasar -->
-    <section id="rumus-sec-2" class="scroll-mt-32 space-y-4 rounded-xl border border-white/[0.07] bg-[#0a101d] p-5 sm:p-6">
-      <div class="flex items-center justify-between border-b border-white/[0.06] pb-3">
+    <section id="rumus-sec-2" class="scroll-mt-32 space-y-4 rounded-xl border border-line bg-panel p-5 sm:p-6">
+      <div class="flex items-center justify-between border-b border-line pb-3">
         <div class="flex items-center gap-2.5">
           <span class="h-3 w-3 rounded-full bg-sky-400"></span>
           <h3 class="text-sm font-bold uppercase tracking-tight text-ink">
@@ -150,31 +150,31 @@
       </p>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+        <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
           <div class="text-[11px] font-bold text-ink-2">A. Total Penumpang Simpul / Harian:</div>
-          <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-sm font-semibold text-sky-300">
+          <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-sky-300">
             $$P_&#123;\text&#123;total&#125;&#125; = P_&#123;\text&#123;datang&#125;&#125; + P_&#123;\text&#123;berangkat&#125;&#125;$$
           </div>
         </div>
-        <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+        <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
           <div class="text-[11px] font-bold text-ink-2">B. Total Pergerakan Armada:</div>
-          <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-sm font-semibold text-sky-300">
+          <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-sky-300">
             $$A_&#123;\text&#123;total&#125;&#125; = A_&#123;\text&#123;datang&#125;&#125; + A_&#123;\text&#123;berangkat&#125;&#125;$$
           </div>
         </div>
       </div>
 
-      <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+      <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
         <div class="text-[11px] font-bold text-ink-2">C. Rata-rata Penumpang Harian Nasional:</div>
-        <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-sm font-semibold text-sky-300">
+        <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-sky-300">
           $$P_&#123;\text&#123;avg&#125;&#125; = \frac&#123;\sum_&#123;t=1&#125;^&#123;N&#125; P_&#123;\text&#123;total&#125;, t&#125;&#125;&#123;N&#125; = \frac&#123;371.890.120&#125;&#123;272&#125; = 1.367.243\text&#123; pnp/hari&#125;$$
         </div>
       </div>
 
-      <div class="overflow-x-auto rounded-lg border border-white/[0.06]">
+      <div class="overflow-x-auto rounded-lg border border-line">
         <table class="w-full text-left text-xs">
           <thead>
-            <tr class="bg-white/[0.04]">
+            <tr class="bg-fill">
               <th class="w-28 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Simbol</th>
               <th class="w-44 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Nama Notasi</th>
               <th class="w-32 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Satuan</th>
@@ -182,25 +182,25 @@
             </tr>
           </thead>
           <tbody class="text-[11px]">
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-sky-300">$$P_&#123;\text&#123;total&#125;&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Total Penumpang</td>
               <td class="p-2.5 text-ink-3">orang</td>
               <td class="p-2.5 text-ink-2">Jumlah seluruh pergerakan manusia di simpul prasarana (kedatangan + keberangkatan).</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-sky-300">$$P_&#123;\text&#123;datang&#125;&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Penumpang Datang</td>
               <td class="p-2.5 text-ink-3">orang</td>
               <td class="p-2.5 text-ink-2">Jumlah penumpang yang tiba atau turun dari sarana transportasi di simpul tujuan.</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-sky-300">$$P_&#123;\text&#123;berangkat&#125;&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Penumpang Berangkat</td>
               <td class="p-2.5 text-ink-3">orang</td>
               <td class="p-2.5 text-ink-2">Jumlah penumpang yang naik atau bertolak meninggalkan simpul awal (alasan antrean).</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-sky-300">$$A_&#123;\text&#123;total&#125;&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Total Armada</td>
               <td class="p-2.5 text-ink-3">trip / flight / KA</td>
@@ -218,8 +218,8 @@
     </section>
 
     <!-- Section 3: Rumus Load Factor Proxy -->
-    <section id="rumus-sec-3" class="scroll-mt-32 space-y-4 rounded-xl border border-white/[0.07] bg-[#0a101d] p-5 sm:p-6">
-      <div class="flex items-center justify-between border-b border-white/[0.06] pb-3">
+    <section id="rumus-sec-3" class="scroll-mt-32 space-y-4 rounded-xl border border-line bg-panel p-5 sm:p-6">
+      <div class="flex items-center justify-between border-b border-line pb-3">
         <div class="flex items-center gap-2.5">
           <span class="h-3 w-3 rounded-full bg-indigo-500"></span>
           <h3 class="text-sm font-bold uppercase tracking-tight text-ink">
@@ -236,24 +236,24 @@
       </p>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+        <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
           <div class="text-[11px] font-bold text-ink-2">A. Rasio Beban Okupansi Armada (LF):</div>
-          <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-sm font-semibold text-indigo-300">
+          <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-indigo-300">
             $$LF = \frac&#123;P_&#123;\text&#123;total&#125;&#125;&#125;&#123;A_&#123;\text&#123;total&#125;&#125;&#125;$$
           </div>
         </div>
-        <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+        <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
           <div class="text-[11px] font-bold text-ink-2">B. Pertumbuhan Beban Okupansi (ΔLF):</div>
-          <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-sm font-semibold text-rose-300">
+          <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-rose-300">
             $$\Delta LF = \left( \frac&#123;LF_&#123;\text&#123;puncak&#125;&#125; - LF_&#123;\text&#123;baseline&#125;&#125;&#125;&#123;LF_&#123;\text&#123;baseline&#125;&#125;&#125; \right) \times 100\%$$
           </div>
         </div>
       </div>
 
-      <div class="overflow-x-auto rounded-lg border border-white/[0.06]">
+      <div class="overflow-x-auto rounded-lg border border-line">
         <table class="w-full text-left text-xs">
           <thead>
-            <tr class="bg-white/[0.04]">
+            <tr class="bg-fill">
               <th class="w-28 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Simbol</th>
               <th class="w-44 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Nama Notasi</th>
               <th class="w-32 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Satuan</th>
@@ -261,19 +261,19 @@
             </tr>
           </thead>
           <tbody class="text-[11px]">
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-indigo-300">$$LF$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Load Factor Proxy</td>
               <td class="p-2.5 text-ink-3">pnp / armada</td>
               <td class="p-2.5 text-ink-2">Rata-rata penumpang yang dimuat per satu perjalanan armada (flight, trip bus, trip KA, kapal).</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-indigo-300">$$LF_&#123;\text&#123;puncak&#125;&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">LF Periode Puncak</td>
               <td class="p-2.5 text-ink-3">pnp / armada</td>
               <td class="p-2.5 text-ink-2">Kepadatan muatan pada hari puncak ekstrem (H-3 Mudik atau H+3 Balik).</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-indigo-300">$$LF_&#123;\text&#123;baseline&#125;&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">LF Kondisi Normal</td>
               <td class="p-2.5 text-ink-3">pnp / armada</td>
@@ -291,8 +291,8 @@
     </section>
 
     <!-- Section 4: Rumus Pangsa Pasar Antar-Moda -->
-    <section id="rumus-sec-4" class="scroll-mt-32 space-y-4 rounded-xl border border-white/[0.07] bg-[#0a101d] p-5 sm:p-6">
-      <div class="flex items-center justify-between border-b border-white/[0.06] pb-3">
+    <section id="rumus-sec-4" class="scroll-mt-32 space-y-4 rounded-xl border border-line bg-panel p-5 sm:p-6">
+      <div class="flex items-center justify-between border-b border-line pb-3">
         <div class="flex items-center gap-2.5">
           <span class="h-3 w-3 rounded-full bg-emerald-400"></span>
           <h3 class="text-sm font-bold uppercase tracking-tight text-ink">
@@ -304,9 +304,9 @@
         </span>
       </div>
 
-      <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+      <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
         <div class="text-[11px] font-bold text-ink-2">Pangsa Pasar Moda Transportasi m:</div>
-        <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-sm font-semibold text-emerald-300">
+        <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-emerald-300">
           $$\text&#123;MS&#125;_&#123;m&#125; = \left( \frac&#123;P_&#123;m&#125;&#125;&#123;\sum_&#123;k \in M&#125; P_&#123;k&#125;&#125; \right) \times 100\%$$
         </div>
         <div class="text-center text-[11px] text-ink-3">
@@ -314,10 +314,10 @@
         </div>
       </div>
 
-      <div class="overflow-x-auto rounded-lg border border-white/[0.06]">
+      <div class="overflow-x-auto rounded-lg border border-line">
         <table class="w-full text-left text-xs">
           <thead>
-            <tr class="bg-white/[0.04]">
+            <tr class="bg-fill">
               <th class="w-28 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Simbol</th>
               <th class="w-44 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Nama Notasi</th>
               <th class="w-32 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Satuan</th>
@@ -325,7 +325,7 @@
             </tr>
           </thead>
           <tbody class="text-[11px]">
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-emerald-300">$$\text&#123;MS&#125;_&#123;m&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Modal Share Moda m</td>
               <td class="p-2.5 text-ink-3">%</td>
@@ -343,8 +343,8 @@
     </section>
 
     <!-- Section 5: Rumus Periode Lebaran & Surge -->
-    <section id="rumus-sec-5" class="scroll-mt-32 space-y-4 rounded-xl border border-white/[0.07] bg-[#0a101d] p-5 sm:p-6">
-      <div class="flex items-center justify-between border-b border-white/[0.06] pb-3">
+    <section id="rumus-sec-5" class="scroll-mt-32 space-y-4 rounded-xl border border-line bg-panel p-5 sm:p-6">
+      <div class="flex items-center justify-between border-b border-line pb-3">
         <div class="flex items-center gap-2.5">
           <span class="h-3 w-3 rounded-full bg-rose-400"></span>
           <h3 class="text-sm font-bold uppercase tracking-tight text-ink">
@@ -361,23 +361,23 @@
       </p>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+        <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
           <div class="text-[11px] font-bold text-ink-2">A. Baseline Median Normal:</div>
-          <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-sm font-semibold text-indigo-300">
+          <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-indigo-300">
             $$P_&#123;\text&#123;median&#125;&#125; = \text&#123;Median&#125;(P_1, P_2, \dots, P_&#123;272&#125;) = 1.321.644\text&#123; pnp/h&#125;$$
           </div>
         </div>
-        <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+        <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
           <div class="text-[11px] font-bold text-ink-2">B. Persentase Lonjakan (Surge %):</div>
-          <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-sm font-semibold text-rose-300">
+          <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-rose-300">
             $$\text&#123;Surge&#125; = \left( \frac&#123;P_&#123;\text&#123;puncak&#125;&#125; - P_&#123;\text&#123;median&#125;&#125;&#125;&#123;P_&#123;\text&#123;median&#125;&#125;&#125; \right) \times 100\%$$
           </div>
         </div>
       </div>
 
-      <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+      <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
         <div class="text-[11px] font-bold text-ink-2">C. Penomoran Hari Relatif Posko Lebaran:</div>
-        <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-sm font-semibold text-ink">
+        <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-ink">
           $$\Delta \text&#123;Hari&#125; = \text&#123;Tanggal Kalender&#125; - 21\text&#123; Maret &#125; 2026$$
         </div>
         <div class="text-center text-[11px] text-ink-3">
@@ -385,10 +385,10 @@
         </div>
       </div>
 
-      <div class="overflow-x-auto rounded-lg border border-white/[0.06]">
+      <div class="overflow-x-auto rounded-lg border border-line">
         <table class="w-full text-left text-xs">
           <thead>
-            <tr class="bg-white/[0.04]">
+            <tr class="bg-fill">
               <th class="w-28 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Simbol</th>
               <th class="w-44 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Nama Notasi</th>
               <th class="w-32 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Satuan</th>
@@ -396,13 +396,13 @@
             </tr>
           </thead>
           <tbody class="text-[11px]">
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-indigo-300">$$P_&#123;\text&#123;median&#125;&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Baseline Median</td>
               <td class="p-2.5 text-ink-3">orang / hari</td>
               <td class="p-2.5 text-ink-2">Nilai tengah mobilitas 272 hari, bebas dari distorsi lonjakan ekstrem (Google Mobility standard).</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-rose-300">$$P_&#123;\text&#123;puncak&#125;&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Volume Hari Puncak</td>
               <td class="p-2.5 text-ink-3">orang / hari</td>
@@ -420,8 +420,8 @@
     </section>
 
     <!-- Section 6: Rumus Analisis Tren & Lonjakan Bulanan per Provinsi -->
-    <section id="rumus-sec-6" class="scroll-mt-32 space-y-4 rounded-xl border border-white/[0.07] bg-[#0a101d] p-5 sm:p-6">
-      <div class="flex items-center justify-between border-b border-white/[0.06] pb-3">
+    <section id="rumus-sec-6" class="scroll-mt-32 space-y-4 rounded-xl border border-line bg-panel p-5 sm:p-6">
+      <div class="flex items-center justify-between border-b border-line pb-3">
         <div class="flex items-center gap-2.5">
           <span class="h-3 w-3 rounded-full bg-blue-500"></span>
           <h3 class="text-sm font-bold uppercase tracking-tight text-ink">
@@ -438,24 +438,24 @@
       </p>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+        <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
           <div class="text-[11px] font-bold text-ink-2">A. Laju Pertumbuhan Bulanan (Month-over-Month / MoM %):</div>
-          <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-sm font-semibold text-blue-300">
+          <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-blue-300">
             $$\text&#123;MoM&#125;_&#123;\text&#123;prov&#125;, t&#125; = \left( \frac&#123;P_&#123;\text&#123;prov&#125;, t&#125; - P_&#123;\text&#123;prov&#125;, t-1&#125;&#125;&#123;P_&#123;\text&#123;prov&#125;, t-1&#125;&#125; \right) \times 100\%$$
           </div>
         </div>
-        <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+        <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
           <div class="text-[11px] font-bold text-ink-2">B. Pangsa Moda Dominan Provinsi (%):</div>
-          <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-sm font-semibold text-blue-300">
+          <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-blue-300">
             $$\text&#123;Share&#125;_&#123;m, \text&#123;prov&#125;&#125; = \left( \frac&#123;P_&#123;m, \text&#123;prov&#125;&#125;&#125;&#123;P_&#123;\text&#123;total&#125;, \text&#123;prov&#125;&#125;&#125; \right) \times 100\%$$
           </div>
         </div>
       </div>
 
-      <div class="overflow-x-auto rounded-lg border border-white/[0.06]">
+      <div class="overflow-x-auto rounded-lg border border-line">
         <table class="w-full text-left text-xs">
           <thead>
-            <tr class="bg-white/[0.04]">
+            <tr class="bg-fill">
               <th class="w-32 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Simbol</th>
               <th class="w-44 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Nama Notasi</th>
               <th class="w-32 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Satuan</th>
@@ -463,13 +463,13 @@
             </tr>
           </thead>
           <tbody class="text-[11px]">
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-blue-300">$$\text&#123;MoM&#125;_&#123;\text&#123;prov&#125;, t&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Pertumbuhan MoM</td>
               <td class="p-2.5 text-ink-3">%</td>
               <td class="p-2.5 text-ink-2">Laju akselerasi keberangkatan penumpang provinsi pada bulan $t$ dibanding bulan sebelumnya $(t-1)$.</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-blue-300">$$P_&#123;\text&#123;prov&#125;, t&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Volume Penumpang Provinsi</td>
               <td class="p-2.5 text-ink-3">orang / bulan</td>
@@ -487,8 +487,8 @@
     </section>
 
     <!-- Section 7: Standar Penambahan Armada (Persentil Load Factor) -->
-    <section id="rumus-sec-7" class="scroll-mt-32 space-y-4 rounded-xl border border-white/[0.07] bg-[#0a101d] p-5 sm:p-6">
-      <div class="flex items-center justify-between border-b border-white/[0.06] pb-3">
+    <section id="rumus-sec-7" class="scroll-mt-32 space-y-4 rounded-xl border border-line bg-panel p-5 sm:p-6">
+      <div class="flex items-center justify-between border-b border-line pb-3">
         <div class="flex items-center gap-2.5">
           <span class="h-3 w-3 rounded-full bg-rose-400"></span>
           <h3 class="text-sm font-bold uppercase tracking-tight text-ink">
@@ -504,32 +504,32 @@
         Sesuai standar internasional <em>Transit Capacity and Quality of Service Manual (TCQSM, TCRP Report 165)</em> dan <em>Ceder (2015)</em>, kebutuhan armada tambahan dihitung dari rasio lonjakan kepadatan per armada (Load Factor Puncak terhadap Load Factor Biasa) dengan ambang persentil empiris $P_&#123;50&#125;, P_&#123;75&#125;, P_&#123;90&#125;$ dari 1.010 simpul nasional.
       </p>
 
-      <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+      <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
         <div class="text-[11px] font-bold text-ink-2">A. Rasio Lonjakan Beban Armada Simpul:</div>
-        <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-sm font-semibold text-indigo-300">
+        <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-indigo-300">
           $$\text&#123;Rasio Lonjakan LF&#125; = \frac&#123;LF_&#123;\text&#123;puncak&#125;&#125;&#125;&#123;LF_&#123;\text&#123;biasa&#125;&#125;&#125; = \frac&#123;P_&#123;\text&#123;puncak&#125;&#125; / A_&#123;\text&#123;puncak&#125;&#125;&#125;&#123;P_&#123;\text&#123;biasa&#125;&#125; / A_&#123;\text&#123;biasa&#125;&#125;&#125;$$
         </div>
       </div>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+        <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
           <div class="text-[11px] font-bold text-ink-2">B. Tambahan Unit Armada Perbantuan:</div>
-          <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-sm font-semibold text-indigo-300">
+          <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-indigo-300">
             $$A_&#123;\text&#123;tambah&#125;&#125; = \left\lceil A_&#123;\text&#123;puncak&#125;&#125; \times \left( \frac&#123;\%\text&#123; Tambah&#125;&#125;&#123;100&#125; \right) \right\rceil$$
           </div>
         </div>
-        <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+        <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
           <div class="text-[11px] font-bold text-ink-2">C. Total Armada Beroperasi Puncak:</div>
-          <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-sm font-semibold text-emerald-300">
+          <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-emerald-300">
             $$A_&#123;\text&#123;total&#125;&#125; = A_&#123;\text&#123;puncak&#125;&#125; + A_&#123;\text&#123;tambah&#125;&#125;$$
           </div>
         </div>
       </div>
 
-      <div class="overflow-x-auto rounded-lg border border-white/[0.06]">
+      <div class="overflow-x-auto rounded-lg border border-line">
         <table class="w-full text-left text-xs">
           <thead>
-            <tr class="bg-white/[0.04]">
+            <tr class="bg-fill">
               <th class="p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Klasifikasi Status</th>
               <th class="p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Kriteria Persentil Empiris</th>
               <th class="p-2.5 text-center text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Rekomendasi Tambah</th>
@@ -538,21 +538,21 @@
             </tr>
           </thead>
           <tbody class="text-[11px]">
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-rose-400"><span class="mr-1.5 inline-block h-2 w-2 rounded-full bg-rose-500"></span>Sangat Kritis</td>
               <td class="p-2.5 text-ink-2">$$\text&#123;Rasio&#125; \ge P_&#123;90&#125; = 3&#123;,&#125;43\times$$ (Top 10%)</td>
               <td class="p-2.5 text-center font-bold text-indigo-300">+20%</td>
               <td class="p-2.5 font-bold text-ink">87 Simpul</td>
               <td class="p-2.5 text-ink-2">Bakauheni (4,3x), Gilimanuk (4,2x), Merak (3,8x), Giwangan (3,6x)</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-orange-400"><span class="mr-1.5 inline-block h-2 w-2 rounded-full bg-orange-500"></span>Tinggi / Kritis</td>
               <td class="p-2.5 text-ink-2">$$P_&#123;75&#125; \le \text&#123;Rasio&#125; &lt; P_&#123;90&#125;$$ ($$2&#123;,&#125;33\times - 3&#123;,&#125;42\times$$)</td>
               <td class="p-2.5 text-center font-bold text-indigo-300">+15%</td>
               <td class="p-2.5 font-bold text-ink">122 Simpul</td>
               <td class="p-2.5 text-ink-2">Pasar Senen (2,8x), Ketapang (2,6x), Poto Tano (2,5x)</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-amber-300"><span class="mr-1.5 inline-block h-2 w-2 rounded-full bg-amber-400"></span>Padat</td>
               <td class="p-2.5 text-ink-2">$$P_&#123;50&#125; \le \text&#123;Rasio&#125; &lt; P_&#123;75&#125;$$ ($$1&#123;,&#125;54\times - 2&#123;,&#125;32\times$$)</td>
               <td class="p-2.5 text-center font-bold text-indigo-300">+10%</td>
@@ -572,7 +572,7 @@
 
       <div class="space-y-3 pt-2">
         <!-- Box A: Regulasi Resmi Kemenhub RI -->
-        <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4 text-xs">
+        <div class="space-y-2 rounded-lg border border-line bg-fill p-4 text-xs">
           <div class="flex items-center gap-2 font-bold text-ink">
             <span class="h-2 w-2 rounded-full bg-blue-500"></span>
             <Landmark size={14} class="text-blue-400" />
@@ -598,7 +598,7 @@
           </div>
 
           <div class="grid grid-cols-1 gap-2.5 text-[11px] md:grid-cols-2">
-            <div class="space-y-1 rounded border border-white/[0.06] bg-[#0a101d] p-2.5">
+            <div class="space-y-1 rounded border border-line bg-panel p-2.5">
               <div class="flex items-center justify-between font-bold text-ink">
                 <span class="flex items-center gap-1.5"><Ship size={13} class="text-sky-400" /> Penyeberangan ASDP (TBB & Buffer)</span>
                 <a href="https://garuda.kemdiktisaintek.go.id/journal/view/41858" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 text-[10px] font-semibold text-indigo-300 hover:underline">Buka Jurnal <ExternalLink size={11} /></a>
@@ -611,7 +611,7 @@
               </div>
             </div>
 
-            <div class="space-y-1 rounded border border-white/[0.06] bg-[#0a101d] p-2.5">
+            <div class="space-y-1 rounded border border-line bg-panel p-2.5">
               <div class="flex items-center justify-between font-bold text-ink">
                 <span class="flex items-center gap-1.5"><Plane size={13} class="text-sky-400" /> Penerbangan Udara (Slot & Extra Flight)</span>
                 <a href="https://doi.org/10.1016/j.jairtraman.2025.102751" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 text-[10px] font-semibold text-indigo-300 hover:underline">Buka Jurnal <ExternalLink size={11} /></a>
@@ -624,7 +624,7 @@
               </div>
             </div>
 
-            <div class="space-y-1 rounded border border-white/[0.06] bg-[#0a101d] p-2.5">
+            <div class="space-y-1 rounded border border-line bg-panel p-2.5">
               <div class="flex items-center justify-between font-bold text-ink">
                 <span class="flex items-center gap-1.5"><TrainFront size={13} class="text-amber-300" /> Kereta Api (KLB & Stamformasi)</span>
                 <a href="https://doi.org/10.1016/j.cie.2025.111166" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 text-[10px] font-semibold text-indigo-300 hover:underline">Buka Jurnal <ExternalLink size={11} /></a>
@@ -637,7 +637,7 @@
               </div>
             </div>
 
-            <div class="space-y-1 rounded border border-white/[0.06] bg-[#0a101d] p-2.5">
+            <div class="space-y-1 rounded border border-line bg-panel p-2.5">
               <div class="flex items-center justify-between font-bold text-ink">
                 <span class="flex items-center gap-1.5"><Bus size={13} class="text-emerald-300" /> Bus & Optimasi Armada Transit</span>
                 <a href="https://www.nationalacademies.org/publications/24766" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 text-[10px] font-semibold text-indigo-300 hover:underline">Buka Manual TRB <ExternalLink size={11} /></a>
@@ -655,8 +655,8 @@
     </section>
 
     <!-- Section 8: Model Prediksi Time Series Holt-Winters Nataru -->
-    <section id="rumus-sec-8" class="scroll-mt-32 space-y-4 rounded-xl border border-white/[0.07] bg-[#0a101d] p-5 sm:p-6">
-      <div class="flex items-center justify-between border-b border-white/[0.06] pb-3">
+    <section id="rumus-sec-8" class="scroll-mt-32 space-y-4 rounded-xl border border-line bg-panel p-5 sm:p-6">
+      <div class="flex items-center justify-between border-b border-line pb-3">
         <div class="flex items-center gap-2.5">
           <span class="h-3 w-3 rounded-full bg-purple-400"></span>
           <h3 class="text-sm font-bold uppercase tracking-tight text-ink">
@@ -668,12 +668,12 @@
         </span>
       </div>
 
-      <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+      <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
         <div class="text-[11px] font-bold text-ink-2">Formulasi Model Prediksi Time Series:</div>
-        <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2.5 text-center text-sm font-semibold text-indigo-300">
+        <div class="rounded border border-line bg-fill py-2.5 text-center text-sm font-semibold text-indigo-300">
           $$\hat&#123;y&#125;_&#123;t+h&#125; = \left( \ell_t + \sum_&#123;i=1&#125;^&#123;h&#125; \phi^i b_t \right) \times s_&#123;t+h-m(k+1)&#125; \times \prod W_&#123;\text&#123;shock&#125;&#125;$$
         </div>
-        <div class="rounded border border-white/[0.06] bg-white/[0.03] py-1.5 text-center text-xs text-ink-2">
+        <div class="rounded border border-line bg-fill py-1.5 text-center text-xs text-ink-2">
           $$\text&#123;CI&#125;_&#123;95\%&#125; = \hat&#123;y&#125;_&#123;t+h&#125; \pm 1&#123;,&#125;96 \times \text&#123;RMSE&#125;$$
         </div>
       </div>
@@ -689,22 +689,22 @@
           <div class="num mt-1 text-xl font-black text-sky-400">4,02%</div>
           <div class="mt-0.5 text-[10px] text-ink-3">$$\frac&#123;\sum |y-\hat&#123;y&#125;|&#125;&#123;\sum y&#125; \times 100\%$$</div>
         </div>
-        <div class="rounded-lg border border-white/[0.06] bg-white/[0.03] p-3.5">
+        <div class="rounded-lg border border-line bg-fill p-3.5">
           <div class="text-[10px] font-bold uppercase text-ink-3">RMSE</div>
           <div class="num mt-1 text-xl font-black text-ink">62.051</div>
           <div class="mt-0.5 text-[10px] text-ink-3">$$\sqrt&#123;\frac&#123;1&#125;&#123;n&#125; \sum (y-\hat&#123;y&#125;)^2&#125;$$</div>
         </div>
-        <div class="rounded-lg border border-white/[0.06] bg-white/[0.03] p-3.5">
+        <div class="rounded-lg border border-line bg-fill p-3.5">
           <div class="text-[10px] font-bold uppercase text-ink-3">MAE</div>
           <div class="num mt-1 text-xl font-black text-ink">49.146</div>
           <div class="mt-0.5 text-[10px] text-ink-3">$$\frac&#123;1&#125;&#123;n&#125; \sum |y-\hat&#123;y&#125;|$$</div>
         </div>
       </div>
 
-      <div class="overflow-x-auto rounded-lg border border-white/[0.06]">
+      <div class="overflow-x-auto rounded-lg border border-line">
         <table class="w-full text-left text-xs">
           <thead>
-            <tr class="bg-white/[0.04]">
+            <tr class="bg-fill">
               <th class="w-28 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Simbol</th>
               <th class="w-44 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Nama Notasi</th>
               <th class="w-32 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Satuan</th>
@@ -712,37 +712,37 @@
             </tr>
           </thead>
           <tbody class="text-[11px]">
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-indigo-300">$$\hat&#123;y&#125;_&#123;t+h&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Proyeksi Penumpang</td>
               <td class="p-2.5 text-ink-3">orang / hari</td>
               <td class="p-2.5 text-ink-2">Nilai perkiraan volume mobilitas multimoda pada horizon $h$ hari ke depan (30 Sep '26 s.d. 7 Jan '27).</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-indigo-300">$$\ell_t$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Tingkat Level Dasar</td>
               <td class="p-2.5 text-ink-3">orang</td>
               <td class="p-2.5 text-ink-2">Estimasi tingkat pergerakan dasar pada waktu cutoff terkini setelah memperhitungkan data latih 635 hari.</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-indigo-300">$$b_t$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Komponen Tren</td>
               <td class="p-2.5 text-ink-3">orang / hari</td>
               <td class="p-2.5 text-ink-2">Kemiringan laju pertumbuhan riil (+5,13% YoY dari tahun 2025 ke 2026).</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-indigo-300">$$\phi$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Peredam Tren (Damping)</td>
               <td class="p-2.5 text-ink-3">konstanta (0,98)</td>
               <td class="p-2.5 text-ink-2">Parameter peredam agar model tidak over-ekstrapolasi tanpa batas pada proyeksi horizon 100 hari.</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-indigo-300">$$s_&#123;t&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Faktor Musiman Mingguan</td>
               <td class="p-2.5 text-ink-3">multiplikatif</td>
               <td class="p-2.5 text-ink-2">Pola ritme 7 hari yang secara konsisten menangkap puncak akhir pekan (Jumat-Minggu vs Selasa).</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-purple-300">$$W_&#123;\text&#123;shock&#125;&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Shock Kalender Libur</td>
               <td class="p-2.5 text-ink-3">elastisitas</td>
@@ -760,8 +760,8 @@
     </section>
 
     <!-- Section 9: Formula Perhitungan Kolom Tabel Rekomendasi Armada -->
-    <section id="rumus-sec-9" class="scroll-mt-32 space-y-4 rounded-xl border border-white/[0.07] bg-[#0a101d] p-5 sm:p-6">
-      <div class="flex items-center justify-between border-b border-white/[0.06] pb-3">
+    <section id="rumus-sec-9" class="scroll-mt-32 space-y-4 rounded-xl border border-line bg-panel p-5 sm:p-6">
+      <div class="flex items-center justify-between border-b border-line pb-3">
         <div class="flex items-center gap-2.5">
           <span class="h-3 w-3 rounded-full bg-emerald-400"></span>
           <h3 class="text-sm font-bold uppercase tracking-tight text-ink">
@@ -778,46 +778,46 @@
       </p>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+        <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
           <div class="text-[11px] font-bold text-ink-2">A. Beban Okupansi Normal & Puncak (Kolom Normal & Puncak):</div>
-          <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-xs font-semibold text-indigo-300">
+          <div class="rounded border border-line bg-fill py-2 text-center text-xs font-semibold text-indigo-300">
             $$LF_&#123;\text&#123;biasa&#125;&#125; = \frac&#123;P_&#123;\text&#123;biasa&#125;&#125;&#125;&#123;A_&#123;\text&#123;biasa&#125;&#125;&#125;, \quad LF_&#123;\text&#123;puncak&#125;&#125; = \frac&#123;P_&#123;\text&#123;puncak&#125;&#125;&#125;&#123;A_&#123;\text&#123;puncak&#125;&#125;&#125;$$
           </div>
         </div>
-        <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+        <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
           <div class="text-[11px] font-bold text-ink-2">B. Lonjakan Beban Okupansi (Kolom "Lonjakan Beban"):</div>
-          <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-xs font-semibold text-indigo-300">
+          <div class="rounded border border-line bg-fill py-2 text-center text-xs font-semibold text-indigo-300">
             $$\text&#123;Load Ratio&#125; = \frac&#123;LF_&#123;\text&#123;puncak&#125;&#125;&#125;&#123;LF_&#123;\text&#123;biasa&#125;&#125;&#125;$$
           </div>
         </div>
       </div>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+        <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
           <div class="text-[11px] font-bold text-ink-2">C. Tambahan Unit Armada Fisik (Kolom "Tambahan Unit"):</div>
-          <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-xs font-semibold text-emerald-300">
+          <div class="rounded border border-line bg-fill py-2 text-center text-xs font-semibold text-emerald-300">
             $$A_&#123;\text&#123;tambah&#125;&#125; = \left\lceil A_&#123;\text&#123;puncak&#125;&#125; \times \left( \frac&#123;\%\text&#123; Tambah&#125;&#125;&#123;100&#125; \right) \right\rceil$$
           </div>
         </div>
-        <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+        <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
           <div class="text-[11px] font-bold text-ink-2">D. Total Armada Beroperasi Harian (Kolom "Total Operasi"):</div>
-          <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-xs font-semibold text-emerald-300">
+          <div class="rounded border border-line bg-fill py-2 text-center text-xs font-semibold text-emerald-300">
             $$A_&#123;\text&#123;total&#125;&#125; = A_&#123;\text&#123;puncak&#125;&#125; + A_&#123;\text&#123;tambah&#125;&#125;$$
           </div>
         </div>
       </div>
 
-      <div class="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+      <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
         <div class="text-[11px] font-bold text-ink-2">E. Persentase Tambahan Armada Rata-rata Terpilih (Kartu Rangkuman Atas):</div>
-        <div class="rounded border border-white/[0.06] bg-white/[0.03] py-2 text-center text-xs font-semibold text-ink">
+        <div class="rounded border border-line bg-fill py-2 text-center text-xs font-semibold text-ink">
           $$\%\text&#123; Tambah Rata-rata Terpilih&#125; = \left( \frac&#123;\sum A_&#123;\text&#123;tambah&#125;&#125;&#125;&#123;\sum A_&#123;\text&#123;puncak&#125;&#125;&#125; \right) \times 100\%$$
         </div>
       </div>
 
-      <div class="overflow-x-auto rounded-lg border border-white/[0.06]">
+      <div class="overflow-x-auto rounded-lg border border-line">
         <table class="w-full text-left text-xs">
           <thead>
-            <tr class="bg-white/[0.04]">
+            <tr class="bg-fill">
               <th class="w-32 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Simbol</th>
               <th class="w-44 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Nama Kolom / Variabel</th>
               <th class="w-32 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Satuan</th>
@@ -825,25 +825,25 @@
             </tr>
           </thead>
           <tbody class="text-[11px]">
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-indigo-300">$$A_&#123;\text&#123;tambah&#125;&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Tambahan Unit</td>
               <td class="p-2.5 text-ink-3">unit sarana / hari</td>
               <td class="p-2.5 text-ink-2">Jumlah fisik perjalanan armada perbantuan harian yang wajib disediakan (flight, trip KA, trip bus, trip kapal).</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-emerald-300">$$A_&#123;\text&#123;total&#125;&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Total Operasi</td>
               <td class="p-2.5 text-ink-3">operasi / hari</td>
               <td class="p-2.5 text-ink-2">Kapasitas total perjalanan armada harian gabungan (armada reguler puncak + armada tambahan perbantuan).</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-indigo-300">$$LF_&#123;\text&#123;biasa&#125;&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">LF Normal (Keberangkatan)</td>
               <td class="p-2.5 text-ink-3">pnp / armada</td>
               <td class="p-2.5 text-ink-2">Rasio rata-rata penumpang per satu armada keberangkatan pada bulan acuan normal (Februari 2026).</td>
             </tr>
-            <tr class="border-b border-white/[0.05]">
+            <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-indigo-300">$$LF_&#123;\text&#123;puncak&#125;&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">LF Puncak (Keberangkatan)</td>
               <td class="p-2.5 text-ink-3">pnp / armada</td>
