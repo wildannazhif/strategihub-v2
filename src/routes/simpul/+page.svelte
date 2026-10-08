@@ -141,7 +141,7 @@
         horizontal: true,
         borderRadius: 6,
         barHeight: '60%',
-        dataLabels: { position: 'top' },
+        dataLabels: { position: 'right' },
       },
     },
     dataLabels: {
