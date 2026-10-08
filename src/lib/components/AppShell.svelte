@@ -148,7 +148,7 @@
 
   <!-- Main -->
   <div class="flex min-w-0 flex-1 flex-col">
-    <header class="sticky top-0 z-30 border-b border-line bg-void/80 backdrop-blur-xl">
+    <header class="sticky top-0 z-30 border-b border-line bg-abyss/80 backdrop-blur-xl">
       <div class="flex items-center gap-3 px-4 py-3 sm:px-6">
         <button
           class="hidden rounded-lg p-2 text-ink-3 hover:bg-fill lg:block"
