@@ -40,9 +40,9 @@ export const isDark = () => themeStore.current === 'dark';
  */
 export function chartTheme(dark: boolean) {
   return {
-    fg: dark ? '#e8eef7' : '#0f172a',
-    soft: dark ? '#a7b3c7' : '#475569',
-    faint: dark ? '#5d6b84' : '#94a3b8',
+    fg: dark ? '#e8eef7' : '#000000',
+    soft: dark ? '#a7b3c7' : '#141414',
+    faint: dark ? '#5d6b84' : '#2e2e2e',
     grid: dark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.08)',
     axisLine: dark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.12)',
     tooltipMode: dark ? ('dark' as const) : ('light' as const),

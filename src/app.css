@@ -36,17 +36,17 @@
   --c-void: #0b1220;
   --c-abyss: #ffffff;
   --c-panel: #ffffff;
-  --c-panel2: #f8fafc;
-  --c-ink: #0f172a;
-  --c-ink2: #475569;
-  --c-ink3: #94a3b8;
-  --c-line: rgb(15 23 42 / 0.09);
-  --c-fill: rgb(15 23 42 / 0.035);
-  --c-body: #eef2f7;
-  --c-scroll: rgb(15 23 42 / 0.16);
+  --c-panel2: #f1f5f9;
+  --c-ink: #000000;
+  --c-ink2: #141414;
+  --c-ink3: #2e2e2e;
+  --c-line: rgb(0 0 0 / 0.14);
+  --c-fill: rgb(0 0 0 / 0.05);
+  --c-body: #e9edf3;
+  --c-scroll: rgb(0 0 0 / 0.22);
   --c-tip-bg: #ffffff;
-  --c-tip-fg: #0f172a;
-  --c-tip-line: rgb(15 23 42 / 0.1);
+  --c-tip-fg: #000000;
+  --c-tip-line: rgb(0 0 0 / 0.14);
   color-scheme: light;
 }
 
