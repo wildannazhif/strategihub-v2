@@ -38,9 +38,9 @@
     const pa = p.arm > 0 ? p.pnp / p.arm : 0;
     const row = (l: string, v: string) =>
       `<div style="display:flex;justify-content:space-between;gap:12px;padding:3px 0;font-size:12px">` +
-      `<span style="color:#8b98ad">${l}</span><b style="font-family:'JetBrains Mono',monospace;color:#e8eef7">${v}</b></div>`;
+      `<span style="color:#8b98ad">${l}</span><b style="font-family:Arial,Helvetica,sans-serif;color:#e8eef7">${v}</b></div>`;
     return (
-      `<div style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;min-width:210px;padding:14px 16px">` +
+      `<div style="font-family:Arial,Helvetica,sans-serif;min-width:210px;padding:14px 16px">` +
       `<div style="font-weight:800;font-size:13.5px;color:#e8eef7;line-height:1.3">${p.nama}</div>` +
       `<div style="font-size:11.5px;color:#8b98ad;margin:2px 0 8px">${p.tipe} &bull; ${p.prov}</div>` +
       `<span style="display:inline-block;background:${moda.color}26;color:${moda.color};` +

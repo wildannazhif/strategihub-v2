@@ -1,5 +1,5 @@
-export const FONT = "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif";
-export const MONO = "'JetBrains Mono', ui-monospace, monospace";
+export const FONT = "Arial, Helvetica, ui-sans-serif, system-ui, sans-serif";
+export const MONO = "Arial, Helvetica, ui-sans-serif, system-ui, sans-serif";
 
 /** Format angka ringkas id-ID untuk label sumbu */
 export function fmtTick(v: number): string {

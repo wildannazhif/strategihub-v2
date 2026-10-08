@@ -2,8 +2,8 @@
 @import 'maplibre-gl/dist/maplibre-gl.css';
 
 @theme {
-  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-sans: Arial, Helvetica, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: Arial, Helvetica, ui-sans-serif, system-ui, sans-serif;
 
   /* Dark premium palette */
   --color-void: #04060c;
