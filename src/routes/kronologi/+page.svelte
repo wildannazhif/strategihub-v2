@@ -166,11 +166,11 @@
 
   const dowOptions = $derived.by<ApexOptions>(() => ({
     colors: dowRows.map((_, i) => (i >= 5 ? '#dc2626' : '#38bdf8')),
-    plotOptions: { bar: { distributed: true, borderRadius: 7, columnWidth: '55%' } },
+    plotOptions: { bar: { distributed: true, borderRadius: 7, columnWidth: '55%', dataLabels: { position: 'top' } } },
     dataLabels: {
       enabled: true,
       formatter: (v: number | string) => fmtCompact(Number(v)),
-      offsetY: -8,
+      offsetY: -6,
       style: { fontFamily: MONO, fontSize: '10px', colors: ['#a7b3c7'] },
     },
     legend: { show: false },
