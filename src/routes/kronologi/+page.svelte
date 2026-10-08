@@ -271,7 +271,7 @@
   </Card>
 
   <!-- Agregasi bulanan + pola mingguan -->
-  <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
     <Card class="p-4">
       <CardHeader
         title="Total Bulanan per Moda"
