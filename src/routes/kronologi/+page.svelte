@@ -77,13 +77,12 @@
   const unitShort = $derived(metric === 'pnp' ? 'pnp' : 'trip');
 
   /* ---------- Grafik utama: line multi-moda 272 hari ---------- */
-  const mainSeries = $derived<ApexOptions['series']>([
-    ...shownModas.map((m) => ({
+  const mainSeries = $derived<ApexOptions['series']>(
+    shownModas.map((m) => ({
       name: MODA[m].label,
       data: timeline.map((r) => valOf(metric, dir, r, m)),
     })),
-    { name: 'Total', data: timeline.map((r) => valOf(metric, dir, r, 'TOTAL')) },
-  ]);
+  );
 
   const mainOptions = $derived.by<ApexOptions>(() => {
     const dates = timeline.map((r) => r.date);
@@ -93,7 +92,7 @@
       if (v > totals[peakIdx]) peakIdx = i;
     });
     return {
-      colors: [...shownModas.map((m) => MODA[m].color), '#f8fafc'],
+      colors: shownModas.map((m) => MODA[m].color),
       legend: { position: 'top', horizontalAlign: 'left' },
       xaxis: {
         categories: dates,

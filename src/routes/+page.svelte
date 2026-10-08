@@ -35,21 +35,20 @@
   const sparkData = $derived(timeline.filter((_, i) => i % 4 === 0).map((r) => r.TOTAL as number));
 
   /* ---------- Tren area ---------- */
-  const areaSeries: ApexOptions['series'] = $derived([
-    ...MODA_KEYS.map((m) => ({
+  const areaSeries: ApexOptions['series'] = $derived(
+    MODA_KEYS.map((m) => ({
       name: MODA[m].label,
       type: 'area' as const,
       data: timeline.map((r) => r[m] as number),
     })),
-    { name: 'Total', type: 'line' as const, data: timeline.map((r) => r.TOTAL as number) },
-  ]);
+  );
 
   const areaOptions: ApexOptions = $derived({
     chart: { stacked: true, toolbar: { show: false }, zoom: { enabled: false } },
-    colors: [...MODA_KEYS.map((m) => MODA[m].color), '#f1f5f9'],
+    colors: MODA_KEYS.map((m) => MODA[m].color),
     legend: { position: 'top', horizontalAlign: 'left' },
-    stroke: { width: [1.5, 1.5, 1.5, 1.5, 1.5, 2.5] },
-    fill: { type: 'solid', opacity: [0.22, 0.22, 0.22, 0.22, 0.22, 0] },
+    stroke: { width: 1.5 },
+    fill: { type: 'solid', opacity: 0.22 },
     xaxis: {
       categories: timeline.map((r) => r.date),
       tickAmount: 9,
