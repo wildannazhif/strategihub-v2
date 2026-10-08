@@ -13,6 +13,7 @@
   import type { ModaKey } from '$lib/data';
   import { MODA } from '$lib/moda';
   import { fmtCompact } from '$lib/format';
+  import { themeStore, chartTheme } from '$lib/theme.svelte';
 
   type Mode = 'donat' | 'tren' | 'banding';
 
@@ -20,6 +21,8 @@
     `${v >= 0 ? '+' : ''}${v.toLocaleString('id-ID', { maximumFractionDigits: 1, minimumFractionDigits: 1 })} pp`;
   const fmtShare = (v: number) =>
     `${v.toLocaleString('id-ID', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+
+  const ct = $derived(chartTheme(themeStore.current === 'dark'));
 
   const monthly = data.monthly_summary;
   let mode: Mode = $state('donat');
@@ -43,21 +46,21 @@
     colors: MODA_KEYS.map((m) => MODA[m].color),
     chart: { toolbar: { show: false } },
     legend: { position: 'bottom' },
-    stroke: { width: 2, colors: ['#0a101d'] },
+    stroke: { width: 2, colors: [ct.donutStroke] },
     plotOptions: {
       pie: {
         donut: {
           size: '68%',
           labels: {
             show: true,
-            name: { fontFamily: FONT, fontSize: '12px', fontWeight: 600, color: '#8b98ad' },
-            value: { fontFamily: MONO, fontSize: '22px', fontWeight: 800, color: '#e8eef7' },
+            name: { fontFamily: FONT, fontSize: '12px', fontWeight: 600, color: ct.faint },
+            value: { fontFamily: MONO, fontSize: '22px', fontWeight: 800, color: ct.fg },
             total: {
               show: true,
               label: `${row.label} 2026`,
               fontSize: '13px',
               fontWeight: 700,
-              color: '#8b98ad',
+              color: ct.faint,
               formatter: () => fmtCompact(row.TOTAL),
             },
           },
@@ -97,8 +100,8 @@
     const months = monthly.map((r) => r.label.slice(0, 3));
     const lebaran =
       monthly.find((r) => r.label.toLowerCase().startsWith('mar'))?.label.slice(0, 3) ?? 'Mar';
-    const fg = '#e8eef7';
-    const fgSoft = '#a7b3c7';
+    const fg = ct.fg;
+    const fgSoft = ct.soft;
     return {
       chart: { stacked: true, stackType: '100%' },
       colors: [...MODA_KEYS.map((m) => MODA[m].color), '#f1f5f9'],
@@ -155,7 +158,7 @@
             `<div style="padding:10px 12px;min-width:190px">` +
             `<div style="font-weight:800;margin-bottom:5px;color:${fg};font-family:${FONT}">${r.label} 2026</div>` +
             rows +
-            `<div style="display:flex;align-items:center;gap:8px;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.08)">` +
+            `<div style="display:flex;align-items:center;gap:8px;margin-top:7px;padding-top:7px;border-top:1px solid ${ct.grid}">` +
             `<span style="width:8px;height:8px;border-radius:50%;background:#f1f5f9;flex-shrink:0"></span>` +
             `<span style="color:${fgSoft}">Total</span>` +
             `<span style="margin-left:auto;font-family:${MONO};font-weight:700;color:${fg}">${fmtCompact(r.TOTAL)} pnp</span>` +
@@ -209,7 +212,7 @@
         enabled: true,
         formatter: (_v: number, opts: any) =>
           opts.seriesIndex === 1 ? fmtPp(dMap[MODA_KEYS[opts.dataPointIndex]]) : '',
-        style: { fontFamily: MONO, fontSize: '11px', fontWeight: 700, colors: ['#a7b3c7'] },
+        style: { fontFamily: MONO, fontSize: '11px', fontWeight: 700, colors: [ct.soft] },
         offsetX: 22,
       },
       xaxis: { categories: MODA_KEYS.map((m) => MODA[m].label) },
@@ -271,8 +274,8 @@
               onclick={() => (monthIdx = i)}
               class={`cursor-pointer rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-colors ${
                 i === monthIdx
-                  ? 'bg-white font-bold text-slate-900'
-                  : 'bg-white/[0.06] text-ink-2 hover:bg-white/[0.1]'
+                  ? 'bg-ink font-bold text-panel'
+                  : 'bg-fill text-ink-2 hover:bg-fill'
               }`}
             >
               {r.label.slice(0, 3)}
@@ -296,7 +299,7 @@
                   {fmtShare(r.share)}
                 </p>
               </div>
-              <div class="h-2 overflow-hidden rounded-full bg-white/[0.06]">
+              <div class="h-2 overflow-hidden rounded-full bg-fill">
                 <div
                   class="h-2 rounded-full transition-all duration-700"
                   style={`width: ${(r.value / maxRank) * 100}%; background: ${MODA[r.m].color}`}

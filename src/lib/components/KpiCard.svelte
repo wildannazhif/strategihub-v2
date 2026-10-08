@@ -24,7 +24,7 @@
   const deltaColor = $derived(positive ? '#34d399' : negative ? '#fb7185' : '#8b98ad');
 </script>
 
-<Card class={`group relative overflow-hidden p-4 transition-colors hover:border-white/[0.12] ${className}`}>
+<Card class={`group relative overflow-hidden p-4 transition-colors hover:border-accent/30 ${className}`}>
   <div
     class="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full opacity-[0.13] blur-2xl transition-opacity group-hover:opacity-[0.22]"
     style={`background: ${accent}`}
@@ -32,7 +32,7 @@
   <div class="relative flex items-center gap-3">
     {#if icon}
       <span
-        class="grid size-10 shrink-0 place-items-center rounded-xl border border-white/[0.06]"
+        class="grid size-10 shrink-0 place-items-center rounded-xl border border-line"
         style={`background: ${accent}1f; color: ${accent}`}
       >
         {@render icon()}

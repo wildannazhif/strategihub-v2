@@ -189,7 +189,7 @@
         {@const key = KEY_DAYS[r.date]}
         <div
           class="min-w-[52px] flex-1 rounded-xl px-1 py-2 text-center {key ? 'ring-2 ring-offset-1' : ''}"
-          style={`background: ${fm.bg};${key ? ` --tw-ring-color: ${fm.color}; --tw-ring-offset-color: #0a101d;` : ''}`}
+          style={`background: ${fm.bg};${key ? ` --tw-ring-color: ${fm.color}; --tw-ring-offset-color: var(--c-panel);` : ''}`}
           title={`${fmtDateShort(r.date)} • ${fmtInt(r.TOTAL)} pnp`}
         >
           <p class="num text-[12px] font-extrabold" style={`color: ${fm.color}`}>
@@ -262,7 +262,7 @@
       subtitle="Persentase kenaikan tiap fase terhadap baseline harian normal."
     />
     <Chart type="bar" series={surgeSeries} options={surgeOptions} height={280} />
-    <div class="mt-4 flex flex-wrap gap-2 border-t border-white/[0.07] pt-4">
+    <div class="mt-4 flex flex-wrap gap-2 border-t border-line pt-4">
       <span class="w-full text-[11.5px] font-bold uppercase tracking-wide text-ink-3">
         Status kepadatan (lonjakan tertinggi tiap moda)
       </span>
@@ -284,10 +284,10 @@
       title="Tabel Harian Periode Lebaran"
       subtitle="Gulir untuk melihat seluruh 17 hari."
     />
-    <div class="max-h-[440px] overflow-auto rounded-xl border border-white/[0.07]">
+    <div class="max-h-[440px] overflow-auto rounded-xl border border-line">
       <table class="w-full min-w-[760px] border-collapse text-[12.5px]">
         <thead class="sticky top-0 z-10">
-          <tr class="bg-white/[0.04]">
+          <tr class="bg-fill">
             <th class="px-3 py-2.5 text-left font-bold text-ink-2">Tanggal</th>
             <th class="px-3 py-2.5 text-left font-bold text-ink-2">Relatif</th>
             <th class="num px-3 py-2.5 text-right font-bold text-ink-2">Total</th>
@@ -303,7 +303,7 @@
           {#each days as r}
             {@const f = faseOf(r.date)}
             {@const fm = FASE_META[f]}
-            <tr class="border-t border-white/[0.06] transition-colors hover:bg-white/[0.03]">
+            <tr class="border-t border-line transition-colors hover:bg-fill">
               <td class="whitespace-nowrap px-3 py-2 font-semibold text-ink-2">
                 {fmtDateShort(r.date)}
               </td>

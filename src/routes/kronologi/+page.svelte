@@ -8,6 +8,7 @@
   import { data, MODA_KEYS } from '$lib/data';
   import { MODA } from '$lib/moda';
   import { fmtCompact, fmtInt, fmtPct } from '$lib/format';
+  import { themeStore, chartTheme } from '$lib/theme.svelte';
   import type { ApexOptions } from 'apexcharts';
   import type { ModaKey, DailyRow } from '$lib/data/types';
   import CalendarDays from 'lucide-svelte/icons/calendar-days';
@@ -56,6 +57,8 @@
           : `${dir === 'dat' ? 'adat' : 'abrg'}_${m}`;
     return (r[k] as number) ?? 0;
   }
+
+  const ct = $derived(chartTheme(themeStore.current === 'dark'));
 
   const DIR_LABEL: Record<Direction, string> = { total: 'Total', dat: 'Datang', brg: 'Berangkat' };
 
@@ -164,14 +167,16 @@
     { name: 'Rata-rata harian', data: dowRows.map((r) => valOf(metric, dir, r, 'TOTAL')) },
   ]);
 
-  const dowOptions = $derived.by<ApexOptions>(() => ({
+  const dowOptions = $derived.by<ApexOptions>(() => {
+    const faint = ct.faint;
+    return ({
     colors: dowRows.map((_, i) => (i >= 5 ? '#dc2626' : '#38bdf8')),
     plotOptions: { bar: { distributed: true, borderRadius: 7, columnWidth: '55%', dataLabels: { position: 'top' } } },
     dataLabels: {
       enabled: true,
       formatter: (v: number | string) => fmtCompact(Number(v)),
       offsetY: -16,
-      style: { fontFamily: MONO, fontSize: '10px', colors: ['#a7b3c7'] },
+      style: { fontFamily: MONO, fontSize: '10px', colors: [ct.soft] },
     },
     legend: { show: false },
     xaxis: { categories: dowRows.map((r) => r.dow as string) },
@@ -183,10 +188,11 @@
           (m) =>
             `<div style="display:flex;justify-content:space-between;gap:16px"><span><span style="display:inline-block;width:8px;height:8px;border-radius:99px;background:${MODA[m].color};margin-right:6px"></span>${MODA[m].short}</span><b style="font-family:${MONO}">${fmtInt(valOf(metric, dir, r, m))}</b></div>`,
         ).join('');
-        return `<div style="font-family:${FONT};padding:4px 2px"><b>${r.dow}</b> <span style="color:#94a3b8">• rata-rata harian</span><div style="margin-top:6px">${rows}</div><div style="margin-top:6px;display:flex;justify-content:space-between"><span>Total</span><b style="font-family:${MONO}">${fmtInt(valOf(metric, dir, r, 'TOTAL'))} ${unitShort}</b></div></div>`;
+        return `<div style="font-family:${FONT};padding:4px 2px"><b>${r.dow}</b> <span style="color:${faint}">• rata-rata harian</span><div style="margin-top:6px">${rows}</div><div style="margin-top:6px;display:flex;justify-content:space-between"><span>Total</span><b style="font-family:${MONO}">${fmtInt(valOf(metric, dir, r, 'TOTAL'))} ${unitShort}</b></div></div>`;
       },
     },
-  }));
+    });
+  });
 
   /* ---------- Mini bar provinsi ---------- */
   const provData = $derived.by(() => {
@@ -249,7 +255,7 @@
       <button
         onclick={() => toggleModa(m)}
         class={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3.5 py-1.5 text-[12.5px] font-semibold transition-all ${
-          on ? 'border-transparent text-white shadow-sm' : 'border-white/10 bg-white/[0.03] text-ink-3 hover:text-ink'
+          on ? 'border-transparent text-white shadow-sm' : 'border-line bg-fill text-ink-3 hover:text-ink'
         }`}
         style={on ? `background: ${MODA[m].color}` : undefined}
       >
@@ -305,7 +311,7 @@
           <select
             value={prov}
             onchange={(e) => (prov = (e.target as HTMLSelectElement).value)}
-            class="max-w-[240px] cursor-pointer rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-[13px] font-semibold text-ink outline-none focus:border-[#38bdf8]"
+            class="max-w-[240px] cursor-pointer rounded-xl border border-line bg-fill px-3 py-2 text-[13px] font-semibold text-ink outline-none focus:border-[#38bdf8]"
           >
             {#each data.province_monthly_data.provinces as p}
               <option value={p}>{p}</option>
@@ -329,13 +335,13 @@
             {provEntry.insight}
           </p>
           <div class="mt-4 grid grid-cols-2 gap-3">
-            <div class="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3.5">
+            <div class="rounded-xl border border-line bg-fill p-3.5">
               <p class="text-[11.5px] font-semibold text-ink-3">Total berangkat YTD</p>
               <p class="num mt-1 text-xl font-extrabold text-ink">
                 {fmtCompact(provEntry.total_brg)}
               </p>
             </div>
-            <div class="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3.5">
+            <div class="rounded-xl border border-line bg-fill p-3.5">
               <p class="text-[11.5px] font-semibold text-ink-3">Volume puncak</p>
               <p class="num mt-1 text-xl font-extrabold text-ink">
                 {fmtCompact(provEntry.peak_vol)}

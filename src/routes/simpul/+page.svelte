@@ -13,6 +13,7 @@
   import { data, MODA_KEYS } from '$lib/data';
   import { MODA, densityStatus } from '$lib/moda';
   import { fmtInt, fmtCompact, fmtPct } from '$lib/format';
+  import { themeStore, chartTheme } from '$lib/theme.svelte';
   import type { ModaKey, HubRow, SimpulRecommendation } from '$lib/data/types';
 
   type Periode = 'peak' | 'ytd';
@@ -118,6 +119,8 @@
 
   const unit = $derived(sortBy === 'pnp' ? 'pnp' : 'trip');
 
+  const ct = $derived(chartTheme(themeStore.current === 'dark'));
+
   /* ---------- Horizontal bar chart (top 10), click -> select hub ---------- */
   const chartNames = $derived(chartRows.map((r) => r.nama_prasarana));
   const chartSeries = $derived<ApexOptions['series']>([
@@ -148,7 +151,7 @@
       enabled: true,
       formatter: (v: number) => fmtCompact(v),
       offsetX: 22,
-      style: { fontFamily: MONO, fontSize: '11px', colors: ['#a7b3c7'] },
+      style: { fontFamily: MONO, fontSize: '11px', colors: [ct.soft] },
     },
     xaxis: { categories: chartNames },
     yaxis: {
@@ -163,6 +166,7 @@
       xaxis: { lines: { show: true } },
     },
     tooltip: {
+      theme: ct.tooltipMode,
       y: { formatter: (v: number) => `${fmtInt(v)} ${unit}` },
     },
   });
@@ -188,7 +192,7 @@
           class={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-[13px] font-bold transition-all ${
             active
               ? 'border-transparent text-white shadow-md'
-              : 'border-white/[0.07] text-ink-2 hover:border-white/[0.14] hover:bg-white/[0.03]'
+              : 'border-line text-ink-2 hover:border-line hover:bg-fill'
           }`}
           style={active ? `background: ${MODA[m].color}` : undefined}
         >
@@ -213,7 +217,7 @@
         <input
           bind:value={search}
           placeholder="Cari simpul atau provinsi…"
-          class="w-full rounded-xl border border-white/[0.07] bg-white/[0.03] py-2 pl-9 pr-3 text-[13px] text-ink placeholder:text-ink-3 focus:border-accent focus:outline-none"
+          class="w-full rounded-xl border border-line bg-fill py-2 pl-9 pr-3 text-[13px] text-ink placeholder:text-ink-3 focus:border-accent focus:outline-none"
         />
       </div>
       <Segmented
@@ -246,7 +250,7 @@
       {#if chartRows.length > 0}
         <Chart type="bar" series={chartSeries} options={chartOptions} height={320} />
       {:else}
-        <div class="grid place-items-center rounded-xl border border-dashed border-white/[0.1] py-14 text-center">
+        <div class="grid place-items-center rounded-xl border border-dashed border-line py-14 text-center">
           <div>
             <p class="text-[14px] font-bold text-ink">Tidak ada data</p>
             <p class="mt-1 text-[12.5px] text-ink-3">Ubah kata kunci pencarian.</p>
@@ -265,13 +269,13 @@
           Simpul terpilih: <b class="text-ink">{selectedHub}</b>
         </p>
       {:else}
-        <p class="mb-3 rounded-xl bg-white/[0.03] px-3 py-2 text-[12.5px] text-ink-3">
+        <p class="mb-3 rounded-xl bg-fill px-3 py-2 text-[12.5px] text-ink-3">
           Klik bar grafik atau baris tabel untuk memfokuskan satu simpul.
         </p>
       {/if}
       <ul class="flex-1 space-y-3 overflow-y-auto pr-0.5">
         {#each topRecs as r, i}
-          <li class="rounded-xl border border-white/[0.07] p-3.5">
+          <li class="rounded-xl border border-line p-3.5">
             <div class="flex items-start justify-between gap-2">
               <div>
                 <p class="text-[13.5px] font-bold text-ink">
@@ -289,11 +293,11 @@
                 <p class="num text-[16px] font-extrabold text-rose-400">+{fmtInt(Number(r.addArm))}</p>
                 <p class="text-[10px] font-semibold text-ink-3">unit tambahan</p>
               </div>
-              <div class="rounded-lg bg-white/[0.03] py-2">
+              <div class="rounded-lg bg-fill py-2">
                 <p class="num text-[16px] font-extrabold text-ink">{fmtCompact(r.pnpPuncak)}</p>
                 <p class="text-[10px] font-semibold text-ink-3">pnp puncak</p>
               </div>
-              <div class="rounded-lg bg-white/[0.03] py-2">
+              <div class="rounded-lg bg-fill py-2">
                 <p class="num text-[16px] font-extrabold text-ink">{fmtInt(Number(r.totalArm))}</p>
                 <p class="text-[10px] font-semibold text-ink-3">total armada</p>
               </div>
@@ -314,7 +318,7 @@
       subtitle={`${rows.length} simpul • urut ${sortBy === 'pnp' ? 'penumpang' : 'armada'} ${ARAH_LABEL[arah].toLowerCase()} • P/A = penumpang per trip armada`}
     />
     {#if rows.length > 0}
-      <div class="max-h-[540px] overflow-auto rounded-xl border border-white/[0.07]">
+      <div class="max-h-[540px] overflow-auto rounded-xl border border-line">
         <table class="w-full min-w-[780px] text-left text-[13px]">
           <thead class="sticky top-0 z-10">
             <tr class="bg-panel-2">
@@ -336,9 +340,9 @@
               {@const sel = selectedHub === r.nama_prasarana}
               <tr
                 onclick={() => handleSelect(r.nama_prasarana)}
-                class={`cursor-pointer border-t border-white/[0.05] transition-colors ${
-                  sel ? 'bg-accent/[0.08]' : 'hover:bg-white/[0.03]'
-                } ${i % 2 === 1 && !sel ? 'bg-white/[0.015]' : ''}`}
+                class={`cursor-pointer border-t border-line transition-colors ${
+                  sel ? 'bg-accent/[0.08]' : 'hover:bg-fill'
+                } ${i % 2 === 1 && !sel ? 'bg-fill' : ''}`}
               >
                 <td class="num px-4 py-3 font-extrabold text-ink-3">
                   <span
@@ -376,7 +380,7 @@
           <button
             onclick={() => (page = Math.max(0, page - 1))}
             disabled={safePage === 0}
-            class="grid size-8 cursor-pointer place-items-center rounded-lg border border-white/[0.07] text-ink-3 transition-colors hover:bg-white/[0.04] disabled:opacity-40"
+            class="grid size-8 cursor-pointer place-items-center rounded-lg border border-line text-ink-3 transition-colors hover:bg-fill disabled:opacity-40"
             aria-label="Halaman sebelumnya"
           >
             <ChevronLeft size={15} />
@@ -385,7 +389,7 @@
           <button
             onclick={() => (page = Math.min(totalPages - 1, page + 1))}
             disabled={safePage >= totalPages - 1}
-            class="grid size-8 cursor-pointer place-items-center rounded-lg border border-white/[0.07] text-ink-3 transition-colors hover:bg-white/[0.04] disabled:opacity-40"
+            class="grid size-8 cursor-pointer place-items-center rounded-lg border border-line text-ink-3 transition-colors hover:bg-fill disabled:opacity-40"
             aria-label="Halaman berikutnya"
           >
             <ChevronRight size={15} />
@@ -393,7 +397,7 @@
         </div>
       </div>
     {:else}
-      <div class="grid place-items-center rounded-xl border border-dashed border-white/[0.1] py-14 text-center">
+      <div class="grid place-items-center rounded-xl border border-dashed border-line py-14 text-center">
         <div>
           <p class="text-[14px] font-bold text-ink">Tidak ada simpul cocok</p>
           <p class="mt-1 text-[12.5px] text-ink-3">Ubah kata kunci pencarian atau filter.</p>

@@ -4,9 +4,13 @@
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="%sveltekit.assets%/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-    />
+    <script>
+      try {
+        var t = localStorage.getItem('sh-theme');
+        if (t === 'light') document.documentElement.classList.remove('dark');
+        else document.documentElement.classList.add('dark');
+      } catch (e) {}
+    </script>
     <title>StrategiHub 2026 • Dasbor Mobilitas Nasional Kemenhub</title>
     %sveltekit.head%
   </head>

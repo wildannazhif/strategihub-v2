@@ -18,6 +18,9 @@
   import { data, MODA_KEYS } from '$lib/data';
   import { MODA } from '$lib/moda';
   import { fmtCompact, fmtInt, fmtPct, fmtDate } from '$lib/format';
+  import { themeStore, chartTheme } from '$lib/theme.svelte';
+
+  const ct = $derived(chartTheme(themeStore.current === 'dark'));
 
   const meta = data.meta;
   const timeline = data.daily_timeline;
@@ -90,11 +93,11 @@
               label: 'Total',
               fontSize: '12px',
               fontWeight: 700,
-              color: '#8b98ad',
+              color: ct.faint,
               formatter: () => fmtCompact(grandTotal),
             },
-            value: { fontFamily: MONO, fontSize: '20px', fontWeight: 800, color: '#e8eef7' },
-            name: { fontFamily: FONT, fontSize: '11px', color: '#8b98ad' },
+            value: { fontFamily: MONO, fontSize: '20px', fontWeight: 800, color: ct.fg },
+            name: { fontFamily: FONT, fontSize: '11px', color: ct.faint },
           },
         },
       },
@@ -121,12 +124,12 @@
       enabled: true,
       formatter: (v: number | string) => fmtCompact(Number(v)),
       offsetX: 22,
-      style: { fontFamily: MONO, fontSize: '11px', fontWeight: 700, colors: ['#a7b3c7'] },
+      style: { fontFamily: MONO, fontSize: '11px', fontWeight: 700, colors: [ct.soft] },
     },
     xaxis: { categories: top5.map((s) => s.name), max: Math.max(...top5.map((s) => s.pnpPuncak)) * 1.22 },
     yaxis: {
       labels: {
-        style: { fontFamily: FONT, colors: '#a7b3c7' },
+        style: { fontFamily: FONT, colors: ct.soft },
         formatter: (v: string | number) => (typeof v === 'string' && v.length > 14 ? `${v.slice(0, 13)}…` : String(v)),
       },
     },
@@ -264,7 +267,7 @@
     <div class="overflow-x-auto">
       <table class="w-full text-left">
         <thead>
-          <tr class="border-y border-white/[0.06] bg-white/[0.02] text-[10.5px] uppercase tracking-[0.08em] text-ink-3">
+          <tr class="border-y border-line bg-fill text-[10.5px] uppercase tracking-[0.08em] text-ink-3">
             <th class="px-4 py-2.5 font-bold sm:px-5">Simpul</th>
             <th class="px-3 py-2.5 font-bold">Moda</th>
             <th class="px-3 py-2.5 font-bold">Provinsi</th>
@@ -274,10 +277,10 @@
         </thead>
         <tbody>
           {#each top8 as s}
-            <tr class="border-b border-white/[0.04] transition-colors last:border-0 hover:bg-white/[0.02]">
+            <tr class="border-b border-line transition-colors last:border-0 hover:bg-fill">
               <td class="px-4 py-3 sm:px-5"><p class="text-[13px] font-bold text-ink">{s.name}</p></td>
               <td class="px-3 py-3">
-                <span class="num rounded-md border border-white/[0.07] bg-white/[0.04] px-1.5 py-0.5 text-[11px] font-bold text-ink-2">{s.moda}</span>
+                <span class="num rounded-md border border-line bg-fill px-1.5 py-0.5 text-[11px] font-bold text-ink-2">{s.moda}</span>
               </td>
               <td class="px-3 py-3 text-[12.5px] text-ink-3">{s.prov}</td>
               <td class="num px-3 py-3 text-right text-[12.5px] font-bold text-ink">{fmtCompact(s.pnpPuncak)}</td>

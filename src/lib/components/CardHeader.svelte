@@ -14,7 +14,7 @@
 <div class={`mb-3 flex items-start justify-between gap-3 ${className}`}>
   <div class="flex items-center gap-2.5">
     {#if icon}
-      <span class="grid size-8 shrink-0 place-items-center rounded-lg border border-white/[0.07] bg-white/[0.04] text-ink-2">
+      <span class="grid size-8 shrink-0 place-items-center rounded-lg border border-line bg-fill text-accent">
         {@render icon()}
       </span>
     {/if}

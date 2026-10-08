@@ -3,6 +3,10 @@
   import ApexCharts from 'apexcharts';
   import type { ApexOptions } from 'apexcharts';
   import { FONT, MONO, fmtTick } from './chart-utils';
+  import { themeStore, chartTheme } from '$lib/theme.svelte';
+
+  /** Reactive theme colors — charts re-render when theme toggles */
+  const ct = $derived(chartTheme(themeStore.current === 'dark'));
 
   function isPlainObject(o: unknown): o is Record<string, unknown> {
     return typeof o === 'object' && o !== null && !Array.isArray(o);
@@ -18,11 +22,15 @@
     return over as T;
   }
 
+  /**
+   * Theme-aware defaults. Page-level `options` are deep-merged ON TOP,
+   * so any explicit page value always wins over these defaults.
+   */
   function baseOptions(): ApexOptions {
     return {
       chart: {
         fontFamily: FONT,
-        foreColor: '#8b98ad',
+        foreColor: ct.soft,
         background: 'transparent',
         toolbar: {
           show: true,
@@ -31,16 +39,16 @@
         zoom: { enabled: true, type: 'x', autoScaleYaxis: true },
         animations: { enabled: true, easing: 'easeinout', speed: 500 },
       },
-      theme: { mode: 'dark' },
+      theme: { mode: ct.tooltipMode },
       dataLabels: { enabled: false },
       stroke: { curve: 'smooth', width: 2.5 },
       grid: {
-        borderColor: '#ffffff0d',
+        borderColor: ct.grid,
         xaxis: { lines: { show: false } },
         padding: { left: 8, right: 12 },
       },
       tooltip: {
-        theme: 'dark',
+        theme: ct.tooltipMode,
         shared: true,
         intersect: false,
         style: { fontFamily: FONT, fontSize: '12px' },
@@ -49,19 +57,19 @@
         fontFamily: FONT,
         fontSize: '12px',
         fontWeight: 600,
-        labels: { colors: '#a7b3c7' },
+        labels: { colors: ct.soft },
         markers: { size: 8, shape: 'circle', strokeWidth: 0 },
         itemMargin: { horizontal: 10 },
       },
       xaxis: {
-        labels: { style: { fontFamily: MONO, fontSize: '11px', colors: '#8b98ad' } },
+        labels: { style: { fontFamily: MONO, fontSize: '11px', colors: ct.soft } },
         axisBorder: { show: false },
         axisTicks: { show: false },
         tooltip: { enabled: false },
       },
       yaxis: {
         labels: {
-          style: { fontFamily: MONO, fontSize: '11px', colors: '#8b98ad' },
+          style: { fontFamily: MONO, fontSize: '11px', colors: ct.soft },
           formatter: (v: number) => fmtTick(v),
         },
       },
@@ -97,12 +105,13 @@
     chart.render();
   });
 
-  // Sync chart when reactive inputs change (guarded until mounted)
+  // Sync chart when reactive inputs change, incl. theme toggle (guarded until mounted)
   $effect(() => {
     const t = type;
     const s = series;
     const o = options;
     const h = height;
+    const _theme = ct; // subscribe: re-run when light/dark toggles
     if (!chart) return;
     untrack(() => {
       const merged = deepMerge(baseOptions(), o);

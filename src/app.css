@@ -1,20 +1,24 @@
 @import 'tailwindcss';
 @import 'maplibre-gl/dist/maplibre-gl.css';
 
-@theme {
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
   --font-sans: Arial, Helvetica, ui-sans-serif, system-ui, sans-serif;
   --font-mono: Arial, Helvetica, ui-sans-serif, system-ui, sans-serif;
 
-  /* Dark premium palette */
-  --color-void: #04060c;
-  --color-abyss: #070b15;
-  --color-panel: #0a101d;
-  --color-panel-2: #0d1424;
-  --color-edge: #ffffff12;
-  --color-ink: #e8eef7;
-  --color-ink-2: #a7b3c7;
-  --color-ink-3: #5d6b84;
+  /* Semantic surface tokens — resolved from :root / .dark below */
+  --color-void: var(--c-void);
+  --color-abyss: var(--c-abyss);
+  --color-panel: var(--c-panel);
+  --color-panel-2: var(--c-panel2);
+  --color-ink: var(--c-ink);
+  --color-ink-2: var(--c-ink2);
+  --color-ink-3: var(--c-ink3);
+  --color-line: var(--c-line);
+  --color-fill: var(--c-fill);
 
+  /* Brand accents — identical in both themes */
   --color-accent: #38bdf8;
   --color-accent-2: #818cf8;
   --color-gold: #f59e0b;
@@ -27,25 +31,65 @@
   --color-moda-laut: #22d3ee;
 }
 
-html {
+/* ---------- Light theme (default) ---------- */
+:root {
+  --c-void: #0b1220;
+  --c-abyss: #ffffff;
+  --c-panel: #ffffff;
+  --c-panel2: #f8fafc;
+  --c-ink: #0f172a;
+  --c-ink2: #475569;
+  --c-ink3: #94a3b8;
+  --c-line: rgb(15 23 42 / 0.09);
+  --c-fill: rgb(15 23 42 / 0.035);
+  --c-body: #eef2f7;
+  --c-scroll: rgb(15 23 42 / 0.16);
+  --c-tip-bg: #ffffff;
+  --c-tip-fg: #0f172a;
+  --c-tip-line: rgb(15 23 42 / 0.1);
+  color-scheme: light;
+}
+
+/* ---------- Dark premium theme ---------- */
+.dark {
+  --c-void: #04060c;
+  --c-abyss: #070b15;
+  --c-panel: #0a101d;
+  --c-panel2: #0d1424;
+  --c-ink: #e8eef7;
+  --c-ink2: #a7b3c7;
+  --c-ink3: #5d6b84;
+  --c-line: rgb(255 255 255 / 0.07);
+  --c-fill: rgb(255 255 255 / 0.03);
+  --c-body: #04060c;
+  --c-scroll: rgb(255 255 255 / 0.14);
+  --c-tip-bg: #0d1424;
+  --c-tip-fg: #e8eef7;
+  --c-tip-line: rgb(255 255 255 / 0.12);
   color-scheme: dark;
 }
 
 body {
   font-family: var(--font-sans);
-  background: var(--color-void);
-  color: var(--color-ink);
+  background: var(--c-body);
+  color: var(--c-ink);
   -webkit-font-smoothing: antialiased;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
-/* Ambient background glows */
+/* Ambient background */
 .bg-scene {
+  background:
+    radial-gradient(900px 420px at 12% -8%, rgb(56 189 248 / 0.05), transparent 60%),
+    radial-gradient(800px 380px at 88% 4%, rgb(129 140 248 / 0.04), transparent 60%),
+    var(--c-body);
+}
+.dark .bg-scene {
   background:
     radial-gradient(900px 420px at 12% -8%, rgb(56 189 248 / 0.07), transparent 60%),
     radial-gradient(800px 380px at 88% 4%, rgb(129 140 248 / 0.06), transparent 60%),
     radial-gradient(700px 500px at 50% 110%, rgb(245 158 11 / 0.04), transparent 60%),
-    var(--color-void);
+    var(--c-body);
 }
 
 .num {
@@ -57,47 +101,47 @@ body {
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: #ffffff1a;
+  background: var(--c-scroll);
   border-radius: 8px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
-::-webkit-scrollbar-thumb:hover { background: #ffffff2e; background-clip: content-box; border: 2px solid transparent; }
+::-webkit-scrollbar-thumb:hover { background: var(--c-scroll); background-clip: content-box; border: 2px solid transparent; }
 
-/* ApexCharts dark polish */
+/* ApexCharts polish */
 .apexcharts-tooltip {
   border-radius: 12px !important;
-  background: #0d1424 !important;
-  border: 1px solid #ffffff1f !important;
-  box-shadow: 0 16px 40px -8px rgb(0 0 0 / 0.6) !important;
-  color: #e8eef7 !important;
+  background: var(--c-tip-bg) !important;
+  border: 1px solid var(--c-tip-line) !important;
+  box-shadow: 0 16px 40px -8px rgb(0 0 0 / 0.25) !important;
+  color: var(--c-tip-fg) !important;
 }
 .apexcharts-tooltip-title {
   background: transparent !important;
-  border-bottom: 1px solid #ffffff14 !important;
-  color: #e8eef7 !important;
+  border-bottom: 1px solid var(--c-tip-line) !important;
+  color: var(--c-tip-fg) !important;
   font-weight: 700 !important;
 }
 .apexcharts-menu {
-  background: #0d1424 !important;
-  border: 1px solid #ffffff1f !important;
+  background: var(--c-tip-bg) !important;
+  border: 1px solid var(--c-tip-line) !important;
   border-radius: 10px !important;
 }
-.apexcharts-menu-item:hover { background: #ffffff10 !important; }
-.apexcharts-legend-text { color: #a7b3c7 !important; }
+.apexcharts-menu-item:hover { background: var(--c-fill) !important; }
+.apexcharts-legend-text { color: var(--c-ink2) !important; }
 
-/* MapLibre dark popup */
+/* MapLibre popup */
 .maplibre-popup-content {
-  background: #0d1424 !important;
-  border: 1px solid #ffffff1f !important;
+  background: var(--c-tip-bg) !important;
+  border: 1px solid var(--c-tip-line) !important;
   border-radius: 12px !important;
   padding: 0 !important;
   overflow: hidden;
-  color: #e8eef7 !important;
-  box-shadow: 0 16px 40px -8px rgb(0 0 0 / 0.6) !important;
+  color: var(--c-tip-fg) !important;
+  box-shadow: 0 16px 40px -8px rgb(0 0 0 / 0.25) !important;
 }
 .maplibre-popup-tip { display: none; }
-.maplibre-popup-close-button { color: #8b98ad !important; font-size: 18px !important; }
+.maplibre-popup-close-button { color: var(--c-ink3) !important; font-size: 18px !important; }
 
 /* Animations */
 @keyframes fade-up {

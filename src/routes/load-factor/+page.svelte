@@ -48,7 +48,7 @@
 			<table class="w-full text-left">
 				<thead>
 					<tr
-						class="border-y border-white/[0.06] bg-white/[0.02] text-[10.5px] uppercase tracking-wider text-ink-3"
+						class="border-y border-line bg-fill text-[10.5px] uppercase tracking-wider text-ink-3"
 					>
 						<th class="px-4 py-2 font-bold sm:px-5">Moda</th>
 						<th class="px-2 py-2 text-right font-bold">Normal</th>
@@ -68,7 +68,7 @@
 					{#each rows as { m, s } (m)}
 						{@const Icon = MODA_ICONS[m]}
 						<tr
-							class="border-b border-white/[0.04] transition-colors last:border-0 hover:bg-white/[0.02]"
+							class="border-b border-line transition-colors last:border-0 hover:bg-fill"
 						>
 							<td class="px-4 py-2.5 sm:px-5">
 								<div class="flex items-center gap-2">
@@ -106,7 +106,7 @@
 							</td>
 							<td class="hidden px-4 py-2.5 sm:px-5 md:table-cell">
 								<div class="flex items-center gap-2">
-									<div class="h-2 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+									<div class="h-2 flex-1 overflow-hidden rounded-full bg-fill">
 										<div
 											class="h-2 rounded-full"
 											style={`width: ${Math.min(100, (s.peak_lf / SCALE_MAX) * 100)}%; background: ${barColor(s.peak_lf)}`}
@@ -122,7 +122,7 @@
 				</tbody>
 			</table>
 		</div>
-		<p class="border-t border-white/[0.06] px-4 py-2.5 text-[11px] leading-relaxed text-ink-3 sm:px-5">
+		<p class="border-t border-line px-4 py-2.5 text-[11px] leading-relaxed text-ink-3 sm:px-5">
 			Load factor = <strong class="text-ink-2">rasio P/A</strong> (penumpang per trip). Nilai 100 =
 			100 penumpang/trip; &gt;200 = kepadatan ekstrem. Diurutkan dari puncak tertinggi.
 		</p>

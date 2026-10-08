@@ -9,7 +9,7 @@
 </script>
 
 <div
-  class={`rounded-2xl border border-white/[0.07] bg-panel shadow-[0_8px_32px_-12px_rgb(0_0_0/0.5),inset_0_1px_0_rgb(255_255_255/0.04)] ${className}`}
+  class={`rounded-xl border border-line bg-panel shadow-[0_10px_30px_-14px_rgb(15_23_42/0.22)] ${className}`}
 >
   {@render children()}
 </div>
