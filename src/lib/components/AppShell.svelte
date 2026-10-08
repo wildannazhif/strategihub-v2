@@ -11,6 +11,7 @@
   import Table2 from 'lucide-svelte/icons/table-2';
   import MapIcon from 'lucide-svelte/icons/map';
   import CalendarClock from 'lucide-svelte/icons/calendar-clock';
+  import BookOpen from 'lucide-svelte/icons/book-open';
   import Menu from 'lucide-svelte/icons/menu';
   import X from 'lucide-svelte/icons/x';
   import TrainFront from 'lucide-svelte/icons/train-front';
@@ -31,6 +32,7 @@
     { href: '/indikator', label: 'Matriks Indikator', desc: '13 indikator operasional', Icon: Table2 },
     { href: '/peta', label: 'Peta Spasial', desc: 'Sebaran 1.208 simpul', Icon: MapIcon },
     { href: '/proyeksi', label: 'Proyeksi Nataru', desc: 'Forecast 100 hari', Icon: CalendarClock },
+    { href: '/dokumentasi', label: 'Tentang Data', desc: 'Metodologi & kamus rumus', Icon: BookOpen },
   ];
 
   let open = $state(false);
