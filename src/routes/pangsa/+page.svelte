@@ -210,7 +210,7 @@
         formatter: (_v: number, opts: any) =>
           opts.seriesIndex === 1 ? fmtPp(dMap[MODA_KEYS[opts.dataPointIndex]]) : '',
         style: { fontFamily: MONO, fontSize: '11px', fontWeight: 700, colors: ['#a7b3c7'] },
-        offsetX: 10,
+        offsetX: 22,
       },
       xaxis: { categories: MODA_KEYS.map((m) => MODA[m].label) },
       yaxis: {

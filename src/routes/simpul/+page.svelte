@@ -147,7 +147,7 @@
     dataLabels: {
       enabled: true,
       formatter: (v: number) => fmtCompact(v),
-      offsetX: 10,
+      offsetX: 22,
       style: { fontFamily: MONO, fontSize: '11px', colors: ['#a7b3c7'] },
     },
     xaxis: { categories: chartNames },

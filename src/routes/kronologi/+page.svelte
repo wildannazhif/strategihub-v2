@@ -170,7 +170,7 @@
     dataLabels: {
       enabled: true,
       formatter: (v: number | string) => fmtCompact(Number(v)),
-      offsetY: -6,
+      offsetY: -16,
       style: { fontFamily: MONO, fontSize: '10px', colors: ['#a7b3c7'] },
     },
     legend: { show: false },

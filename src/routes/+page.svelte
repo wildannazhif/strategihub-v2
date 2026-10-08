@@ -120,7 +120,7 @@
     dataLabels: {
       enabled: true,
       formatter: (v: number | string) => fmtCompact(Number(v)),
-      offsetX: 8,
+      offsetX: 22,
       style: { fontFamily: MONO, fontSize: '11px', fontWeight: 700, colors: ['#a7b3c7'] },
     },
     xaxis: { categories: top5.map((s) => s.name), max: Math.max(...top5.map((s) => s.pnpPuncak)) * 1.22 },
