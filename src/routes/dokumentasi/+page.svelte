@@ -20,35 +20,27 @@
     '9. Tabel Simpul',
   ];
 
-  onMount(() => {
-    const started = Date.now();
-    const iv = setInterval(() => {
-      const w = window as unknown as {
-        renderMathInElement?: (el: Element, opts: Record<string, unknown>) => void;
-      };
-      const el = document.getElementById('dok-artikel');
-      if (w.renderMathInElement && el) {
-        clearInterval(iv);
-        w.renderMathInElement(el, {
-          delimiters: [
-            { left: '$$', right: '$$', display: true },
-            { left: '$', right: '$', display: false },
-          ],
-          throwOnError: false,
-        });
-      } else if (Date.now() - started > 5000) {
-        clearInterval(iv);
-      }
-    }, 120);
-    return () => clearInterval(iv);
+  onMount(async () => {
+    const [{ default: renderMathInElement }] = await Promise.all([
+      import('katex/contrib/auto-render'),
+      import('katex/dist/katex.min.css'),
+    ]);
+    const el = document.getElementById('dok-artikel');
+    if (el) {
+      renderMathInElement(el, {
+        delimiters: [
+          { left: '$$', right: '$$', display: true },
+          { left: '$', right: '$', display: false },
+        ],
+        throwOnError: false,
+      });
+    }
   });
 </script>
 
 <svelte:head>
   <title>Tentang Data & Rumus — StrategiHub</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
   <style>
     html { scroll-behavior: smooth; }
   </style>
