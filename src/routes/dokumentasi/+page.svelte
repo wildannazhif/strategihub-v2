@@ -167,7 +167,7 @@
       <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
         <div class="text-[11px] font-bold text-ink-2">C. Rata-rata Penumpang Harian Nasional:</div>
         <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-sky-300">
-          $$P_&#123;\text&#123;avg&#125;&#125; = \frac&#123;\sum_&#123;t=1&#125;^&#123;N&#125; P_&#123;\text&#123;total&#125;, t&#125;&#125;&#123;N&#125; = \frac&#123;371.890.120&#125;&#123;272&#125; = 1.367.243\text&#123; pnp/hari&#125;$$
+          $$P_&#123;\text&#123;avg&#125;&#125; = \frac&#123;\sum_&#123;t=1&#125;^&#123;N&#125; P_&#123;\text&#123;total&#125;, t&#125;&#125;&#123;N&#125; = \frac&#123;372.967.065&#125;&#123;272&#125; = 1.371.202\text&#123; pnp/hari&#125;$$
         </div>
       </div>
 
@@ -233,6 +233,8 @@
 
       <p class="text-[13px] text-ink-2">
         <em>Load Factor Proxy</em> mengukur intensitas okupansi fisik rata-rata per satu satuan pergerakan armada sarana transportasi.
+        Nilai acuan normal (baseline) dihitung dari <strong>median harian pra-Lebaran 1 Jan s.d. 12 Mar 2026 (71 hari)</strong>:
+        $$LF_&#123;\text&#123;baseline&#125;&#125; = \frac&#123;\text&#123;Median P pra-Lebaran&#125;&#125;&#123;\text&#123;Median A pra-Lebaran&#125;&#125;$$
       </p>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -277,7 +279,7 @@
               <td class="p-2.5 font-bold text-indigo-300">$$LF_&#123;\text&#123;baseline&#125;&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">LF Kondisi Normal</td>
               <td class="p-2.5 text-ink-3">pnp / armada</td>
-              <td class="p-2.5 text-ink-2">Kepadatan muatan pada hari kerja normal reguler tanpa pengaruh libur panjang.</td>
+              <td class="p-2.5 text-ink-2">Kepadatan muatan pada hari kerja normal reguler tanpa pengaruh libur panjang. Dihitung dari median harian pra-Lebaran 1 Jan s.d. 12 Mar 2026 (71 hari).</td>
             </tr>
             <tr>
               <td class="p-2.5 font-bold text-rose-300">$$\Delta LF$$</td>
@@ -340,6 +342,11 @@
           </tbody>
         </table>
       </div>
+
+      <p class="text-[12px] leading-relaxed text-ink-2">
+        Catatan: tab Pangsa Pasar dihapus pada pembaruan v1 — perbandingan pangsa Normal vs Puncak kini
+        tersaji di kartu Pangsa Pasar pada halaman Matriks Indikator.
+      </p>
     </section>
 
     <!-- Section 5: Rumus Periode Lebaran & Surge -->
@@ -364,7 +371,7 @@
         <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
           <div class="text-[11px] font-bold text-ink-2">A. Baseline Median Normal:</div>
           <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-indigo-300">
-            $$P_&#123;\text&#123;median&#125;&#125; = \text&#123;Median&#125;(P_1, P_2, \dots, P_&#123;272&#125;) = 1.321.644\text&#123; pnp/h&#125;$$
+            $$P_&#123;\text&#123;median&#125;&#125; = \text&#123;Median&#125;(P_&#123;\text&#123;1 Jan&#125;&#125;, \dots, P_&#123;\text&#123;12 Mar&#125;&#125;) = 1.203.870\text&#123; pnp/h&#125;$$
           </div>
         </div>
         <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
@@ -400,7 +407,7 @@
               <td class="p-2.5 font-bold text-indigo-300">$$P_&#123;\text&#123;median&#125;&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Baseline Median</td>
               <td class="p-2.5 text-ink-3">orang / hari</td>
-              <td class="p-2.5 text-ink-2">Nilai tengah mobilitas 272 hari, bebas dari distorsi lonjakan ekstrem (Google Mobility standard).</td>
+              <td class="p-2.5 text-ink-2">Nilai tengah mobilitas 71 hari pra-Lebaran (1 Jan s.d. 12 Mar 2026), bebas dari distorsi arus mudik posko resmi (Google Mobility standard).</td>
             </tr>
             <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-rose-300">$$P_&#123;\text&#123;puncak&#125;&#125;$$</td>
@@ -412,7 +419,7 @@
               <td class="p-2.5 font-bold text-rose-300">$$\text&#123;Surge&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Persentase Lonjakan</td>
               <td class="p-2.5 text-ink-3">%</td>
-              <td class="p-2.5 text-ink-2">Persentase kelipatan pergerakan di atas kapasitas hari biasa (contoh: +103,2% di arus balik).</td>
+              <td class="p-2.5 text-ink-2">Persentase kelipatan pergerakan di atas kapasitas hari biasa (contoh: +100,6% di arus balik).</td>
             </tr>
           </tbody>
         </table>
@@ -429,19 +436,24 @@
           </h3>
         </div>
         <span class="rounded bg-blue-500/15 px-2 py-0.5 text-[10px] font-bold text-blue-300">
-          Tab 1 • Wilayah & MoM
+          Tab 1 • Wilayah & Deviasi vs Median
         </span>
       </div>
 
       <p class="text-[13px] leading-relaxed text-ink-2">
         Menghitung dinamika pertumbuhan bulanan, mengidentifikasi bulan puncak mobilitas regional, serta menentukan moda transportasi dominan di masing-masing 38 provinsi di Indonesia (aktif di panel kanan Tab 1).
+        Pertumbuhan diukur sebagai <strong>deviasi terhadap baseline median pra-Lebaran</strong> (bukan lagi Month-over-Month), tersedia untuk 6 kombinasi metrik
+        (penumpang/armada × datang/berangkat/total) dan divisualisasikan sebagai stacked chart per moda.
       </p>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
-          <div class="text-[11px] font-bold text-ink-2">A. Laju Pertumbuhan Bulanan (Month-over-Month / MoM %):</div>
+          <div class="text-[11px] font-bold text-ink-2">A. Lonjakan Relatif terhadap Baseline Median (%):</div>
           <div class="rounded border border-line bg-fill py-2 text-center text-sm font-semibold text-blue-300">
-            $$\text&#123;MoM&#125;_&#123;\text&#123;prov&#125;, t&#125; = \left( \frac&#123;P_&#123;\text&#123;prov&#125;, t&#125; - P_&#123;\text&#123;prov&#125;, t-1&#125;&#125;&#123;P_&#123;\text&#123;prov&#125;, t-1&#125;&#125; \right) \times 100\%$$
+            $$\text&#123;Deviasi&#125;_&#123;\text&#123;prov&#125;, t&#125; = \left( \frac&#123;P_&#123;\text&#123;prov&#125;, t&#125; - \text&#123;Median&#125;(P_&#123;\text&#123;prov&#125;&#125;)&#125;&#123;\text&#123;Median&#125;(P_&#123;\text&#123;prov&#125;&#125;)&#125; \right) \times 100\%$$
+          </div>
+          <div class="text-center text-[11px] text-ink-3">
+            $$\text&#123;Median&#125;(P_&#123;\text&#123;prov&#125;&#125;) = \text&#123;baseline\_vol&#125; = \text&#123;median harian pra-Lebaran (1 Jan - 12 Mar 2026)&#125; \times 30&#123;,&#125;4375$$
           </div>
         </div>
         <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
@@ -464,10 +476,10 @@
           </thead>
           <tbody class="text-[11px]">
             <tr class="border-b border-line">
-              <td class="p-2.5 font-bold text-blue-300">$$\text&#123;MoM&#125;_&#123;\text&#123;prov&#125;, t&#125;$$</td>
-              <td class="p-2.5 font-semibold text-ink-2">Pertumbuhan MoM</td>
+              <td class="p-2.5 font-bold text-blue-300">$$\text&#123;Deviasi&#125;_&#123;\text&#123;prov&#125;, t&#125;$$</td>
+              <td class="p-2.5 font-semibold text-ink-2">Deviasi vs Median</td>
               <td class="p-2.5 text-ink-3">%</td>
-              <td class="p-2.5 text-ink-2">Laju akselerasi keberangkatan penumpang provinsi pada bulan $t$ dibanding bulan sebelumnya $(t-1)$.</td>
+              <td class="p-2.5 text-ink-2">Lonjakan volume provinsi pada bulan $t$ relatif terhadap baseline median pra-Lebaran provinsi tersebut.</td>
             </tr>
             <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-blue-300">$$P_&#123;\text&#123;prov&#125;, t&#125;$$</td>
@@ -486,13 +498,13 @@
       </div>
     </section>
 
-    <!-- Section 7: Standar Penambahan Armada (Persentil Load Factor) -->
+    <!-- Section 7: Standar Penambahan Armada (Ambang Tetap Load Factor) -->
     <section id="rumus-sec-7" class="scroll-mt-32 space-y-4 rounded-xl border border-line bg-panel p-5 sm:p-6">
       <div class="flex items-center justify-between border-b border-line pb-3">
         <div class="flex items-center gap-2.5">
           <span class="h-3 w-3 rounded-full bg-rose-400"></span>
           <h3 class="text-sm font-bold uppercase tracking-tight text-ink">
-            7. Standar Penentuan Penambahan Armada Simpul (Persentil Lonjakan Load Factor TCQSM TRB)
+            7. Standar Penentuan Penambahan Armada Simpul (Ambang Tetap Lonjakan Load Factor TCQSM TRB)
           </h3>
         </div>
         <span class="rounded bg-rose-500/15 px-2 py-0.5 text-[10px] font-bold text-rose-300">
@@ -501,7 +513,9 @@
       </div>
 
       <p class="text-[13px] leading-relaxed text-ink-2">
-        Sesuai standar internasional <em>Transit Capacity and Quality of Service Manual (TCQSM, TCRP Report 165)</em> dan <em>Ceder (2015)</em>, kebutuhan armada tambahan dihitung dari rasio lonjakan kepadatan per armada (Load Factor Puncak terhadap Load Factor Biasa) dengan ambang persentil empiris $P_&#123;50&#125;, P_&#123;75&#125;, P_&#123;90&#125;$ dari 1.010 simpul nasional.
+        Sesuai standar internasional <em>Transit Capacity and Quality of Service Manual (TCQSM, TCRP Report 165)</em> dan <em>Ceder (2015)</em>, kebutuhan armada tambahan dihitung dari rasio lonjakan kepadatan per armada (Load Factor Puncak terhadap Load Factor Biasa) dengan <strong>ambang tetap</strong> pada 1.010 simpul nasional.
+        Nilai normal ($P_&#123;\text&#123;biasa&#125;&#125;$, $A_&#123;\text&#123;biasa&#125;&#125;$) memakai <strong>median harian pra-Lebaran 1 Jan s.d. 12 Mar 2026 (71 hari)</strong> per simpul, sedangkan nilai puncak memakai maksimum harian 13–29 Mar 2026.
+        Total kebutuhan tambahan armada nasional: <strong>3.868 unit</strong>.
       </p>
 
       <div class="space-y-2 rounded-lg border border-line bg-fill p-4">
@@ -531,7 +545,7 @@
           <thead>
             <tr class="bg-fill">
               <th class="p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Klasifikasi Status</th>
-              <th class="p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Kriteria Persentil Empiris</th>
+              <th class="p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Kriteria Ambang Tetap</th>
               <th class="p-2.5 text-center text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Rekomendasi Tambah</th>
               <th class="p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Jumlah Simpul</th>
               <th class="p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Contoh Simpul Riil Lapangan</th>
@@ -540,30 +554,30 @@
           <tbody class="text-[11px]">
             <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-rose-400"><span class="mr-1.5 inline-block h-2 w-2 rounded-full bg-rose-500"></span>Sangat Kritis</td>
-              <td class="p-2.5 text-ink-2">$$\text&#123;Rasio&#125; \ge P_&#123;90&#125; = 3&#123;,&#125;43\times$$ (Top 10%)</td>
+              <td class="p-2.5 text-ink-2">$$\text&#123;Rasio&#125; \ge 3&#123;,&#125;0\times$$ atau ($$\text&#123;Rasio&#125; \ge 2&#123;,&#125;0\times$$ dan $$P_&#123;\text&#123;puncak&#125;&#125; \ge 20.000$$)</td>
               <td class="p-2.5 text-center font-bold text-indigo-300">+20%</td>
-              <td class="p-2.5 font-bold text-ink">87 Simpul</td>
-              <td class="p-2.5 text-ink-2">Bakauheni (4,3x), Gilimanuk (4,2x), Merak (3,8x), Giwangan (3,6x)</td>
+              <td class="p-2.5 font-bold text-ink">204 Simpul</td>
+              <td class="p-2.5 text-ink-2">Bakauheni, Gilimanuk, Merak, Giwangan</td>
             </tr>
             <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-orange-400"><span class="mr-1.5 inline-block h-2 w-2 rounded-full bg-orange-500"></span>Tinggi / Kritis</td>
-              <td class="p-2.5 text-ink-2">$$P_&#123;75&#125; \le \text&#123;Rasio&#125; &lt; P_&#123;90&#125;$$ ($$2&#123;,&#125;33\times - 3&#123;,&#125;42\times$$)</td>
+              <td class="p-2.5 text-ink-2">$$\text&#123;Rasio&#125; \ge 1&#123;,&#125;8\times$$ atau ($$\text&#123;Rasio&#125; \ge 1&#123;,&#125;4\times$$ dan $$P_&#123;\text&#123;puncak&#125;&#125; \ge 10.000$$)</td>
               <td class="p-2.5 text-center font-bold text-indigo-300">+15%</td>
-              <td class="p-2.5 font-bold text-ink">122 Simpul</td>
-              <td class="p-2.5 text-ink-2">Pasar Senen (2,8x), Ketapang (2,6x), Poto Tano (2,5x)</td>
+              <td class="p-2.5 font-bold text-ink">245 Simpul</td>
+              <td class="p-2.5 text-ink-2">Pasar Senen, Ketapang, Poto Tano</td>
             </tr>
             <tr class="border-b border-line">
-              <td class="p-2.5 font-bold text-amber-300"><span class="mr-1.5 inline-block h-2 w-2 rounded-full bg-amber-400"></span>Padat</td>
-              <td class="p-2.5 text-ink-2">$$P_&#123;50&#125; \le \text&#123;Rasio&#125; &lt; P_&#123;75&#125;$$ ($$1&#123;,&#125;54\times - 2&#123;,&#125;32\times$$)</td>
+              <td class="p-2.5 font-bold text-amber-300"><span class="mr-1.5 inline-block h-2 w-2 rounded-full bg-amber-400"></span>Padat Tinggi</td>
+              <td class="p-2.5 text-ink-2">$$\text&#123;Rasio&#125; \ge 1&#123;,&#125;2\times$$ atau $$P_&#123;\text&#123;puncak&#125;&#125; \ge 5.000$$</td>
               <td class="p-2.5 text-center font-bold text-indigo-300">+10%</td>
-              <td class="p-2.5 font-bold text-ink">211 Simpul</td>
-              <td class="p-2.5 text-ink-2">Juanda (1,9x), Gambir (1,8x), DPS Bali (1,6x), Soetta (1,5x)</td>
+              <td class="p-2.5 font-bold text-ink">445 Simpul</td>
+              <td class="p-2.5 text-ink-2">Juanda, Gambir, DPS Bali, Soetta</td>
             </tr>
             <tr>
               <td class="p-2.5 font-bold text-emerald-400"><span class="mr-1.5 inline-block h-2 w-2 rounded-full bg-emerald-500"></span>Terkendali</td>
-              <td class="p-2.5 text-ink-2">$$\text&#123;Rasio&#125; &lt; P_&#123;50&#125; = 1&#123;,&#125;54\times$$ (atau $$P &lt; 100$$)</td>
+              <td class="p-2.5 text-ink-2">Di bawah seluruh ambang di atas (sisanya)</td>
               <td class="p-2.5 text-center font-bold text-indigo-300">+5%</td>
-              <td class="p-2.5 font-bold text-ink">590 Simpul</td>
+              <td class="p-2.5 font-bold text-ink">116 Simpul</td>
               <td class="p-2.5 text-ink-2">Simpul perintis lokal & rute reguler dengan armada memadai</td>
             </tr>
           </tbody>
@@ -660,11 +674,11 @@
         <div class="flex items-center gap-2.5">
           <span class="h-3 w-3 rounded-full bg-purple-400"></span>
           <h3 class="text-sm font-bold uppercase tracking-tight text-ink">
-            8. Rumus 1 Model Holt-Winters Terpadu (Damped Trend & Calendar Shocks)
+            8. Seleksi Auto-Model 11 Model Peramalan Nataru (Champion MAPE Minimum)
           </h3>
         </div>
         <span class="rounded bg-purple-500/15 px-2 py-0.5 text-[10px] font-bold text-purple-300">
-          Horizon 100 Hari Nataru
+          Horizon 100 Hari Nataru • Auto-Model
         </span>
       </div>
 
@@ -677,6 +691,48 @@
           $$\text&#123;CI&#125;_&#123;95\%&#125; = \hat&#123;y&#125;_&#123;t+h&#125; \pm 1&#123;,&#125;96 \times \text&#123;RMSE&#125;$$
         </div>
       </div>
+
+      <p class="text-[13px] leading-relaxed text-ink-2">
+        Setiap provinsi (dan nasional) dievaluasi dengan <strong>11 model kandidat</strong> pada deret TOTAL melalui backtest
+        <em>holdout temporal</em> 28 hari (2–29 Sep 2026, latih 609 hari) dengan metrik MAPE / WAPE / RMSE / MAE / akurasi arah
+        ditambah cek stabilitas horizon 100 hari. <strong>Champion = model dengan MAPE terendah di antara model stabil</strong>,
+        lalu di-refit pada seluruh 637 hari latih. Rumus Holt-Winters di atas adalah formulasi salah satu kandidat
+        (dan champion nasional). Skenario UI terkunci <strong>Moderat</strong> (faktor 1,00); faktor Optimis 1,07 dan
+        Konservatif 0,95 tetap dihitung di data. Grafik proyeksi menampilkan 372 titik kontinu (histori 272 hari + forecast 100 hari,
+        tersambung di 29 Sep 2026).
+      </p>
+
+      <div class="overflow-x-auto rounded-lg border border-line">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="bg-fill">
+              <th class="w-12 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">No</th>
+              <th class="p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Model Kandidat</th>
+              <th class="w-32 p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Kode</th>
+              <th class="p-2.5 text-[10.5px] font-bold uppercase tracking-wider text-ink-3">Keterangan</th>
+            </tr>
+          </thead>
+          <tbody class="text-[11px]">
+            <tr class="border-b border-line"><td class="p-2.5 text-ink-2">1</td><td class="p-2.5 font-semibold text-ink-2">Holt-Winters Mul Standar</td><td class="p-2.5 text-ink-3">hw_mul_std</td><td class="p-2.5 text-ink-2">Musiman multiplikatif s=7, tanpa damping. MAPE nasional terbaik (3,8%) tetapi bukan champion nasional.</td></tr>
+            <tr class="border-b border-line"><td class="p-2.5 text-ink-2">2</td><td class="p-2.5 font-semibold text-ink-2">Holt-Winters Mul Damped (phi=0,98)</td><td class="p-2.5 text-ink-3">hw_mul_damped</td><td class="p-2.5 text-ink-2">Champion nasional (dipaksa, MAPE 4,1%) sesuai metodologi formal laporan.</td></tr>
+            <tr class="border-b border-line"><td class="p-2.5 text-ink-2">3</td><td class="p-2.5 font-semibold text-ink-2">Holt-Winters Add Damped (phi=0,98)</td><td class="p-2.5 text-ink-3">hw_add_damped</td><td class="p-2.5 text-ink-2">Musiman aditif + tren teredam.</td></tr>
+            <tr class="border-b border-line"><td class="p-2.5 text-ink-2">4</td><td class="p-2.5 font-semibold text-ink-2">SARIMA (1,1,1)x(1,1,1,7)</td><td class="p-2.5 text-ink-3">sarima</td><td class="p-2.5 text-ink-2">Musiman mingguan; champion di 7 provinsi.</td></tr>
+            <tr class="border-b border-line"><td class="p-2.5 text-ink-2">5</td><td class="p-2.5 font-semibold text-ink-2">ARIMA (1,1,1) Non-Seasonal</td><td class="p-2.5 text-ink-3">arima</td><td class="p-2.5 text-ink-2">Tanpa komponen musiman.</td></tr>
+            <tr class="border-b border-line"><td class="p-2.5 text-ink-2">6</td><td class="p-2.5 font-semibold text-ink-2">Holt Linear Trend (No Seasonal)</td><td class="p-2.5 text-ink-3">holt_linear</td><td class="p-2.5 text-ink-2">Tren linear tanpa musiman; champion di 6 provinsi.</td></tr>
+            <tr class="border-b border-line"><td class="p-2.5 text-ink-2">7</td><td class="p-2.5 font-semibold text-ink-2">Simple Exp Smoothing (SES)</td><td class="p-2.5 text-ink-3">ses</td><td class="p-2.5 text-ink-2">Level saja, tanpa tren/musiman.</td></tr>
+            <tr class="border-b border-line"><td class="p-2.5 text-ink-2">8</td><td class="p-2.5 font-semibold text-ink-2">Linear Regression / Ridge (Trend + DOW)</td><td class="p-2.5 text-ink-3">ridge</td><td class="p-2.5 text-ink-2">Regresi tren + dummy hari-dalam-minggu; tidak pernah menjadi champion provinsi.</td></tr>
+            <tr class="border-b border-line"><td class="p-2.5 text-ink-2">9</td><td class="p-2.5 font-semibold text-ink-2">Seasonal Naive (Lag 7)</td><td class="p-2.5 text-ink-3">snaive</td><td class="p-2.5 text-ink-2">Mengulang nilai 7 hari sebelumnya.</td></tr>
+            <tr class="border-b border-line"><td class="p-2.5 text-ink-2">10</td><td class="p-2.5 font-semibold text-ink-2">Naive Random Walk (Lag 1)</td><td class="p-2.5 text-ink-3">naive</td><td class="p-2.5 text-ink-2">Konstan = nilai terakhir latih.</td></tr>
+            <tr><td class="p-2.5 text-ink-2">11</td><td class="p-2.5 font-semibold text-ink-2">7-Day Moving Average (MA7)</td><td class="p-2.5 text-ink-3">ma7</td><td class="p-2.5 text-ink-2">Konstan = rata-rata 7 hari terakhir latih.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-[12px] leading-relaxed text-ink-3">
+        Catatan: data latih 2025 per provinsi adalah rekonstruksi alokasi proporsional dari nasional memakai struktur moda 2026,
+        bukan observasi langsung. Provinsi bervolume kecil dapat memiliki MAPE champion yang besar (mis. Gorontalo 112,8%) —
+        tampilkan MAPE provinsi agar tidak dibaca sebagai presisi tinggi.
+      </p>
 
       <div class="grid grid-cols-2 gap-3 text-xs md:grid-cols-4">
         <div class="rounded-lg border border-emerald-500/25 bg-emerald-500/[0.06] p-3.5">
@@ -722,7 +778,7 @@
               <td class="p-2.5 font-bold text-indigo-300">$$\ell_t$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Tingkat Level Dasar</td>
               <td class="p-2.5 text-ink-3">orang</td>
-              <td class="p-2.5 text-ink-2">Estimasi tingkat pergerakan dasar pada waktu cutoff terkini setelah memperhitungkan data latih 635 hari.</td>
+              <td class="p-2.5 text-ink-2">Estimasi tingkat pergerakan dasar pada waktu cutoff terkini setelah memperhitungkan data latih 637 hari.</td>
             </tr>
             <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-indigo-300">$$b_t$$</td>
@@ -769,12 +825,12 @@
           </h3>
         </div>
         <span class="rounded bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
-          Tab 8 • Registry Simpul
+          Rute /rekomendasi • Registry Simpul
         </span>
       </div>
 
       <p class="text-[13px] leading-relaxed text-ink-2">
-        Menjabarkan formulasi matematis eksak dari setiap kolom angka yang ditampilkan pada <strong>Tabel Rekomendasi Kebutuhan Penambahan Armada 1.010 Simpul Nasional</strong> dan kartu ringkasan eksekutif (Tab 8).
+        Menjabarkan formulasi matematis eksak dari setiap kolom angka yang ditampilkan pada <strong>Tabel Rekomendasi Kebutuhan Penambahan Armada 1.010 Simpul Nasional</strong> dan kartu ringkasan eksekutif (/rekomendasi).
       </p>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -841,7 +897,7 @@
               <td class="p-2.5 font-bold text-indigo-300">$$LF_&#123;\text&#123;biasa&#125;&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">LF Normal (Keberangkatan)</td>
               <td class="p-2.5 text-ink-3">pnp / armada</td>
-              <td class="p-2.5 text-ink-2">Rasio rata-rata penumpang per satu armada keberangkatan pada bulan acuan normal (Februari 2026).</td>
+              <td class="p-2.5 text-ink-2">Rasio rata-rata penumpang per satu armada keberangkatan pada acuan normal (median harian pra-Lebaran 1 Jan–12 Mar 2026).</td>
             </tr>
             <tr class="border-b border-line">
               <td class="p-2.5 font-bold text-indigo-300">$$LF_&#123;\text&#123;puncak&#125;&#125;$$</td>
@@ -853,7 +909,7 @@
               <td class="p-2.5 font-bold text-ink">$$\%\text&#123; Tambah&#125;$$</td>
               <td class="p-2.5 font-semibold text-ink-2">Perlu Tambah (%)</td>
               <td class="p-2.5 text-ink-3">%</td>
-              <td class="p-2.5 text-ink-2">Tingkat persentase penambahan armada berdasarkan kuantil persentil (20%, 15%, 10%, atau 5%).</td>
+              <td class="p-2.5 text-ink-2">Tingkat persentase penambahan armada berdasarkan ambang tetap (20%, 15%, 10%, atau 5%).</td>
             </tr>
           </tbody>
         </table>
