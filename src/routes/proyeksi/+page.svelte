@@ -513,7 +513,7 @@
                 {@const isChamp = b.model_code === champ.code}
                 <tr class={isChamp ? 'bg-emerald-400/[0.07]' : 'hover:bg-fill'}>
                   <td class="num px-3 py-2.5 font-bold text-ink">
-                    {#if isChamp}#1 Terpilih{:else}#{b.rank}{/if}
+                    #{b.rank}
                   </td>
                   <td class="px-3 py-2.5 font-semibold text-ink">{b.model_name}</td>
                   <td class="num px-3 py-2.5 text-right font-bold text-ink">{b.mape.toLocaleString('id-ID', { maximumFractionDigits: 2 })}</td>
@@ -547,7 +547,7 @@
       label="Total Penumpang (Nataru 18 hari)"
       value={`${fmtCompact(summary.total_passengers)} pnp`}
       delta={summary.yoy_total_pct}
-      deltaLabel="YoY vs periode sama 2025"
+      deltaLabel="YoY periode sama 2025"
       accent="#38bdf8"
     >
       {#snippet icon()}<Users size={18} />{/snippet}
@@ -556,7 +556,7 @@
       label="Rata-rata Harian (Nataru 18 hari)"
       value={`${fmtCompact(summary.avg_daily_passengers)} pnp`}
       delta={summary.yoy_avg_pct}
-      deltaLabel="YoY vs 2025"
+      deltaLabel="YoY 2025"
       accent="#7dd3fc"
     >
       {#snippet icon()}<TrendingUp size={18} />{/snippet}
@@ -565,7 +565,7 @@
       label="Total Armada (Nataru 18 hari)"
       value={`${fmtCompact(summary.total_armada)} trip`}
       delta={summary.yoy_armada_pct}
-      deltaLabel="YoY vs periode sama 2025"
+      deltaLabel="YoY periode sama 2025"
       accent="#34d399"
     >
       {#snippet icon()}<Bus size={18} />{/snippet}
@@ -592,7 +592,7 @@
       label="Puncak Absolut Proyeksi"
       value={fmtCompact(summary.all_time_peak_val)}
       delta={summary.all_time_peak_yoy}
-      deltaLabel={`${fmtDate(summary.all_time_peak_date)} • YoY vs 2025`}
+      deltaLabel={`${fmtDate(summary.all_time_peak_date)} • YoY 2025`}
       accent="#fb7185"
     >
       {#snippet icon()}<Flame size={18} />{/snippet}

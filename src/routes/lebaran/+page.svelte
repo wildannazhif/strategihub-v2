@@ -222,7 +222,7 @@
       label="Puncak Mudik — H-3"
       value={`${fmtCompact(kpi.mudikVal)} pnp`}
       delta={kpi.mudikPct}
-      deltaLabel="vs baseline pra-Lebaran • 18 Mar 2026"
+      deltaLabel="baseline pra-Lebaran (1 Jan–12 Mar) • 18 Mar 2026"
       accent="#f59e0b"
     >
       {#snippet icon()}<Flame size={18} />{/snippet}
@@ -231,7 +231,7 @@
       label="Puncak Balik — H+3"
       value={`${fmtCompact(kpi.balikVal)} pnp`}
       delta={kpi.balikPct}
-      deltaLabel="vs baseline pra-Lebaran • 24 Mar 2026"
+      deltaLabel="baseline pra-Lebaran (1 Jan–12 Mar) • 24 Mar 2026"
       accent="#a78bfa"
     >
       {#snippet icon()}<Undo2 size={18} />{/snippet}

@@ -199,9 +199,9 @@
   };
 
   const insights = $derived([
-    { color: '#fb7185', text: `Puncak ${fmtDate(meta.all_time_peak_date)} mencapai ${fmtCompact(meta.all_time_peak_val)} penumpang (+${fmtPct(peakSurgeVsBaseline, 1)} vs baseline pra-Lebaran).` },
+    { color: '#fb7185', text: `Puncak ${fmtDate(meta.all_time_peak_date)} mencapai ${fmtCompact(meta.all_time_peak_val)} penumpang (${fmtPct(peakSurgeVsBaseline, 1)} vs baseline pra-Lebaran).` },
     { color: '#38bdf8', text: `${MODA[topModa].label} dominan dengan ${fmtPct((totalByModa[topModa] / grandTotal) * 100, 1)} pangsa YTD.` },
-    { color: '#f59e0b', text: `Arus mudik H-3 (${fmtDate(meta.peak_mudik_date)}) menembus ${fmtCompact(meta.peak_mudik_val)} penumpang (+${fmtPct(mudikSurgeVsBaseline, 1)}).` },
+    { color: '#f59e0b', text: `Arus mudik H-3 (${fmtDate(meta.peak_mudik_date)}) menembus ${fmtCompact(meta.peak_mudik_val)} penumpang (${fmtPct(mudikSurgeVsBaseline, 1)}).` },
     { color: '#a78bfa', text: `Simpul tersibuk: ${top5[0]?.name ?? '-'} (${fmtInt(top5[0]?.pnpPuncak ?? 0)} pnp saat puncak).` },
     { color: '#34d399', text: `${fmtCompact(ytdArmada)} trip armada beroperasi selama ${meta.days_count} hari.` },
   ]);
@@ -214,10 +214,10 @@
       {#snippet icon()}<Users size={19} />{/snippet}
       {#snippet spark()}<Chart type="area" series={[{ name: 'Harian', data: sparkData }]} options={sparkOptions} height={36} />{/snippet}
     </KpiCard>
-    <KpiCard label="Puncak Pergerakan" value={fmtCompact(meta.all_time_peak_val)} delta={peakSurgeVsBaseline} deltaLabel="vs baseline pra-Lebaran" sub={fmtDate(meta.all_time_peak_date)} accent="#fb7185">
+    <KpiCard label="Puncak Pergerakan" value={fmtCompact(meta.all_time_peak_val)} delta={peakSurgeVsBaseline} deltaLabel="baseline pra-Lebaran (1 Jan–12 Mar)" sub={fmtDate(meta.all_time_peak_date)} accent="#fb7185">
       {#snippet icon()}<Flame size={19} />{/snippet}
     </KpiCard>
-    <KpiCard label="Puncak Mudik (H-3)" value={fmtCompact(meta.peak_mudik_val)} delta={mudikSurgeVsBaseline} deltaLabel="vs baseline pra-Lebaran" sub={meta.peak_mudik_date ? fmtDate(meta.peak_mudik_date) : ''} accent="#f59e0b">
+    <KpiCard label="Puncak Mudik (H-3)" value={fmtCompact(meta.peak_mudik_val)} delta={mudikSurgeVsBaseline} deltaLabel="baseline pra-Lebaran (1 Jan–12 Mar)" sub={meta.peak_mudik_date ? fmtDate(meta.peak_mudik_date) : ''} accent="#f59e0b">
       {#snippet icon()}<CalendarDays size={19} />{/snippet}
     </KpiCard>
     <KpiCard label="Total Armada" value={`${fmtCompact(ytdArmada)} trip`} sub={`${fmtInt(Math.round(ytdArmada / meta.days_count))} trip/hari`} accent="#34d399">

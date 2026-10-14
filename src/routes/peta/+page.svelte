@@ -189,7 +189,7 @@
   const visibleVol = $derived(visibleNodes.reduce((s, n) => s + valOf(n, metric, direction), 0));
   const scaleBadge = $derived(
     scale === 'all'
-      ? `${fmtInt(visibleNodes.length)} Terpetakan (100%)`
+      ? `${fmtInt(visibleNodes.length)} Terpetakan`
       : `${fmtInt(visibleNodes.length)} Simpul (${totalPoolVol > 0 ? ((visibleVol / totalPoolVol) * 100).toFixed(1) : '0.0'}% Pangsa)`,
   );
 
