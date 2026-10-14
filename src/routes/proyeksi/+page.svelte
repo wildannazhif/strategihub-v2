@@ -11,7 +11,7 @@
   import { MODA } from '$lib/moda';
   import { fmtCompact, fmtInt, fmtPct, fmtDate } from '$lib/format';
   import { themeStore, chartTheme } from '$lib/theme.svelte';
-  import type { ForecastPoint, ModaKey, SimpulRecommendation } from '$lib/data';
+  import type { ForecastPoint } from '$lib/data';
   import { base } from '$app/paths';
   import Users from 'lucide-svelte/icons/users';
   import TrendingUp from 'lucide-svelte/icons/trending-up';
@@ -31,99 +31,261 @@
   import ListChecks from 'lucide-svelte/icons/list-checks';
   import PieChartIcon from 'lucide-svelte/icons/pie-chart';
   import BookOpen from 'lucide-svelte/icons/book-open';
-  import Search from 'lucide-svelte/icons/search';
-  import ChevronLeft from 'lucide-svelte/icons/chevron-left';
-  import ChevronRight from 'lucide-svelte/icons/chevron-right';
+  import ChevronDown from 'lucide-svelte/icons/chevron-down';
+  import MapPin from 'lucide-svelte/icons/map-pin';
+  import Trophy from 'lucide-svelte/icons/trophy';
 
-  type ScenarioKey = 'moderat' | 'optimis' | 'konservatif';
+  /* Skenario terkunci Moderat (mengikuti v1): tidak ada pemilih skenario di UI. */
+  const scen = 'moderat' as const;
 
-  const SCENARIOS: { key: ScenarioKey; label: string; color: string; desc: string }[] = [
-    {
-      key: 'moderat', label: 'Moderat', color: '#38bdf8',
-      desc: 'Skenario basis (faktor 1,00) — proyeksi mengikuti pola historis model Holt-Winters tanpa asumsi kebijakan tambahan.',
-    },
-    {
-      key: 'optimis', label: 'Optimis', color: '#34d399',
-      desc: 'Faktor 1,07 — animo masyarakat tinggi, stimulus pariwisata, dan penambahan kapasitas armada selama Nataru.',
-    },
-    {
-      key: 'konservatif', label: 'Konservatif', color: '#fb7185',
-      desc: 'Faktor 0,95 — animo melemah atau adanya pembatasan operasional pada periode Natal dan Tahun Baru.',
-    },
-  ];
-
-  interface ScenPoint {
-    date: string;
-    TOTAL: number;
-    ci_lower: number;
-    ci_upper: number;
-    pnp_2025: number;
-    yoy_pct: number;
+  interface ChampionModel {
+    name: string;
+    code: string;
+    mape: number;
+    rmse: number;
+    mae: number;
+    wape: number;
+    dir_acc: number;
   }
 
-  function asArray(s: ForecastPoint[] | { daily?: ForecastPoint[] } | undefined): ForecastPoint[] {
-    if (!s) return [];
-    return Array.isArray(s) ? s : (s.daily ?? []);
+  interface BenchmarkRow {
+    model_name: string;
+    model_code: string;
+    rank: number;
+    mape: number;
+    wape: number;
+    rmse: number;
+    mae: number;
+    dir_acc: number;
+    is_stable: boolean;
   }
 
   interface ModeBreakdown {
     passengers_2026: number;
     yoy_pct: number;
     share_pct_2026: number;
+    armada_2026?: number;
+    armada_2025?: number;
   }
+
+  interface ScopeSummary {
+    total_passengers: number;
+    yoy_total_pct: number;
+    avg_daily_passengers: number;
+    yoy_avg_pct: number;
+    total_armada: number;
+    yoy_armada_pct: number;
+    xmas_peak_val: number;
+    xmas_peak_yoy: number;
+    xmas_peak_date: string;
+    ny_peak_val: number;
+    ny_peak_yoy: number;
+    ny_peak_date: string;
+    all_time_peak_val: number;
+    all_time_peak_yoy: number;
+    all_time_peak_date: string;
+    mode_breakdown?: Record<string, ModeBreakdown>;
+  }
+
+  interface ScopeForecast {
+    champion_model?: ChampionModel;
+    benchmarks?: BenchmarkRow[];
+    metrics?: { TOTAL?: { model_name?: string; mape?: number; rmse?: number; mae?: number; wape?: number; dir_acc?: number } };
+    summaries?: Record<string, ScopeSummary>;
+    scenarios?: Record<string, ForecastPoint[] | { daily?: ForecastPoint[] }>;
+    history_2026?: { dates?: string[]; TOTAL?: number[] };
+    history_2025_md?: Record<string, number>;
+  }
+
+  type RawForecast = ScopeForecast & {
+    meta: {
+      model: string;
+      training_dataset: string;
+      train_start: string;
+      train_end: string;
+      train_days: number;
+      forecast_start: string;
+      forecast_end: string;
+      horizon_days: number;
+      parameters?: Record<string, unknown>;
+      scenario_factors?: Record<string, number>;
+      scenario_note?: string;
+      ci_method?: string;
+    };
+    provinces?: string[];
+    by_province?: Record<string, ScopeForecast>;
+  };
+
+  const fn = data.forecast_nataru as unknown as RawForecast;
+  const meta = fn.meta;
+  const provinces = [...(fn.provinces ?? [])].sort((a, b) => a.localeCompare(b, 'id'));
+
+  let prov = $state('ALL');
+  let showBench = $state(false);
+  let fcRange = $state<'nataru' | 'des' | 'nov' | 'okt' | 'all'>('nataru');
+
+  const byProv = fn.by_province ?? {};
+  const scope = $derived<ScopeForecast>(prov === 'ALL' ? fn : (byProv[prov] ?? fn));
+  const isNational = $derived(prov === 'ALL');
+  const scopeLabel = $derived(isNational ? 'Seluruh Provinsi (Nasional)' : prov);
+
+  const summary = $derived<ScopeSummary>(
+    scope.summaries?.[scen] ?? fn.summaries?.[scen] ?? ({} as ScopeSummary),
+  );
+
+  function asArray(s: ForecastPoint[] | { daily?: ForecastPoint[] } | undefined): ForecastPoint[] {
+    if (!s) return [];
+    return Array.isArray(s) ? s : (s.daily ?? []);
+  }
+
+  const num = (v: unknown): number => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  interface FcPoint {
+    date: string;
+    TOTAL: number;
+    ci_lower: number;
+    ci_upper: number;
+    base2025: number;
+    yoy: number;
+    is_nataru: boolean;
+    UDARA: number;
+    KA: number;
+    BUS: number;
+    ASDP: number;
+    LAUT: number;
+    arm_TOTAL: number;
+  }
+
+  const fcPts = $derived<FcPoint[]>(
+    asArray((scope.scenarios?.[scen] ?? fn.scenarios?.[scen]) as ForecastPoint[] | { daily?: ForecastPoint[] } | undefined).map(
+      (d) => {
+        const rec = d as unknown as Record<string, unknown>;
+        const base2025 = num(rec.TOTAL_2025 ?? rec.pnp_2025);
+        const storedYoy = num(rec.yoy_pct);
+        const yoy = base2025 > 0 ? ((num(d.TOTAL) - base2025) / base2025) * 100 : storedYoy;
+        return {
+          date: String(d.date),
+          TOTAL: num(d.TOTAL),
+          ci_lower: num(rec.ci_lower),
+          ci_upper: num(rec.ci_upper),
+          base2025,
+          yoy,
+          is_nataru:
+            rec.is_nataru === true ||
+            (String(d.date) >= '2026-12-18' && String(d.date) <= '2027-01-04'),
+          UDARA: num(rec.UDARA),
+          KA: num(rec.KA),
+          BUS: num(rec.BUS),
+          ASDP: num(rec.ASDP),
+          LAUT: num(rec.LAUT),
+          arm_TOTAL: num(rec.arm_TOTAL),
+        };
+      },
+    ),
+  );
+
+  /* Champion: dari data baru; fallback ke model HW nasional bila data lama. */
+  const champ = $derived<ChampionModel>(
+    scope.champion_model ??
+      fn.champion_model ?? {
+        name: 'Holt-Winters Mul Damped (phi=0.98)',
+        code: 'hw_mul_damped',
+        mape: scope.metrics?.TOTAL?.mape ?? 4.1,
+        rmse: scope.metrics?.TOTAL?.rmse ?? 62051,
+        mae: scope.metrics?.TOTAL?.mae ?? 49146,
+        wape: scope.metrics?.TOTAL?.wape ?? 4.02,
+        dir_acc: scope.metrics?.TOTAL?.dir_acc ?? 89.3,
+      },
+  );
+  const benchmarks = $derived<BenchmarkRow[]>([...(scope.benchmarks ?? fn.benchmarks ?? [])].sort((a, b) => a.rank - b.rank));
+
+  const breakdown = $derived(summary.mode_breakdown);
+  const scenarioFactors = meta.scenario_factors;
+  const ciMethod = meta.ci_method;
+  const scenarioNote = meta.scenario_note;
+  const params = meta.parameters ?? {};
+
+  /* ---------- Histori 272 hari ---------- */
+  const histDates = $derived<string[]>(
+    scope.history_2026?.dates && scope.history_2026.dates.length > 0
+      ? scope.history_2026.dates
+      : data.daily_timeline.map((r) => String(r.date)),
+  );
+  const histVals = $derived<number[]>(
+    scope.history_2026?.TOTAL && scope.history_2026.TOTAL.length > 0
+      ? scope.history_2026.TOTAL.map((v) => num(v))
+      : data.daily_timeline.map((r) => num(r.TOTAL)),
+  );
+
+  /* Pembanding 2025 per MM-DD: nasional dari timeline_2025, provinsi dari history_2025_md. */
+  const md2025 = $derived.by<Map<string, number>>(() => {
+    const m = new Map<string, number>();
+    if (scope.history_2025_md) {
+      for (const [k, v] of Object.entries(scope.history_2025_md)) m.set(k, num(v));
+    } else {
+      for (const r of data.timeline_2025 ?? []) {
+        const d = String(r.date);
+        if (d.length >= 10) m.set(d.slice(5), num(r.TOTAL));
+      }
+    }
+    return m;
+  });
+
+  const allDates = $derived<string[]>([...histDates, ...fcPts.map((p) => p.date)]);
+  const lastHist = $derived(histVals.length > 0 ? histVals[histVals.length - 1] : 0);
+  const hist2025Vals = $derived<number[]>(histDates.map((d) => md2025.get(d.slice(5)) ?? 0));
+  const fc2025Vals = $derived<number[]>(fcPts.map((p) => p.base2025));
+
+  const peak = $derived<FcPoint>(
+    fcPts.reduce((a, b) => (b.TOTAL > a.TOTAL ? b : a), fcPts[0] ?? ({ date: '', TOTAL: 0 } as FcPoint)),
+  );
+
+  /* ---------- Grafik utama 372 titik ---------- */
+  const ct = $derived(chartTheme(themeStore.current === 'dark'));
+
+  const mainSeries = $derived(
+    [
+      {
+        name: 'Realisasi 2026',
+        type: 'line',
+        data: [...histVals, ...Array(fcPts.length).fill(null)],
+      },
+      {
+        name: `Proyeksi ${champ.name}`,
+        type: 'line',
+        data: [...Array(Math.max(histVals.length - 1, 0)).fill(null), lastHist, ...fcPts.map((p) => p.TOTAL)],
+      },
+      {
+        name: 'Interval 95%',
+        type: 'rangeArea',
+        data: [
+          ...Array(Math.max(histVals.length - 1, 0)).fill(null),
+          [lastHist, lastHist],
+          ...fcPts.map((p) => [p.ci_lower, p.ci_upper]),
+        ],
+      },
+      {
+        name: 'Realisasi 2025',
+        type: 'line',
+        data: [...hist2025Vals, ...fc2025Vals],
+      },
+    ] as unknown as ApexOptions['series'],
+  );
 
   const fmtDay = (v: string | number) =>
     typeof v === 'string' ? v.slice(5).replace('-', '/') : String(v);
 
-  let scen = $state<ScenarioKey>('moderat');
-  const fn = data.forecast_nataru;
-  const meta = fn.meta;
-
-  const summary = $derived(fn.summaries[scen]);
-  const pts = $derived<ScenPoint[]>(
-    asArray(fn.scenarios[scen]).map((d) => ({
-      date: String(d.date),
-      TOTAL: Number(d.TOTAL),
-      ci_lower: Number(d.ci_lower),
-      ci_upper: Number(d.ci_upper),
-      pnp_2025: Number(d.pnp_2025),
-      yoy_pct: Number(d.yoy_pct),
-    })),
-  );
-
-  const peak = $derived<ScenPoint>(
-    pts.reduce((a, b) => (b.TOTAL > a.TOTAL ? b : a), pts[0] ?? ({ date: '', TOTAL: 0 } as ScenPoint)),
-  );
-
-  const breakdown = $derived(
-    (summary as unknown as { mode_breakdown?: Record<string, ModeBreakdown> }).mode_breakdown,
-  );
-  const scenarioFactors = (meta as unknown as { scenario_factors?: Record<string, number> }).scenario_factors;
-  const ciMethod = (meta as unknown as { ci_method?: string }).ci_method;
-  const scenarioNote = (meta as unknown as { scenario_note?: string }).scenario_note;
-  const params = meta.parameters ?? {};
-
-  /* ---------- Grafik utama: proyeksi + CI + benchmark ---------- */
-  const ct = $derived(chartTheme(themeStore.current === 'dark'));
-
-  const mainSeries = $derived<ApexOptions['series']>([
-    { name: 'Proyeksi 2026/2027', type: 'line', data: pts.map((p) => p.TOTAL) },
-    {
-      name: 'Interval 95%',
-      type: 'rangeArea',
-      data: pts.map((p) => [p.ci_lower, p.ci_upper]),
-    },
-    { name: 'Aktual 2025', type: 'line', data: pts.map((p) => p.pnp_2025) },
-  ]);
-
   const mainOptions = $derived<ApexOptions>({
-    colors: ['#38bdf8', ct.faint, ct.faint],
-    stroke: { width: [2.5, 0, 2], dashArray: [0, 0, 6], curve: 'smooth' },
-    fill: { opacity: [1, 0.22, 1], type: ['solid', 'solid', 'solid'] },
-    markers: { size: [0, 0, 0] },
+    colors: ['#38bdf8', '#a78bfa', ct.faint, ct.faint],
+    stroke: { width: [2.5, 2.5, 0, 2], dashArray: [0, 4, 0, 6], curve: 'smooth' },
+    fill: { opacity: [1, 1, 0.22, 1], type: ['solid', 'solid', 'solid', 'solid'] },
+    markers: { size: [0, 0, 0, 0] },
     xaxis: {
-      categories: pts.map((p) => p.date),
-      tickAmount: 10,
+      categories: allDates,
+      tickAmount: 12,
       labels: { formatter: fmtDay },
     },
     tooltip: {
@@ -133,6 +295,7 @@
         formatter: (v: string | number) => (typeof v === 'string' ? fmtDate(v) : String(v)),
       },
       y: [
+        { formatter: (v: number) => `${fmtInt(v)} pnp` },
         { formatter: (v: number) => `${fmtInt(v)} pnp` },
         {
           formatter: (v: number | number[]) =>
@@ -187,15 +350,15 @@
 
   /* ---------- Grafik YoY harian ---------- */
   const yoySeries = $derived<ApexOptions['series']>([
-    { name: 'YoY harian', data: pts.map((p) => Number(p.yoy_pct.toFixed(1))) },
+    { name: 'YoY harian', data: fcPts.map((p) => Number(p.yoy.toFixed(1))) },
   ]);
 
   const yoyOptions = $derived<ApexOptions>({
-    colors: pts.map((p) => (p.yoy_pct >= 0 ? '#34d399' : '#fb7185')),
+    colors: fcPts.map((p) => (p.yoy >= 0 ? '#34d399' : '#fb7185')),
     legend: { show: false },
     plotOptions: { bar: { distributed: true, borderRadius: 3 } },
     xaxis: {
-      categories: pts.map((p) => p.date),
+      categories: fcPts.map((p) => p.date),
       tickAmount: 14,
       labels: { formatter: fmtDay },
     },
@@ -214,10 +377,41 @@
     },
   });
 
-  const activeScen = $derived(SCENARIOS.find((s) => s.key === scen)!);
+  /* ---------- Tabel rincian 100 hari ---------- */
+  const tableRows = $derived.by<FcPoint[]>(() => {
+    if (fcRange === 'nataru') return fcPts.filter((p) => p.is_nataru);
+    if (fcRange === 'des') return fcPts.filter((p) => p.date.startsWith('2026-12'));
+    if (fcRange === 'nov') return fcPts.filter((p) => p.date.startsWith('2026-11'));
+    if (fcRange === 'okt') return fcPts.filter((p) => p.date.startsWith('2026-10'));
+    return fcPts;
+  });
+
+  const MODEL_11 = [
+    'Holt-Winters Mul Standar',
+    'Holt-Winters Mul Damped (phi=0,98)',
+    'Holt-Winters Add Damped (phi=0,98)',
+    'SARIMA (1,1,1)x(1,1,1,7)',
+    'ARIMA (1,1,1) Non-Seasonal',
+    'Holt Linear Trend (No Seasonal)',
+    'Simple Exp Smoothing (SES)',
+    'Linear Regression / Ridge (Trend + DOW)',
+    'Seasonal Naive (Lag 7)',
+    'Naive Random Walk (Lag 1)',
+    '7-Day Moving Average (MA7)',
+  ];
 
   const methodRows = $derived<{ icon: typeof Cpu; label: string; value: string }[]>([
-    { icon: Cpu, label: 'Model', value: meta.model },
+    {
+      icon: Cpu,
+      label: 'Model',
+      value:
+        'Seleksi otomatis 11 model per provinsi (auto-model); champion = MAPE terendah di antara model stabil.',
+    },
+    {
+      icon: Trophy,
+      label: 'Model terpilih (champion)',
+      value: `${champ.name} — MAPE ${champ.mape.toLocaleString('id-ID', { maximumFractionDigits: 2 })}% (holdout 28 hari)`,
+    },
     { icon: Database, label: 'Dataset latih', value: meta.training_dataset },
     {
       icon: CalendarClock,
@@ -231,102 +425,13 @@
     },
     {
       icon: SlidersHorizontal,
-      label: 'Faktor skenario',
+      label: 'Skenario',
       value: scenarioFactors
-        ? `Moderat ${scenarioFactors.moderat?.toLocaleString('id-ID')} • Optimis ${scenarioFactors.optimis?.toLocaleString('id-ID')} • Konservatif ${scenarioFactors.konservatif?.toLocaleString('id-ID')}`
-        : 'Moderat 1,00 • Optimis 1,07 • Konservatif 0,95',
+        ? `Terkunci Moderat (faktor ${scenarioFactors.moderat?.toLocaleString('id-ID')}). Faktor Optimis ${scenarioFactors.optimis?.toLocaleString('id-ID')} & Konservatif ${scenarioFactors.konservatif?.toLocaleString('id-ID')} tetap dihitung di data, tidak dapat dipilih di UI.`
+        : 'Terkunci Moderat (faktor 1,00). Faktor Optimis 1,07 & Konservatif 0,95 tetap dihitung di data, tidak dapat dipilih di UI.',
     },
     { icon: Activity, label: 'Interval kepercayaan', value: ciMethod ?? 'Aproksimasi 95% berbasis RMSE' },
   ]);
-
-  /* ---------- Tabel Rekomendasi Armada (1.010 simpul) ---------- */
-  const recs: SimpulRecommendation[] = $derived(data.simpul_recommendations ?? []);
-
-  let recModa = $state('ALL');
-  let recStatus = $state('ALL');
-  let recLimit = $state('25');
-  let recSort = $state('pnp_desc');
-  let recSearch = $state('');
-  let recPage = $state(1);
-
-  $effect(() => {
-    void recModa; void recStatus; void recLimit; void recSort; void recSearch;
-    recPage = 1;
-  });
-
-  const modaCounts = $derived.by(() => {
-    const m = new Map<string, number>();
-    for (const r of recs) m.set(r.moda, (m.get(r.moda) ?? 0) + 1);
-    return m;
-  });
-
-  const recFiltered = $derived.by(() => {
-    const q = recSearch.toLowerCase().trim();
-    const f = recs.filter((s) => {
-      if (recModa !== 'ALL' && s.moda !== recModa) return false;
-      if (recStatus !== 'ALL' && String(s.pctTambah) !== recStatus) return false;
-      if (q && !`${s.name} ${s.prov} ${s.moda}`.toLowerCase().includes(q)) return false;
-      return true;
-    });
-    const sorted = [...f];
-    if (recSort === 'ratio_desc') sorted.sort((a, b) => b.loadRatio - a.loadRatio);
-    else if (recSort === 'pct_desc') sorted.sort((a, b) => b.pctTambah - a.pctTambah || b.pnpPuncak - a.pnpPuncak);
-    else if (recSort === 'add_desc') sorted.sort((a, b) => b.addArm - a.addArm);
-    else if (recSort === 'name_asc') sorted.sort((a, b) => a.name.localeCompare(b.name, 'id'));
-    else sorted.sort((a, b) => b.pnpPuncak - a.pnpPuncak);
-    return sorted;
-  });
-
-  const recTotalPages = $derived(
-    recLimit === 'all' ? 1 : Math.max(1, Math.ceil(recFiltered.length / Number(recLimit))),
-  );
-  const recSafePage = $derived(Math.min(Math.max(recPage, 1), recTotalPages));
-  const recRows = $derived(
-    recLimit === 'all'
-      ? recFiltered
-      : recFiltered.slice((recSafePage - 1) * Number(recLimit), recSafePage * Number(recLimit)),
-  );
-  const recOffset = $derived(recLimit === 'all' ? 0 : (recSafePage - 1) * Number(recLimit));
-  const recRangeLabel = $derived(
-    recFiltered.length === 0
-      ? 'Tidak ada simpul yang cocok dengan filter.'
-      : recLimit === 'all'
-        ? `Menampilkan seluruh ${fmtInt(recFiltered.length)} simpul (dari ${fmtInt(recs.length)} simpul nasional)`
-        : `Menampilkan ${fmtInt(recOffset + 1)}–${fmtInt(recOffset + recRows.length)} dari ${fmtInt(recFiltered.length)} simpul`,
-  );
-
-  const recHighlights = $derived(
-    MODA_KEYS.map((m) => {
-      const sub = recFiltered.filter((r) => r.moda === m);
-      const puncakArm = sub.reduce((a, c) => a + (c.armPuncak || 0), 0);
-      const addArm = sub.reduce((a, c) => a + (c.addArm || 0), 0);
-      return { m, count: sub.length, avgPct: puncakArm > 0 ? (addArm / puncakArm) * 100 : 0, addArm };
-    }),
-  );
-
-  const recSummary = $derived.by(() => {
-    const totalAdd = recFiltered.reduce((a, c) => a + (c.addArm || 0), 0);
-    const totalCur = recFiltered.reduce((a, c) => a + (c.armPuncak || 0), 0);
-    return {
-      n: recFiltered.length,
-      totalAdd,
-      totalCur,
-      avgPct: totalCur > 0 ? (totalAdd / totalCur) * 100 : 0,
-      kritis: recFiltered.filter((r) => r.pctTambah === 20).length,
-      tinggi: recFiltered.filter((r) => r.pctTambah === 15).length,
-      padat: recFiltered.filter((r) => r.pctTambah === 10).length,
-      aman: recFiltered.filter((r) => r.pctTambah === 5).length,
-    };
-  });
-
-  function statusStyle(t: string): { color: string; bg: string } {
-    if (t === 'Sangat Kritis') return { color: '#fb7185', bg: 'rgba(251,113,133,.12)' };
-    if (t.includes('Tinggi')) return { color: '#fb923c', bg: 'rgba(251,146,60,.12)' };
-    if (t === 'Padat') return { color: '#fbbf24', bg: 'rgba(251,191,36,.12)' };
-    return { color: '#34d399', bg: 'rgba(52,211,153,.12)' };
-  }
-
-  const modaLabelOf = (m: string): string => MODA[m as ModaKey]?.label ?? m;
 </script>
 
 <div class="space-y-4">
@@ -334,7 +439,8 @@
   <Card class="p-4 sm:p-5">
     <div class="flex flex-wrap items-center gap-2">
       <Badge color="#38bdf8">Proyeksi 100 hari • {fmtDate(meta.forecast_start)} – {fmtDate(meta.forecast_end)}</Badge>
-      <Badge color="#34d399">3 skenario • {fmtInt(meta.train_days)} hari data latih</Badge>
+      <Badge color="#34d399">Skenario Moderat (terkunci) • {fmtInt(meta.train_days)} hari data latih</Badge>
+      <Badge color="#a78bfa">{scopeLabel}</Badge>
     </div>
     <h1 class="mt-2.5 text-xl font-extrabold tracking-tight text-ink">Proyeksi Nataru 2026/2027</h1>
     <p class="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-ink-2">
@@ -343,29 +449,102 @@
     </p>
   </Card>
 
-  <!-- Selector skenario -->
+  <!-- Filter provinsi + champion -->
   <Card class="p-4 sm:p-5">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
-        <p class="mb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-ink-3">Skenario</p>
-        <h2 class="text-lg font-extrabold tracking-tight text-ink">Pilih skenario proyeksi</h2>
+        <p class="mb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-ink-3">Wilayah &amp; Model</p>
+        <h2 class="text-lg font-extrabold tracking-tight text-ink">Filter provinsi &amp; model terpilih</h2>
       </div>
-      <Segmented
-        options={SCENARIOS.map((s) => ({ value: s.key, label: s.label, color: s.color }))}
-        value={scen}
-        onChange={(v) => (scen = v)}
-      />
+      <label class="inline-flex items-center gap-2 text-[12px] font-bold text-ink-2">
+        <MapPin size={15} class="text-accent" />
+        Provinsi:
+        <select
+          bind:value={prov}
+          class="cursor-pointer rounded-lg border border-line bg-fill px-2.5 py-2 text-[13px] font-semibold text-ink outline-none focus:border-accent"
+        >
+          <option value="ALL">Seluruh Provinsi (Nasional)</option>
+          {#each provinces as p}
+            <option value={p}>{p}</option>
+          {/each}
+        </select>
+      </label>
     </div>
     <p class="mt-3 max-w-3xl text-sm leading-relaxed text-ink-2">
-      <span class="font-bold" style={`color: ${activeScen.color}`}>{activeScen.label}:</span>
-      {' '}{activeScen.desc}
+      <span class="font-bold text-ink">Model Terpilih: {champ.name} (Auto-Model: MAPE {champ.mape.toLocaleString('id-ID', { maximumFractionDigits: 2 })}%)</span>
+      {' '}— model dengan MAPE terendah di antara model stabil pada backtest holdout 28 hari. Nasional dipaksa ke Holt-Winters Mul Damped (MAPE 4,1%) meski Holt-Winters Mul Standar lebih kecil (3,8%).
     </p>
+    <button
+      type="button"
+      onclick={() => (showBench = !showBench)}
+      class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-line bg-fill px-3 py-2 text-[12px] font-bold text-ink-2 transition-colors hover:text-ink"
+    >
+      {showBench ? 'Sembunyikan' : 'Lihat'} Komparasi 11 Model Peramalan
+      <ChevronDown size={14} class={`transition-transform ${showBench ? 'rotate-180' : ''}`} />
+    </button>
   </Card>
 
-  <!-- KPI -->
+  <!-- Panel benchmark 11 model -->
+  {#if showBench}
+    <Card class="p-4 sm:p-5">
+      <CardHeader
+        title="Hasil Benchmark 11 Model Peramalan (Holdout 28 Hari)"
+        subtitle={`Model dengan MAPE terendah yang memenuhi syarat stabilitas horizon 100 hari otomatis terpilih. Wilayah: ${scopeLabel}.`}
+      >
+        {#snippet icon()}<Trophy size={15} />{/snippet}
+      </CardHeader>
+      {#if benchmarks.length > 0}
+        <div class="overflow-x-auto rounded-xl border border-line">
+          <table class="w-full border-collapse text-left text-[12px]">
+            <thead class="bg-panel">
+              <tr class="border-b border-line text-[10.5px] font-bold uppercase tracking-wider text-ink-3">
+                <th class="px-3 py-2.5">Peringkat</th>
+                <th class="px-3 py-2.5">Model Peramalan</th>
+                <th class="px-3 py-2.5 text-right">MAPE (%)</th>
+                <th class="px-3 py-2.5 text-right">WAPE (%)</th>
+                <th class="px-3 py-2.5 text-right">RMSE (pnp)</th>
+                <th class="px-3 py-2.5 text-right">MAE (pnp)</th>
+                <th class="px-3 py-2.5 text-right">Akurasi Arah</th>
+                <th class="px-3 py-2.5 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-line">
+              {#each benchmarks as b}
+                {@const isChamp = b.model_code === champ.code}
+                <tr class={isChamp ? 'bg-emerald-400/[0.07]' : 'hover:bg-fill'}>
+                  <td class="num px-3 py-2.5 font-bold text-ink">
+                    {#if isChamp}#1 Terpilih{:else}#{b.rank}{/if}
+                  </td>
+                  <td class="px-3 py-2.5 font-semibold text-ink">{b.model_name}</td>
+                  <td class="num px-3 py-2.5 text-right font-bold text-ink">{b.mape.toLocaleString('id-ID', { maximumFractionDigits: 2 })}</td>
+                  <td class="num px-3 py-2.5 text-right text-ink-2">{b.wape.toLocaleString('id-ID', { maximumFractionDigits: 2 })}</td>
+                  <td class="num px-3 py-2.5 text-right text-ink-2">{fmtInt(b.rmse)}</td>
+                  <td class="num px-3 py-2.5 text-right text-ink-2">{fmtInt(b.mae)}</td>
+                  <td class="num px-3 py-2.5 text-right font-semibold text-ink-2">{b.dir_acc.toLocaleString('id-ID', { maximumFractionDigits: 1 })}%</td>
+                  <td class="px-3 py-2.5 text-center">
+                    {#if isChamp}
+                      <span class="inline-block whitespace-nowrap rounded-full bg-emerald-400/15 px-2.5 py-0.5 text-[10.5px] font-bold text-emerald-300">Terpilih (Champion)</span>
+                    {:else if !b.is_stable}
+                      <span class="inline-block whitespace-nowrap rounded-full bg-rose-400/10 px-2.5 py-0.5 text-[10.5px] font-bold text-rose-300">Kurang Stabil</span>
+                    {:else}
+                      <span class="inline-block whitespace-nowrap rounded-full bg-fill px-2.5 py-0.5 text-[10.5px] font-bold text-ink-3">Kandidat Alternatif</span>
+                    {/if}
+                  </td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      {:else}
+        <p class="text-sm text-ink-3">Data benchmark belum tersedia pada bundle data saat ini.</p>
+      {/if}
+    </Card>
+  {/if}
+
+  <!-- KPI (ringkasan jendela Nataru 18 hari) -->
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
     <KpiCard
-      label="Total Penumpang (100 hari)"
+      label="Total Penumpang (Nataru 18 hari)"
       value={`${fmtCompact(summary.total_passengers)} pnp`}
       delta={summary.yoy_total_pct}
       deltaLabel="YoY vs periode sama 2025"
@@ -374,7 +553,7 @@
       {#snippet icon()}<Users size={18} />{/snippet}
     </KpiCard>
     <KpiCard
-      label="Rata-rata Harian"
+      label="Rata-rata Harian (Nataru 18 hari)"
       value={`${fmtCompact(summary.avg_daily_passengers)} pnp`}
       delta={summary.yoy_avg_pct}
       deltaLabel="YoY vs 2025"
@@ -383,7 +562,7 @@
       {#snippet icon()}<TrendingUp size={18} />{/snippet}
     </KpiCard>
     <KpiCard
-      label="Total Armada (100 hari)"
+      label="Total Armada (Nataru 18 hari)"
       value={`${fmtCompact(summary.total_armada)} trip`}
       delta={summary.yoy_armada_pct}
       deltaLabel="YoY vs periode sama 2025"
@@ -420,11 +599,11 @@
     </KpiCard>
   </div>
 
-  <!-- Grafik utama -->
+  <!-- Grafik utama 372 titik -->
   <Card class="p-4 sm:p-5">
     <CardHeader
-      title={`Arus Penumpang Harian — Skenario ${activeScen.label}`}
-      subtitle="Garis biru proyeksi 2026/2027 dengan pita interval kepercayaan 95%, garis abu-abu putus-putus realisasi 2025, zona merah periode Natal & Tahun Baru."
+      title={`Arus Penumpang Harian — ${champ.name} (${scopeLabel})`}
+      subtitle="Garis solid mewakili realisasi riil (1 Jan – 29 Sep 2026). Garis putus-putus ungu mewakili kurva peramalan model terbaik (Okt 2026 – Jan 2027) dengan kalibrasi shock Nataru dari data latih 2025 dan pita keyakinan 95% CI. Total 372 titik, tersambung di 29 Sep 2026."
     >
       {#snippet icon()}<LineChart size={15} />{/snippet}
     </CardHeader>
@@ -435,11 +614,69 @@
   <Card class="p-4 sm:p-5">
     <CardHeader
       title="Pertumbuhan YoY Harian vs 2025"
-      subtitle="Batang hijau di atas rata-rata 2025, merah di bawahnya — skenario aktif."
+      subtitle="Batang hijau di atas realisasi 2025, merah di bawahnya — skenario Moderat."
     >
       {#snippet icon()}<BarChart3 size={15} />{/snippet}
     </CardHeader>
     <Chart type="bar" series={yoySeries} options={yoyOptions} height={240} />
+  </Card>
+
+  <!-- Tabel rincian harian -->
+  <Card class="p-4 sm:p-5">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h3 class="text-[15px] font-extrabold tracking-tight text-ink">Tabel Rincian Harian Prediksi Mobilitas Multimoda (Horizon 100 Hari)</h3>
+        <p class="mt-1 text-[12px] text-ink-3">Skenario Moderat • {scopeLabel} • YoY dihitung terhadap realisasi tanggal yang sama tahun 2025.</p>
+      </div>
+      <Segmented
+        options={[
+          { value: 'nataru', label: 'Posko Nataru (18H)' },
+          { value: 'des', label: 'Desember' },
+          { value: 'nov', label: 'November' },
+          { value: 'okt', label: 'Oktober' },
+          { value: 'all', label: 'Semua (100H)' },
+        ]}
+        value={fcRange}
+        onChange={(v) => (fcRange = v)}
+      />
+    </div>
+    <div class="mt-3 max-h-[520px] overflow-auto rounded-xl border border-line">
+      <table class="w-full border-collapse text-left text-[12px]">
+        <thead class="sticky top-0 z-10 bg-panel">
+          <tr class="border-b border-line text-[10.5px] font-bold uppercase tracking-wider text-ink-3">
+            <th class="px-3 py-2.5">Tanggal</th>
+            <th class="px-3 py-2.5 text-right">Total</th>
+            <th class="px-3 py-2.5 text-right">Udara</th>
+            <th class="px-3 py-2.5 text-right">KA</th>
+            <th class="px-3 py-2.5 text-right">Bus</th>
+            <th class="px-3 py-2.5 text-right">ASDP</th>
+            <th class="px-3 py-2.5 text-right">Laut</th>
+            <th class="px-3 py-2.5 text-right">Armada</th>
+            <th class="px-3 py-2.5 text-right">Total 2025</th>
+            <th class="px-3 py-2.5 text-right">YoY</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-line">
+          {#if tableRows.length === 0}
+            <tr><td colspan="10" class="px-3 py-8 text-center text-ink-3">Tidak ada baris pada rentang ini.</td></tr>
+          {/if}
+          {#each tableRows as p}
+            <tr class="hover:bg-fill">
+              <td class="num whitespace-nowrap px-3 py-2 text-ink">{fmtDate(p.date)}</td>
+              <td class="num px-3 py-2 text-right font-bold text-ink">{fmtInt(p.TOTAL)}</td>
+              <td class="num px-3 py-2 text-right text-ink-2">{fmtInt(p.UDARA)}</td>
+              <td class="num px-3 py-2 text-right text-ink-2">{fmtInt(p.KA)}</td>
+              <td class="num px-3 py-2 text-right text-ink-2">{fmtInt(p.BUS)}</td>
+              <td class="num px-3 py-2 text-right text-ink-2">{fmtInt(p.ASDP)}</td>
+              <td class="num px-3 py-2 text-right text-ink-2">{fmtInt(p.LAUT)}</td>
+              <td class="num px-3 py-2 text-right text-ink-2">{fmtInt(p.arm_TOTAL)}</td>
+              <td class="num px-3 py-2 text-right text-ink-3">{fmtInt(p.base2025)}</td>
+              <td class={`num px-3 py-2 text-right font-bold ${p.yoy >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{fmtPct(p.yoy)}</td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
   </Card>
 
   <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
@@ -464,9 +701,20 @@
           </div>
         {/each}
       </dl>
+      <div class="mt-2">
+        <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-3">11 model kandidat auto-model</p>
+        <div class="flex flex-wrap gap-1.5">
+          {#each MODEL_11 as m}
+            <span class="num rounded-lg border border-line bg-fill px-2.5 py-1 text-[11px] font-semibold text-ink-2">{m}</span>
+          {/each}
+        </div>
+        <p class="mt-2 text-[12px] leading-relaxed text-ink-3">
+          Protokol: backtest holdout temporal 28 hari (2–29 Sep 2026, latih 609 hari) dengan metrik MAPE / WAPE / RMSE / MAE / akurasi arah + cek stabilitas horizon 100 hari. Champion = MAPE terendah di antara model stabil. Data latih 2025 per provinsi adalah rekonstruksi alokasi proporsional dari nasional memakai struktur moda 2026, bukan observasi langsung.
+        </p>
+      </div>
       {#if Object.keys(params).length > 0}
         <div class="mt-2">
-          <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-3">Parameter Holt-Winters</p>
+          <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-3">Parameter model Holt-Winters (champion nasional)</p>
           <div class="flex flex-wrap gap-1.5">
             {#each Object.entries(params) as [k, v]}
               <span class="num rounded-lg border border-line bg-fill px-2.5 py-1 text-[11px] font-semibold text-ink-2">
@@ -477,7 +725,7 @@
         </div>
       {/if}
       {#if scenarioNote}
-        <p class="mt-4 flex gap-2 rounded-xl border border-amber-400/20 bg-amber-400/[0.07] p-3.5 text-[12.5px] leading-relaxed text-amber-200/90">
+        <p class="mt-4 flex gap-2 rounded-xl border border-amber-400/20 bg-amber-400/[0.07] p-3.5 text-[12.5px] leading-relaxed text-ink dark:text-amber-200/90">
           <Info size={15} class="mt-0.5 shrink-0" />
           {scenarioNote}
         </p>
@@ -488,7 +736,7 @@
     <Card class="p-4 sm:p-5">
       <CardHeader
         title="Kontribusi per Moda"
-        subtitle={`Skenario ${activeScen.label} — total 100 hari`}
+        subtitle="Skenario Moderat — jendela Nataru 18 hari"
       >
         {#snippet icon()}<PieChartIcon size={15} />{/snippet}
       </CardHeader>
@@ -505,6 +753,11 @@
                   <p class="num text-[11.5px] text-ink-3">
                     {fmtCompact(b.passengers_2026)} pnp • {b.share_pct_2026.toLocaleString('id-ID', { maximumFractionDigits: 1 })}%
                   </p>
+                  {#if b.armada_2026 !== undefined}
+                    <p class="num text-[11.5px] text-ink-3">
+                      Armada {fmtCompact(b.armada_2026)} trip • 2025: {fmtCompact(b.armada_2025 ?? 0)} trip
+                    </p>
+                  {/if}
                 </div>
                 <span
                   class={`num rounded-full px-2 py-0.5 text-[11px] font-bold ${pos ? 'bg-emerald-400/10 text-emerald-300' : 'bg-rose-400/10 text-rose-300'}`}
@@ -521,258 +774,24 @@
     </Card>
   </div>
 
-  <!-- Tabel Rekomendasi Armada 1.010 Simpul -->
+  <!-- Tautan ke Rekomendasi -->
   <Card class="p-4 sm:p-5">
     <div class="flex flex-wrap items-start justify-between gap-3">
       <div class="min-w-0">
         <h3 class="text-[15px] font-extrabold tracking-tight text-ink">
-          Tabel Rekomendasi Kebutuhan Penambahan Armada di Seluruh Simpul Prasarana Nasional (1.010 Simpul)
+          Rekomendasi Penambahan Armada (1.010 Simpul)
         </h3>
         <p class="mt-1 max-w-3xl text-[12px] leading-relaxed text-ink-3">
-          Dihitung berbasis metodologi persentil lonjakan Load Factor (LF Puncak / LF Biasa) standar TCQSM TRB.
-          Dilengkapi filter jumlah baris, filter moda, status urgensi, dan pencarian cepat.
+          Tabel rekomendasi kebutuhan penambahan armada di seluruh simpul prasarana nasional kini berada di halaman tersendiri.
         </p>
       </div>
       <a
-        href={`${base}/dokumentasi`}
+        href={`${base}/rekomendasi`}
         class="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-line bg-fill px-3 py-2 text-[12px] font-bold text-ink-2 transition-colors hover:text-ink"
       >
         <BookOpen size={14} class="text-accent" />
-        Metodologi Data
+        Buka Tabel Rekomendasi
       </a>
-    </div>
-
-    <!-- Highlight cards per moda -->
-    <div class="mt-4 grid grid-cols-2 gap-2.5 md:grid-cols-3 lg:grid-cols-5">
-      {#each recHighlights as h}
-        <div class="rounded-xl border border-line p-3" style={`background: ${MODA[h.m].colorSoft}`}>
-          <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider" style={`color: ${MODA[h.m].color}`}>
-            <span>{MODA[h.m].short}</span>
-            <span>{fmtInt(h.count)} Simpul</span>
-          </div>
-          <p class="num mt-1 text-lg font-black" style={`color: ${MODA[h.m].color}`}>
-            +{h.avgPct.toLocaleString('id-ID', { maximumFractionDigits: 1 })}% Armada
-          </p>
-          <p class="mt-0.5 text-[11px] text-ink-2">
-            Butuh <strong class="text-ink">+{fmtInt(h.addArm)} unit/hari</strong>
-          </p>
-        </div>
-      {/each}
-    </div>
-
-    <!-- Filter moda + status -->
-    <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex flex-wrap items-center gap-1.5">
-        <button
-          type="button"
-          onclick={() => (recModa = 'ALL')}
-          class={`rounded-lg px-3 py-1.5 text-[12px] font-bold transition-all ${recModa === 'ALL' ? 'text-white shadow-sm' : 'border border-line bg-fill text-ink-3 hover:text-ink'}`}
-          style={recModa === 'ALL' ? 'background: #38bdf8; border: 1px solid transparent' : undefined}
-        >
-          Semua ({fmtInt(recs.length)})
-        </button>
-        {#each MODA_KEYS as m}
-          <button
-            type="button"
-            onclick={() => (recModa = m)}
-            class={`rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all ${recModa === m ? 'text-white shadow-sm' : 'border border-line bg-fill text-ink-3 hover:text-ink'}`}
-            style={recModa === m ? `background: ${MODA[m].color}; border: 1px solid transparent` : undefined}
-          >
-            {MODA[m].short} ({fmtInt(modaCounts.get(m) ?? 0)})
-          </button>
-        {/each}
-      </div>
-      <label class="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-ink-3">
-        Status:
-        <select
-          bind:value={recStatus}
-          class="cursor-pointer rounded-lg border border-line bg-fill px-2.5 py-1.5 text-[12px] font-semibold normal-case tracking-normal text-ink outline-none focus:border-accent"
-        >
-          <option value="ALL">Semua Status Urgensi</option>
-          <option value="20">Sangat Kritis (+20%)</option>
-          <option value="15">Tinggi / Kritis (+15%)</option>
-          <option value="10">Padat (+10%)</option>
-          <option value="5">Terkendali (+5%)</option>
-        </select>
-      </label>
-    </div>
-
-    <!-- Limit / sort / search -->
-    <div class="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-fill p-3">
-      <div class="flex flex-wrap items-center gap-3">
-        <label class="inline-flex items-center gap-1.5 text-[12px] font-bold text-ink-2">
-          Tampilkan:
-          <select
-            bind:value={recLimit}
-            class="cursor-pointer rounded-lg border border-line bg-panel px-2.5 py-1.5 text-[12px] font-bold text-ink outline-none focus:border-accent"
-          >
-            <option value="10">Top 10 Simpul Utama</option>
-            <option value="25">Top 25 Simpul Terpadat</option>
-            <option value="50">Top 50 Simpul Nasional</option>
-            <option value="100">Top 100 Simpul Terbesar</option>
-            <option value="250">Top 250 Simpul</option>
-            <option value="all">Semua Simpul ({fmtInt(recFiltered.length)})</option>
-          </select>
-        </label>
-        <label class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-ink-3">
-          Urutkan:
-          <select
-            bind:value={recSort}
-            class="cursor-pointer rounded-lg border border-line bg-panel px-2.5 py-1.5 text-[12px] font-semibold text-ink outline-none focus:border-accent"
-          >
-            <option value="pnp_desc">Penumpang Puncak (Tertinggi)</option>
-            <option value="ratio_desc">Lonjakan Beban (Tertinggi)</option>
-            <option value="pct_desc">% Tambah Armada (Tertinggi)</option>
-            <option value="add_desc">Tambahan Unit Fisik (Terbanyak)</option>
-            <option value="name_asc">Nama Simpul (A – Z)</option>
-          </select>
-        </label>
-      </div>
-      <div class="relative w-full sm:w-64">
-        <Search size={14} class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" />
-        <input
-          type="text"
-          bind:value={recSearch}
-          placeholder="Cari nama simpul, provinsi, moda..."
-          class="w-full rounded-lg border border-line bg-panel py-2 pl-9 pr-3 text-[12px] text-ink outline-none placeholder:text-ink-3 focus:border-accent"
-        />
-      </div>
-    </div>
-
-    <!-- Tabel -->
-    <div class="mt-3 max-h-[750px] overflow-auto rounded-xl border border-line">
-      <table class="w-full border-collapse text-left text-[12px]">
-        <thead class="sticky top-0 z-10 bg-panel">
-          <tr class="border-b border-line text-[10.5px] font-bold uppercase tracking-wider text-ink-3">
-            <th class="px-3 py-2.5">No &amp; Simpul Prasarana</th>
-            <th class="px-3 py-2.5">Keberangkatan Normal</th>
-            <th class="px-3 py-2.5">Keberangkatan Puncak</th>
-            <th class="px-3 py-2.5 text-center">Lonjakan Beban</th>
-            <th class="px-3 py-2.5 text-center">Status</th>
-            <th class="px-3 py-2.5 text-center">Perlu Tambah (%)</th>
-            <th class="px-3 py-2.5 text-right">Tambahan Unit</th>
-            <th class="px-3 py-2.5 text-right">Total Operasi</th>
-            <th class="px-3 py-2.5">Rekomendasi Aksi Lapangan</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-line">
-          {#if recRows.length === 0}
-            <tr>
-              <td colspan="9" class="px-3 py-12 text-center text-[12px] text-ink-3">
-                Tidak ada simpul prasarana yang memenuhi kriteria filter atau kata kunci pencarian.
-              </td>
-            </tr>
-          {/if}
-          {#each recRows as s, i}
-            {@const st = statusStyle(s.statusText)}
-            <tr class="transition-colors hover:bg-fill">
-              <td class="px-3 py-3">
-                <div class="flex items-center gap-2">
-                  <span class="num grid size-6 shrink-0 place-items-center rounded-full border border-line bg-fill text-[10px] font-bold text-ink-3">
-                    {recOffset + i + 1}
-                  </span>
-                  <div class="min-w-0">
-                    <p class="truncate text-[12.5px] font-bold text-ink">{s.name}</p>
-                    <p class="text-[10.5px] text-ink-3">{s.prov} • {modaLabelOf(s.moda)}</p>
-                  </div>
-                </div>
-              </td>
-              <td class="num whitespace-nowrap px-3 py-3 text-ink-2">
-                <p>{fmtInt(s.pnpBiasa)} pnp/h</p>
-                <p class="text-[10.5px] text-ink-3">{fmtInt(s.armBiasa)} {s.saranaUnit} (LF: {s.lfBiasa})</p>
-              </td>
-              <td class="num whitespace-nowrap px-3 py-3 font-semibold text-ink">
-                <p>{fmtInt(s.pnpPuncak)} pnp/h</p>
-                <p class="text-[10.5px] font-normal text-rose-400">{fmtInt(s.armPuncak)} {s.saranaUnit} (LF: {s.lfPuncak})</p>
-              </td>
-              <td class="num px-3 py-3 text-center">
-                <p class="text-[13px] font-black text-accent">{s.loadRatio}x</p>
-                <p class="text-[10px] font-normal text-ink-3">naik vs biasa</p>
-              </td>
-              <td class="px-3 py-3 text-center">
-                <span
-                  class="inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[10.5px] font-bold"
-                  style={`color: ${st.color}; background: ${st.bg}`}
-                >
-                  {s.statusText}
-                </span>
-              </td>
-              <td class="px-3 py-3 text-center">
-                <span class="num inline-block rounded-lg bg-accent px-2.5 py-1 text-[12px] font-black text-white">
-                  +{s.pctTambah}%
-                </span>
-              </td>
-              <td class="num whitespace-nowrap px-3 py-3 text-right font-bold text-accent">
-                <p>+{fmtInt(s.addArm)}</p>
-                <p class="text-[10px] font-normal text-ink-3">{s.saranaUnit}/hari</p>
-              </td>
-              <td class="num whitespace-nowrap px-3 py-3 text-right font-bold text-emerald-400">
-                <p>{fmtInt(s.totalArm)}</p>
-                <p class="text-[10px] font-normal text-ink-3">operasi harian</p>
-              </td>
-              <td class="max-w-[260px] px-3 py-3 text-[11.5px] leading-relaxed text-ink-2">
-                {s.fieldAction}
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Pagination -->
-    <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
-      <p class="num text-[11.5px] text-ink-3">{recRangeLabel}</p>
-      {#if recLimit !== 'all'}
-        <div class="flex items-center gap-1.5">
-          <button
-            type="button"
-            onclick={() => (recPage = recSafePage - 1)}
-            disabled={recSafePage <= 1}
-            class="inline-flex items-center gap-1 rounded-lg border border-line bg-fill px-3 py-1.5 text-[12px] font-semibold text-ink-2 transition-all hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <ChevronLeft size={14} />
-            Sebelumnya
-          </button>
-          <span class="num px-2 text-[12px] font-bold text-ink-3">
-            Halaman {recSafePage} dari {recTotalPages}
-          </span>
-          <button
-            type="button"
-            onclick={() => (recPage = recSafePage + 1)}
-            disabled={recSafePage >= recTotalPages}
-            class="inline-flex items-center gap-1 rounded-lg border border-line bg-fill px-3 py-1.5 text-[12px] font-semibold text-ink-2 transition-all hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Berikutnya
-            <ChevronRight size={14} />
-          </button>
-        </div>
-      {/if}
-    </div>
-
-    <!-- Summary box -->
-    <div class="mt-3 flex items-start gap-2.5 rounded-xl border border-line bg-fill p-4">
-      <span class="mt-1 size-2.5 shrink-0 rounded-full bg-accent"></span>
-      <div class="space-y-1.5 text-[12px] leading-relaxed">
-        <p class="font-bold text-ink">Rangkuman Instruksi Operasional Terpadu ({fmtInt(recSummary.n)} Simpul Terpilih):</p>
-        <p class="text-ink-2">
-          • <strong class="text-ink">Total Kebutuhan Tambahan Armada:</strong> Diperlukan penambahan
-          <strong class="text-ink">+{fmtInt(recSummary.totalAdd)} armada fisik/hari (+{recSummary.avgPct.toLocaleString('id-ID', { maximumFractionDigits: 1 })}%)</strong>
-          untuk menjaga kelancaran arus mudik &amp; balik dari total {fmtInt(recSummary.totalCur)} armada operasi puncak.
-        </p>
-        <p class="text-ink-2">
-          • <strong class="text-ink">Distribusi Tingkat Urgensi:</strong>
-          <span class="font-semibold text-rose-400">{fmtInt(recSummary.kritis)} Simpul Sangat Kritis (+20%)</span>,
-          <span class="font-semibold text-orange-400">{fmtInt(recSummary.tinggi)} Simpul Tinggi (+15%)</span>,
-          <span class="font-semibold text-amber-400">{fmtInt(recSummary.padat)} Simpul Padat (+10%)</span>, dan
-          <span class="font-semibold text-emerald-400">{fmtInt(recSummary.aman)} Simpul Terkendali/Siaga (+5%)</span>.
-        </p>
-        <p class="text-ink-2">
-          • <strong class="text-ink">Instruksi Utama Lapangan:</strong> Prioritaskan rekayasa
-          <em>Tiba Bongkar Berangkat</em> di Pelabuhan Merak-Bakauheni &amp; Ketapang-Gilimanuk, izin slot
-          <em>extra flight</em> malam di CGK Soetta &amp; DPS Bali, serta rangkaian Kereta Api Tambahan (KLB)
-          di Pasar Senen &amp; Gambir.
-        </p>
-      </div>
     </div>
   </Card>
 </div>
