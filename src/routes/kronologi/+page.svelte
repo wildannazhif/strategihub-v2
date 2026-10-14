@@ -4,7 +4,7 @@
   import CardHeader from '$lib/components/CardHeader.svelte';
   import Segmented from '$lib/components/Segmented.svelte';
   import Badge from '$lib/components/Badge.svelte';
-  import { FONT, MONO } from '$lib/components/chart-utils';
+  import { FONT } from '$lib/components/chart-utils';
   import { data, MODA_KEYS } from '$lib/data';
   import { MODA } from '$lib/moda';
   import { fmtCompact, fmtInt, fmtPct } from '$lib/format';
@@ -16,7 +16,6 @@
   import TrendingUp from 'lucide-svelte/icons/trending-up';
   import Activity from 'lucide-svelte/icons/activity';
   import BarChart3 from 'lucide-svelte/icons/bar-chart-3';
-  import CalendarRange from 'lucide-svelte/icons/calendar-range';
 
   type Metric = 'pnp' | 'arm';
   type Direction = 'total' | 'dat' | 'brg';
@@ -95,7 +94,6 @@
   const DIR_LABEL: Record<Direction, string> = { total: 'Total', dat: 'Datang', brg: 'Berangkat' };
 
   const timeline = data.daily_timeline;
-  const dowRows = data.dow_summary;
   let metric = $state<Metric>('pnp');
   let dir = $state<Direction>('total');
   let active = $state<ModaKey[]>([...MODA_KEYS]);
@@ -215,41 +213,6 @@
     tooltip: { y: { formatter: (v: number | string) => `${fmtInt(Number(v))} ${unitShort}` } },
   });
 
-  /* ---------- Pola hari dalam minggu ---------- */
-  const dowSeries = $derived<ApexOptions['series']>([
-    { name: 'Rata-rata harian', data: dowRows.map((r) => valOf(metric, dir, r, 'TOTAL')) },
-  ]);
-
-  const dowOptions = $derived.by<ApexOptions>(() => {
-    const faint = ct.faint;
-    return ({
-    colors: dowRows.map((_, i) => (i >= 5 ? '#dc2626' : '#38bdf8')),
-    plotOptions: { bar: { distributed: true, borderRadius: 7, columnWidth: '55%', dataLabels: { position: 'top' } } },
-    dataLabels: {
-      enabled: true,
-      formatter: (v: number | string) => fmtCompact(Number(v)),
-      offsetY: -16,
-      style: { fontFamily: MONO, fontSize: '10px', colors: [ct.soft] },
-    },
-    legend: { show: false },
-    xaxis: { categories: dowRows.map((r) => r.dow as string) },
-    yaxis: {
-      max: Math.max(1, ...dowRows.map((r) => valOf(metric, dir, r, 'TOTAL'))) * 1.22,
-      labels: { formatter: (v: number | string) => `${Math.round(Number(v) / 1e3)} rb` },
-    },
-    tooltip: {
-      custom: ({ dataPointIndex }: { dataPointIndex: number }) => {
-        const r: DailyRow = dowRows[dataPointIndex];
-        const rows = MODA_KEYS.map(
-          (m) =>
-            `<div style="display:flex;justify-content:space-between;gap:16px"><span><span style="display:inline-block;width:8px;height:8px;border-radius:99px;background:${MODA[m].color};margin-right:6px"></span>${MODA[m].short}</span><b style="font-family:${MONO}">${fmtInt(valOf(metric, dir, r, m))}</b></div>`,
-        ).join('');
-        return `<div style="font-family:${FONT};padding:4px 2px"><b>${r.dow}</b> <span style="color:${faint}">• rata-rata harian</span><div style="margin-top:6px">${rows}</div><div style="margin-top:6px;display:flex;justify-content:space-between"><span>Total</span><b style="font-family:${MONO}">${fmtInt(valOf(metric, dir, r, 'TOTAL'))} ${unitShort}</b></div></div>`;
-      },
-    },
-    });
-  });
-
   /* ---------- Chart provinsi: stacked per moda (ALL) / batang tunggal (satu moda) ---------- */
   const provSeries: ApexOptions['series'] = $derived.by(() => {
     if (!provEntry) return [];
@@ -339,27 +302,16 @@
     <Chart type="line" series={mainSeries} options={mainOptions} height={320} />
   </Card>
 
-  <!-- Agregasi bulanan + pola mingguan -->
-  <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-    <Card class="p-4">
-      <CardHeader
-        title="Total Bulanan per Moda"
-        subtitle={`${DIR_LABEL[dir].toLowerCase()} ${metric === 'pnp' ? 'penumpang' : 'armada'} — Januari hingga September 2026`}
-      >
-        {#snippet icon()}<BarChart3 size={16} />{/snippet}
-      </CardHeader>
-      <Chart type="bar" series={monthlySeries} options={monthlyOptions} height={260} />
-    </Card>
-    <Card class="p-4">
-      <CardHeader
-        title="Pola Hari dalam Minggu"
-        subtitle="Rata-rata harian per hari — batang merah menandai akhir pekan."
-      >
-        {#snippet icon()}<CalendarRange size={16} />{/snippet}
-      </CardHeader>
-      <Chart type="bar" series={dowSeries} options={dowOptions} height={260} />
-    </Card>
-  </div>
+  <!-- Agregasi bulanan -->
+  <Card class="p-4">
+    <CardHeader
+      title="Total Bulanan per Moda"
+      subtitle={`${DIR_LABEL[dir].toLowerCase()} ${metric === 'pnp' ? 'penumpang' : 'armada'} — Januari hingga September 2026`}
+    >
+      {#snippet icon()}<BarChart3 size={16} />{/snippet}
+    </CardHeader>
+    <Chart type="bar" series={monthlySeries} options={monthlyOptions} height={260} />
+  </Card>
 
   <!-- Tren provinsi -->
   <Card class="p-4">
