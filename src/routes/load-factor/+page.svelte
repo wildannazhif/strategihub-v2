@@ -16,10 +16,6 @@
 
 	const MODA_ICONS = { UDARA: Plane, KA: TrainFront, BUS: Bus, ASDP: Ship, LAUT: Anchor };
 
-	/** Skala visual: 0–300 pnp/trip */
-	const SCALE_MAX = 300;
-	/** Warna bar (varian terang untuk tema gelap): hijau <100, kuning 100–200, merah >200 */
-	const barColor = (v: number) => (v > 200 ? '#fb7185' : v >= 100 ? '#f59e0b' : '#34d399');
 	const surgeColor = (v: number) => (v >= 100 ? '#fb7185' : v >= 50 ? '#f59e0b' : '#34d399');
 
 	interface LFStat {
@@ -58,7 +54,6 @@
 	const rows = $derived(
 		[...MODA_KEYS].map((m) => ({ m, s: lfData[m] })).sort((a, b) => b.s.peak_lf - a.s.peak_lf),
 	);
-	const maxPeak = $derived(Math.max(0, ...MODA_KEYS.map((m) => lfData[m]?.peak_lf ?? 0)));
 	const critical = $derived(rows.find((r) => r.s.peak_lf > 0));
 	const criticalSurge = $derived(
 		critical ? (critical.s.surge_lf_pct ?? Math.max(critical.s.surge_mudik_pct ?? 0, critical.s.surge_balik_pct ?? 0)) : 0,
@@ -102,12 +97,6 @@
 						<th class="px-2 py-2 text-right font-bold">Puncak Balik (24 Mar)</th>
 						<th class="px-2 py-2 text-right font-bold">Lonjakan Beban Mudik</th>
 						<th class="px-2 py-2 text-right font-bold">Lonjakan Beban Balik</th>
-						<th
-							class="hidden px-4 py-2 font-bold sm:px-5 md:table-cell"
-							style="width: 22%"
-						>
-							Tingkat kepadatan
-						</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -152,27 +141,13 @@
 									{fmtSurge(s, s.surge_balik_pct)}
 								</span>
 							</td>
-							<td class="hidden px-4 py-2.5 sm:px-5 md:table-cell">
-								<div class="flex items-center gap-2">
-									<div class="h-2 flex-1 overflow-hidden rounded-full bg-fill">
-										<div
-											class="h-2 rounded-full"
-											style={`width: ${maxPeak > 0 ? Math.min(100, (s.peak_lf / SCALE_MAX) * 100) : 0}%; background: ${barColor(s.peak_lf)}`}
-										></div>
-									</div>
-									<span class="num w-10 text-right text-[11px] text-ink-3">
-										{maxPeak > 0 ? `${Math.round((s.peak_lf / maxPeak) * 100)}%` : '–'}
-									</span>
-								</div>
-							</td>
 						</tr>
 					{/each}
 				</tbody>
 			</table>
 		</div>
 		<p class="border-t border-line px-4 py-2.5 text-[11px] leading-relaxed text-ink-3 sm:px-5">
-			Load factor = <strong class="text-ink-2">rasio P/A</strong> (penumpang per trip). Nilai 100 =
-			100 penumpang/trip; &gt;200 = kepadatan ekstrem. Normal dihitung dari median periode
+			Load factor = <strong class="text-ink-2">rasio P/A</strong> (penumpang per trip). Normal dihitung dari median periode
 			pra-Lebaran (1 Jan–12 Mar 2026). Mudik: 18 Mar • Balik: 24 Mar. Tanda “–” berarti tidak ada
 			layanan moda tersebut di wilayah ini. Diurutkan dari puncak tertinggi.
 		</p>
