@@ -542,7 +542,7 @@
   {/if}
 
   <!-- KPI (ringkasan jendela Nataru 18 hari) -->
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+  <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
     <KpiCard
       label="Total Penumpang (Nataru 18 hari)"
       value={`${fmtCompact(summary.total_passengers)} pnp`}

@@ -209,7 +209,7 @@
 
 <div class="space-y-4">
   <!-- KPI -->
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
     <KpiCard label="Total Penumpang" value={fmtCompact(ytdTotal)} sub={`${meta.days_count} hari • ${fmtInt(meta.total_clean_rows)} baris`} accent="#38bdf8">
       {#snippet icon()}<Users size={19} />{/snippet}
       {#snippet spark()}<Chart type="area" series={[{ name: 'Harian', data: sparkData }]} options={sparkOptions} height={36} />{/snippet}
