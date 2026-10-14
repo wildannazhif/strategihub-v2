@@ -26,23 +26,55 @@
     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
   ];
 
-  interface ProvMonth {
+  /* Bentuk baru province_monthly_data: per kombinasi metrik
+     { provinces, by_province: { [prov]: { provinsi, total, peak_month, peak_vol,
+       median_vol, baseline_vol, moda_baselines, max_jump_pct,
+       max_jump_vs_median_pct, monthly: [{ m, name, short, val, mom, vs_median, modas }] } } } */
+  interface ProvMonthNew {
     m: number;
     name: string;
     short: string;
-    tot: number;
-    brg: number;
-    dat: number;
+    val?: number;
+    tot?: number;
+    brg?: number;
+    mom?: number | null;
+    vs_median?: number | null;
+    dom_moda?: string;
+    dom_pct?: number;
+    is_peak?: boolean;
+    modas?: Partial<Record<ModaKey, number>>;
   }
 
-  interface ProvEntry {
+  interface ProvEntryNew {
     provinsi: string;
-    total_brg: number;
+    total?: number;
+    total_brg?: number;
     peak_month: string;
+    peak_month_num?: number;
     peak_vol: number;
-    max_jump_pct: number;
-    insight: string;
-    monthly: ProvMonth[];
+    median_vol?: number;
+    baseline_vol?: number;
+    moda_baselines?: Partial<Record<ModaKey, number>>;
+    max_jump_month?: string;
+    max_jump_pct?: number;
+    max_jump_vs_median_pct?: number;
+    monthly: ProvMonthNew[];
+  }
+
+  const COMBO_LABEL: Record<string, string> = {
+    pnp_brg: 'Penumpang Berangkat',
+    pnp_dat: 'Penumpang Datang',
+    pnp_tot: 'Total Penumpang',
+    arm_brg: 'Armada Berangkat',
+    arm_dat: 'Armada Datang',
+    arm_tot: 'Total Armada',
+  };
+
+  type ProvModa = ModaKey | 'ALL';
+
+  /** Nilai bulanan pada metrik aktif (fallback bentuk lama: tot/brg) */
+  function monthVal(mm: ProvMonthNew): number {
+    return mm.val ?? mm.tot ?? mm.brg ?? 0;
   }
 
   /** Ambil nilai sel sesuai metrik + arah yang dipilih */
@@ -67,10 +99,31 @@
   let metric = $state<Metric>('pnp');
   let dir = $state<Direction>('total');
   let active = $state<ModaKey[]>([...MODA_KEYS]);
-  let prov = $state<string>(data.province_monthly_data.provinces[0] ?? '');
+  let prov = $state<string>('ALL');
+  let provModa = $state<ProvModa>('ALL');
 
-  const byProv = data.province_monthly_data.by_province as unknown as Record<string, ProvEntry>;
-  const provEntry = $derived(byProv[prov]);
+  const pmd = data.province_monthly_data as unknown as Record<string, any>;
+  const comboKey = $derived(`${metric}_${dir === 'total' ? 'tot' : dir}`);
+  const comboBlock = $derived(
+    (pmd[comboKey] as { provinces?: string[]; by_province?: Record<string, ProvEntryNew> } | undefined)
+      ?? (pmd.by_metric as Record<string, { provinces?: string[]; by_province?: Record<string, ProvEntryNew> }> | undefined)?.[comboKey]
+      ?? (pmd as unknown as { provinces?: string[]; by_province?: Record<string, ProvEntryNew> }),
+  );
+  const provList = $derived(
+    [...((comboBlock.provinces ?? pmd.provinces ?? []) as string[])]
+      .filter((p) => p !== 'ALL' && p !== 'Seluruh Provinsi')
+      .sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' })),
+  );
+  const byProv = $derived<Record<string, ProvEntryNew>>(comboBlock.by_province ?? {});
+  const provEntry = $derived<ProvEntryNew | undefined>(
+    byProv[prov] ?? (prov === 'ALL' ? byProv[provList[0]] : undefined),
+  );
+  const provJump = $derived(provEntry?.max_jump_vs_median_pct ?? provEntry?.max_jump_pct ?? 0);
+  const scopeBaseline = $derived.by(() => {
+    if (!provEntry) return 0;
+    if (provModa === 'ALL') return provEntry.baseline_vol ?? provEntry.median_vol ?? 0;
+    return provEntry.moda_baselines?.[provModa] ?? provEntry.baseline_vol ?? provEntry.median_vol ?? 0;
+  });
 
   function toggleModa(m: ModaKey) {
     active = active.includes(m) ? active.filter((x) => x !== m) : [...active, m];
@@ -194,32 +247,39 @@
     });
   });
 
-  /* ---------- Mini bar provinsi ---------- */
-  const provData = $derived.by(() => {
-    if (!provEntry) return null;
-    let peakIdx = 0;
-    provEntry.monthly.forEach((e, i) => {
-      if (e.tot > provEntry.monthly[peakIdx].tot) peakIdx = i;
-    });
-    return {
-      peakIdx,
-      values: provEntry.monthly.map((e) => e.tot),
-      cats: provEntry.monthly.map((e) => e.short),
-    };
+  /* ---------- Chart provinsi: stacked per moda (ALL) / batang tunggal (satu moda) ---------- */
+  const provSeries: ApexOptions['series'] = $derived.by(() => {
+    if (!provEntry) return [];
+    const months = provEntry.monthly ?? [];
+    if (provModa === 'ALL') {
+      return MODA_KEYS.map((m) => ({
+        name: MODA[m].label,
+        data: months.map((mm) => mm.modas?.[m] ?? 0),
+      }));
+    }
+    const singleModa = provModa as ModaKey;
+    return [
+      {
+        name: MODA[singleModa].label,
+        data: months.map((mm) => mm.modas?.[singleModa] ?? monthVal(mm)),
+      },
+    ];
   });
 
-  const provSeries: ApexOptions['series'] = $derived(
-    provData ? [{ name: 'Penumpang', data: provData.values }] : [],
-  );
-
   const provOptions = $derived.by<ApexOptions | null>(() => {
-    if (!provData) return null;
+    if (!provEntry) return null;
+    const months = provEntry.monthly ?? [];
+    const stacked = provModa === 'ALL';
+    const singleModa: ModaKey = provModa === 'ALL' ? 'UDARA' : provModa;
     return {
-      colors: provData.cats.map((_, i) => (i === provData.peakIdx ? '#f59e0b' : '#38bdf8')),
-      plotOptions: { bar: { distributed: true, borderRadius: 5, columnWidth: '55%' } },
-      legend: { show: false },
-      xaxis: { categories: provData.cats },
-      tooltip: { y: { formatter: (v: number | string) => `${fmtInt(Number(v))} pnp` } },
+      chart: { stacked },
+      colors: stacked ? MODA_KEYS.map((m) => MODA[m].color) : [MODA[singleModa].color],
+      legend: { show: stacked, position: 'top', horizontalAlign: 'left' },
+      plotOptions: { bar: { borderRadius: stacked ? 0 : 5, columnWidth: '62%' } },
+      xaxis: {
+        categories: months.map((mm) => mm.short ?? MONTH_ID[(mm.m ?? 1) - 1]?.slice(0, 3) ?? ''),
+      },
+      tooltip: { y: { formatter: (v: number | string) => `${fmtInt(Number(v))} ${unitShort}` } },
     };
   });
 
@@ -298,66 +358,122 @@
     </Card>
   </div>
 
-  <!-- Sorotan provinsi -->
+  <!-- Tren provinsi -->
   <Card class="p-4">
     <CardHeader
-      title="Sorotan Provinsi"
-      subtitle="Pilih provinsi untuk melihat pola bulanan dan catatan wawasan."
+      title="Tren & Lonjakan Bulanan per Provinsi"
+      subtitle="Cek tren pergerakan bulanan dan analisis lonjakan terhadap baseline median pra-Lebaran (1 Jan–12 Mar 2026)."
     >
       {#snippet icon()}<MapPin size={16} />{/snippet}
       {#snippet action()}
-        <label class="inline-flex items-center gap-2 text-[12.5px] font-semibold text-ink-3">
-          <MapPin size={15} class="text-[#38bdf8]" />
-          <select
-            value={prov}
-            onchange={(e) => (prov = (e.target as HTMLSelectElement).value)}
-            class="max-w-[240px] cursor-pointer rounded-xl border border-line bg-fill px-3 py-2 text-[13px] font-semibold text-ink outline-none focus:border-[#38bdf8]"
-          >
-            {#each data.province_monthly_data.provinces as p}
-              <option value={p}>{p}</option>
-            {/each}
-          </select>
-        </label>
+        <div class="flex flex-wrap items-center gap-2">
+          <label class="inline-flex items-center gap-2 text-[12.5px] font-semibold text-ink-3">
+            <MapPin size={15} class="text-[#38bdf8]" />
+            <select
+              value={prov}
+              onchange={(e) => (prov = (e.target as HTMLSelectElement).value)}
+              class="max-w-[240px] cursor-pointer rounded-xl border border-line bg-fill px-3 py-2 text-[13px] font-semibold text-ink outline-none focus:border-[#38bdf8]"
+            >
+              <option value="ALL">Seluruh Provinsi (Nasional)</option>
+              {#each provList as p}
+                <option value={p}>{p}</option>
+              {/each}
+            </select>
+          </label>
+          <label class="inline-flex items-center gap-2 text-[12.5px] font-semibold text-ink-3">
+            <select
+              value={provModa}
+              onchange={(e) => (provModa = (e.target as HTMLSelectElement).value as ProvModa)}
+              class="max-w-[200px] cursor-pointer rounded-xl border border-line bg-fill px-3 py-2 text-[13px] font-semibold text-ink outline-none focus:border-[#38bdf8]"
+            >
+              <option value="ALL">Semua Moda (5 Moda)</option>
+              {#each MODA_KEYS as m}
+                <option value={m}>{MODA[m].label}</option>
+              {/each}
+            </select>
+          </label>
+        </div>
       {/snippet}
     </CardHeader>
     {#if provEntry}
-      <div class="grid grid-cols-1 gap-5 lg:grid-cols-5">
-        <div class="lg:col-span-2">
-          <div class="flex flex-wrap gap-2">
-            <Badge color="#f59e0b">
-              <CalendarDays size={12} /> Puncak: {provEntry.peak_month}
-            </Badge>
-            <Badge color="#fb7185">
-              <TrendingUp size={12} /> Lonjakan maks {fmtPct(provEntry.max_jump_pct, 1)}
-            </Badge>
-          </div>
-          <p class="mt-4 text-[14px] leading-relaxed text-ink-2">
-            {provEntry.insight}
+      <div class="flex flex-wrap gap-2">
+        <Badge color="#f59e0b">
+          <CalendarDays size={12} /> Puncak: {provEntry.peak_month} • {fmtCompact(provEntry.peak_vol)}
+        </Badge>
+        <Badge color="#fb7185">
+          <TrendingUp size={12} /> Lonjakan vs Median {fmtPct(provJump, 1)}
+        </Badge>
+        <Badge color="#38bdf8">
+          Baseline median pra-Lebaran: {fmtCompact(scopeBaseline)}/bln
+        </Badge>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-xl border border-line bg-fill p-3.5">
+          <p class="text-[11.5px] font-semibold text-ink-3">Total {COMBO_LABEL[comboKey] ?? ''} YTD</p>
+          <p class="num mt-1 text-xl font-extrabold text-ink">
+            {fmtCompact(provEntry.total ?? provEntry.total_brg ?? 0)}
           </p>
-          <div class="mt-4 grid grid-cols-2 gap-3">
-            <div class="rounded-xl border border-line bg-fill p-3.5">
-              <p class="text-[11.5px] font-semibold text-ink-3">Total berangkat YTD</p>
-              <p class="num mt-1 text-xl font-extrabold text-ink">
-                {fmtCompact(provEntry.total_brg)}
-              </p>
-            </div>
-            <div class="rounded-xl border border-line bg-fill p-3.5">
-              <p class="text-[11.5px] font-semibold text-ink-3">Volume puncak</p>
-              <p class="num mt-1 text-xl font-extrabold text-ink">
-                {fmtCompact(provEntry.peak_vol)}
-              </p>
-            </div>
-          </div>
         </div>
-        <div class="lg:col-span-3">
-          <p class="mb-2 text-[12.5px] font-bold text-ink-3">
-            Penumpang bulanan — {provEntry.provinsi} (batang kuning = bulan puncak)
+        <div class="rounded-xl border border-line bg-fill p-3.5">
+          <p class="text-[11.5px] font-semibold text-ink-3">Volume puncak</p>
+          <p class="num mt-1 text-xl font-extrabold text-ink">
+            {fmtCompact(provEntry.peak_vol)}
           </p>
-          {#if provOptions}
-            <Chart type="bar" series={provSeries} options={provOptions} height={200} />
-          {/if}
         </div>
       </div>
+      <p class="mb-2 mt-5 text-[12.5px] font-bold text-ink-3">
+        {COMBO_LABEL[comboKey] ?? ''} bulanan — {provEntry.provinsi}
+        {provModa === 'ALL' ? '(stacked per moda)' : `— Moda ${MODA[provModa].label}`}
+      </p>
+      {#if provOptions}
+        <Chart type="bar" series={provSeries} options={provOptions} height={240} />
+      {/if}
+      <div class="mt-5 overflow-x-auto rounded-xl border border-line">
+        <table class="w-full min-w-[760px] text-left text-[12.5px]">
+          <thead>
+            <tr class="bg-fill">
+              <th class="px-3 py-2.5 text-left font-bold text-ink-2">Bulan</th>
+              {#each MODA_KEYS as m}
+                <th class="num px-3 py-2.5 text-right font-bold text-ink-2">{MODA[m].short}</th>
+              {/each}
+              <th class="num px-3 py-2.5 text-right font-bold text-ink-2">Total</th>
+              <th class="num px-3 py-2.5 text-right font-bold text-ink-2">vs Median (1 Jan–12 Mar)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {#each provEntry.monthly ?? [] as mm}
+              {@const total = monthVal(mm)}
+              {@const modaVal = provModa === 'ALL' ? total : (mm.modas?.[provModa] ?? total)}
+              {@const vsMed =
+                provModa === 'ALL'
+                  ? (mm.vs_median ?? (scopeBaseline > 0 ? ((total - scopeBaseline) / scopeBaseline) * 100 : null))
+                  : scopeBaseline > 0
+                    ? ((modaVal - scopeBaseline) / scopeBaseline) * 100
+                    : null}
+              <tr class="border-t border-line transition-colors hover:bg-fill">
+                <td class="px-3 py-2 font-semibold text-ink-2">{mm.name}</td>
+                {#each MODA_KEYS as m}
+                  <td
+                    class={`num px-3 py-2 text-right text-ink-2 ${provModa === m ? 'bg-accent/[0.06] font-bold text-ink' : ''}`}
+                  >
+                    {fmtInt(mm.modas?.[m] ?? 0)}
+                  </td>
+                {/each}
+                <td class="num px-3 py-2 text-right font-bold text-ink">{fmtInt(total)}</td>
+                <td
+                  class={`num px-3 py-2 text-right font-bold ${(vsMed ?? 0) > 0 ? 'text-emerald-400' : (vsMed ?? 0) < 0 ? 'text-rose-400' : 'text-ink-3'}`}
+                >
+                  {vsMed == null ? '–' : fmtPct(vsMed, 1)}
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-3 text-[11.5px] text-ink-3">
+        vs Median = deviasi volume bulanan terhadap baseline median pra-Lebaran (1 Jan–12 Mar 2026),
+        bukan pertumbuhan MoM.
+      </p>
     {:else}
       <p class="text-sm text-ink-3">Data provinsi tidak tersedia.</p>
     {/if}
