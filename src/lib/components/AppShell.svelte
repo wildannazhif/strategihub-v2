@@ -4,7 +4,6 @@
   import { page } from '$app/stores';
   import { base } from '$app/paths';
   import { themeStore } from '$lib/theme.svelte';
-  import LayoutDashboard from 'lucide-svelte/icons/layout-dashboard';
   import Activity from 'lucide-svelte/icons/activity';
   import CalendarRange from 'lucide-svelte/icons/calendar-range';
   import Gauge from 'lucide-svelte/icons/gauge';
@@ -29,7 +28,6 @@
   let { children }: Props = $props();
 
   const NAV = [
-    { href: '/', label: 'Ringkasan', desc: 'Ikhtisar mobilitas nasional', Icon: LayoutDashboard },
     { href: '/kronologi', label: 'Kronologi Harian', desc: 'Tren 272 hari', Icon: Activity },
     { href: '/lebaran', label: 'Lebaran 2026', desc: 'Mudik & balik 2026', Icon: CalendarRange },
     { href: '/load-factor', label: 'Load Factor', desc: 'Rasio beban armada', Icon: Gauge },
@@ -71,7 +69,7 @@
   <aside
     class={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-line bg-abyss/80 backdrop-blur-xl transition-[width] duration-200 lg:flex ${collapsed ? 'w-[76px]' : 'w-[248px]'}`}
   >
-    <a href={`${base}/`} class={`flex items-center gap-3 pb-6 pt-6 ${collapsed ? 'justify-center px-0' : 'px-5'}`}>
+    <a href={`${base}/kronologi`} class={`flex items-center gap-3 pb-6 pt-6 ${collapsed ? 'justify-center px-0' : 'px-5'}`}>
       <div class="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-accent to-accent-2 text-void shadow-[0_0_24px_rgb(56_189_248/0.35)]">
         <TrainFront size={20} strokeWidth={2.5} />
       </div>
