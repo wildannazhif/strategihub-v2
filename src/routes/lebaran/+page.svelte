@@ -222,7 +222,7 @@
       label="Puncak Mudik — H-3"
       value={`${fmtCompact(kpi.mudikVal)} pnp`}
       delta={kpi.mudikPct}
-      deltaLabel="hari normal • 18 Mar 2026"
+      deltaLabel="vs baseline pra-Lebaran • 18 Mar 2026"
       accent="#f59e0b"
     >
       {#snippet icon()}<Flame size={18} />{/snippet}
@@ -231,7 +231,7 @@
       label="Puncak Balik — H+3"
       value={`${fmtCompact(kpi.balikVal)} pnp`}
       delta={kpi.balikPct}
-      deltaLabel="hari normal • 24 Mar 2026"
+      deltaLabel="vs baseline pra-Lebaran • 24 Mar 2026"
       accent="#a78bfa"
     >
       {#snippet icon()}<Undo2 size={18} />{/snippet}
@@ -239,7 +239,7 @@
     <KpiCard
       label="Hari-H Lebaran"
       value={`${fmtCompact(kpi.hVal)} pnp`}
-      sub={`21 Mar 2026 • titik terendah periode (baseline normal ${fmtCompact(kpi.baseline)} pnp)`}
+      sub={`21 Mar 2026 • titik terendah periode (baseline pra-Lebaran 1 Jan–12 Mar 2026: ${fmtCompact(kpi.baseline)} pnp)`}
       accent="#38bdf8"
     >
       {#snippet icon()}<CalendarDays size={18} />{/snippet}
@@ -258,8 +258,8 @@
   <!-- Grafik 2 -->
   <Card class="p-4">
     <CardHeader
-      title="Lonjakan per Moda vs Hari Normal"
-      subtitle="Persentase kenaikan tiap fase terhadap baseline harian normal."
+      title="Lonjakan per Moda vs Baseline Pra-Lebaran"
+      subtitle="Persentase kenaikan tiap fase terhadap baseline median pra-Lebaran (1 Jan–12 Mar 2026)."
     />
     <Chart type="bar" series={surgeSeries} options={surgeOptions} height={280} />
     <div class="mt-4 flex flex-wrap gap-2 border-t border-line pt-4">

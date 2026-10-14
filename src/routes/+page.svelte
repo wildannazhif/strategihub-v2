@@ -27,6 +27,18 @@
   const monthly = data.monthly_summary;
   const simpul = data.simpul_recommendations;
 
+  /* metrics_summary bentuk baru: { baseline (median pra-Lebaran), peak_desc, mudik_desc, ytd } */
+  const ms = data.metrics_summary as unknown as Record<
+    string,
+    { ytd: number; avg: number; baseline?: number; baseline_feb?: number }
+  >;
+  const ytdTotal = ms.pnp_tot?.ytd ?? meta.total_passengers_ytd;
+  const ytdArmada = ms.arm_tot?.ytd ?? meta.total_armada_ytd;
+  const baselineTotal = ms.pnp_tot?.baseline ?? ms.pnp_tot?.baseline_feb ?? data.surge_summary.TOTAL.baseline;
+  const peakSurgeVsBaseline =
+    baselineTotal > 0 ? ((meta.all_time_peak_val - baselineTotal) / baselineTotal) * 100 : meta.all_time_peak_surge_pct;
+  const mudikSurgeVsBaseline = data.surge_summary.TOTAL.surge_mudik_pct;
+
   const totalByModa: Record<string, number> = $derived.by(() => {
     const t: Record<string, number> = {};
     for (const m of MODA_KEYS) t[m] = timeline.reduce((s, r) => s + (r[m] as number), 0);
@@ -182,32 +194,33 @@
     'Tinggi / Kritis': '#fb923c',
     Kritis: '#fb923c',
     Waspada: '#fbbf24',
+    'Padat Tinggi': '#fbbf24',
     Terkendali: '#34d399',
   };
 
   const insights = $derived([
-    { color: '#fb7185', text: `Puncak ${fmtDate(meta.all_time_peak_date)} mencapai ${fmtCompact(meta.all_time_peak_val)} penumpang (+${fmtPct(meta.all_time_peak_surge_pct, 1)} vs hari normal).` },
+    { color: '#fb7185', text: `Puncak ${fmtDate(meta.all_time_peak_date)} mencapai ${fmtCompact(meta.all_time_peak_val)} penumpang (+${fmtPct(peakSurgeVsBaseline, 1)} vs baseline pra-Lebaran).` },
     { color: '#38bdf8', text: `${MODA[topModa].label} dominan dengan ${fmtPct((totalByModa[topModa] / grandTotal) * 100, 1)} pangsa YTD.` },
-    { color: '#f59e0b', text: `Arus mudik H-3 (${fmtDate(meta.peak_mudik_date)}) menembus ${fmtCompact(meta.peak_mudik_val)} penumpang (+${fmtPct(meta.peak_mudik_surge_pct, 1)}).` },
+    { color: '#f59e0b', text: `Arus mudik H-3 (${fmtDate(meta.peak_mudik_date)}) menembus ${fmtCompact(meta.peak_mudik_val)} penumpang (+${fmtPct(mudikSurgeVsBaseline, 1)}).` },
     { color: '#a78bfa', text: `Simpul tersibuk: ${top5[0]?.name ?? '-'} (${fmtInt(top5[0]?.pnpPuncak ?? 0)} pnp saat puncak).` },
-    { color: '#34d399', text: `${fmtCompact(meta.total_armada_ytd)} trip armada beroperasi selama ${meta.days_count} hari.` },
+    { color: '#34d399', text: `${fmtCompact(ytdArmada)} trip armada beroperasi selama ${meta.days_count} hari.` },
   ]);
 </script>
 
 <div class="space-y-4">
   <!-- KPI -->
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-    <KpiCard label="Total Penumpang" value={fmtCompact(meta.total_passengers_ytd)} sub={`${meta.days_count} hari • ${fmtInt(meta.total_clean_rows)} baris`} accent="#38bdf8">
+    <KpiCard label="Total Penumpang" value={fmtCompact(ytdTotal)} sub={`${meta.days_count} hari • ${fmtInt(meta.total_clean_rows)} baris`} accent="#38bdf8">
       {#snippet icon()}<Users size={19} />{/snippet}
       {#snippet spark()}<Chart type="area" series={[{ name: 'Harian', data: sparkData }]} options={sparkOptions} height={36} />{/snippet}
     </KpiCard>
-    <KpiCard label="Puncak Pergerakan" value={fmtCompact(meta.all_time_peak_val)} delta={meta.all_time_peak_surge_pct} deltaLabel="hari normal" sub={fmtDate(meta.all_time_peak_date)} accent="#fb7185">
+    <KpiCard label="Puncak Pergerakan" value={fmtCompact(meta.all_time_peak_val)} delta={peakSurgeVsBaseline} deltaLabel="vs baseline pra-Lebaran" sub={fmtDate(meta.all_time_peak_date)} accent="#fb7185">
       {#snippet icon()}<Flame size={19} />{/snippet}
     </KpiCard>
-    <KpiCard label="Puncak Mudik (H-3)" value={fmtCompact(meta.peak_mudik_val)} delta={meta.peak_mudik_surge_pct} deltaLabel="hari normal" sub={meta.peak_mudik_date ? fmtDate(meta.peak_mudik_date) : ''} accent="#f59e0b">
+    <KpiCard label="Puncak Mudik (H-3)" value={fmtCompact(meta.peak_mudik_val)} delta={mudikSurgeVsBaseline} deltaLabel="vs baseline pra-Lebaran" sub={meta.peak_mudik_date ? fmtDate(meta.peak_mudik_date) : ''} accent="#f59e0b">
       {#snippet icon()}<CalendarDays size={19} />{/snippet}
     </KpiCard>
-    <KpiCard label="Total Armada" value={`${fmtCompact(meta.total_armada_ytd)} trip`} sub={`${fmtInt(Math.round(meta.total_armada_ytd / meta.days_count))} trip/hari`} accent="#34d399">
+    <KpiCard label="Total Armada" value={`${fmtCompact(ytdArmada)} trip`} sub={`${fmtInt(Math.round(ytdArmada / meta.days_count))} trip/hari`} accent="#34d399">
       {#snippet icon()}<Bus size={19} />{/snippet}
     </KpiCard>
   </div>

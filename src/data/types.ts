@@ -30,7 +30,15 @@ export interface SurgeModa {
 }
 
 export interface LoadFactorModa {
-  baseline_lf: number; mudik_lf: number; balik_lf: number; peak_lf: number; surge_lf_pct: number;
+  baseline_lf: number; mudik_lf: number; balik_lf: number; peak_lf: number;
+  surge_lf_pct: number; surge_mudik_pct: number; surge_balik_pct: number;
+}
+
+/** Load factor: nasional (ALL) + per provinsi. Baseline = median pra-Lebaran 1 Jan–12 Mar 2026. */
+export interface LoadFactorStats {
+  ALL: Record<ModaKey, LoadFactorModa>;
+  provinces: string[];
+  by_province: Record<string, Record<ModaKey, LoadFactorModa>>;
 }
 
 export interface HubRow {
@@ -60,13 +68,25 @@ export interface MetricSummary {
   avg: number;
   peak_date: string;
   peak_val: number;
-  peak_tag: string;
+  peak_desc: string;
   peak_surge_pct: number;
   mudik_date: string;
   mudik_val: number;
-  mudik_tag: string;
+  mudik_desc: string;
   mudik_surge_pct: number;
-  baseline_feb: number;
+  /** Median harian pra-Lebaran 1 Jan–12 Mar 2026 (71 hari). */
+  baseline: number;
+}
+
+export interface ForecastModeBreakdown {
+  passengers_2026: number;
+  passengers_2025: number;
+  diff: number;
+  yoy_pct: number;
+  share_pct_2026: number;
+  share_pct_2025: number;
+  armada_2026: number;
+  armada_2025: number;
 }
 
 export interface ForecastScenarioSummary {
@@ -91,13 +111,80 @@ export interface ForecastScenarioSummary {
   ny_peak_val: number;
   ny_peak_val_2025: number;
   ny_peak_yoy: number;
+  mode_breakdown?: Record<ModaKey, ForecastModeBreakdown>;
 }
 
+/** Satu titik harian forecast — skema BARU (v1 HEAD 30a68dd). Field lama
+ *  (hw_baseline, scenario_factor, status, pnp_2025, yoy_*, *_2025 per moda,
+ *  arm_*_2025) sudah tidak ada; YoY dihitung di UI dari TOTAL_2025/arm_2025. */
 export interface ForecastPoint {
   date: string;
+  dow: number; // 0 = Senin
+  day_name: string;
+  is_nataru: boolean;
   TOTAL: number;
   UDARA?: number; KA?: number; BUS?: number; ASDP?: number; LAUT?: number;
-  [k: string]: number | string | undefined;
+  arm_UDARA?: number; arm_KA?: number; arm_BUS?: number; arm_ASDP?: number; arm_LAUT?: number;
+  arm_TOTAL?: number;
+  arm_2025?: number;
+  TOTAL_2025?: number;
+  ci_lower?: number;
+  ci_upper?: number;
+  shock_factor?: number;
+  [k: string]: number | string | boolean | undefined;
+}
+
+export interface ForecastChampionModel {
+  name: string;
+  code: string;
+  mape: number;
+  rmse: number;
+  mae: number;
+  wape: number;
+  dir_acc: number;
+}
+
+export interface ForecastBenchmark {
+  model_name: string;
+  model_code: string;
+  mape: number;
+  wape: number;
+  rmse: number;
+  mae: number;
+  dir_acc: number;
+  is_stable: boolean;
+  pred_mean: number;
+  rank: number;
+}
+
+export interface ForecastBenchmark2025 {
+  total_passengers: number;
+  avg_daily_passengers: number;
+  total_armada: number;
+  xmas_peak_val: number;
+  ny_peak_val: number;
+  modes: Record<ModaKey, { passengers: number; armada: number; share_pct: number }>;
+}
+
+export interface ForecastProvince {
+  champion_model: ForecastChampionModel;
+  benchmarks: ForecastBenchmark[];
+  metrics: { TOTAL: ForecastChampionModel };
+  benchmark_2025: ForecastBenchmark2025;
+  summaries: Record<'moderat' | 'optimis' | 'konservatif', ForecastScenarioSummary>;
+  /** Per provinsi hanya skenario moderat (UI v1 mengunci moderat). */
+  scenarios: { moderat: ForecastPoint[] };
+  history_2026: {
+    dates: string[];
+    TOTAL: number[];
+    UDARA: number[];
+    KA: number[];
+    BUS: number[];
+    ASDP: number[];
+    LAUT: number[];
+  };
+  /** "MM-DD" -> TOTAL 2025 (rekonstruksi alokasi proporsional dari nasional). */
+  history_2025_md: Record<string, number>;
 }
 
 export interface ForecastNataru {
@@ -111,12 +198,20 @@ export interface ForecastNataru {
     forecast_end: string;
     horizon_days: number;
     parameters?: Record<string, unknown>;
+    scenario_factors?: Record<'moderat' | 'optimis' | 'konservatif', number>;
+    scenario_note?: string;
+    ci_method?: string;
   };
-  metrics?: unknown;
-  benchmark_2025?: unknown;
+  metrics?: { TOTAL: ForecastChampionModel };
+  champion_model: ForecastChampionModel;
+  benchmarks: ForecastBenchmark[];
+  benchmark_2025?: ForecastBenchmark2025;
   shock_factors?: unknown;
   summaries: Record<'moderat' | 'optimis' | 'konservatif', ForecastScenarioSummary>;
-  scenarios: Record<'moderat' | 'optimis' | 'konservatif', ForecastPoint[] | { daily?: ForecastPoint[] }>;
+  scenarios: Record<'moderat' | 'optimis' | 'konservatif', ForecastPoint[]>;
+  provinces: string[];
+  by_province: Record<string, ForecastProvince>;
+  automodel_meta_summary: Record<string, { winner: string; mape: number; rmse: number; top3: string[] }>;
 }
 
 export interface SimpulRecommendation {
@@ -137,9 +232,72 @@ export interface SimpulRecommendation {
   pctTambah: number;
   addArm: number;
   totalArm: number;
+  /** Nilai baru (v1 HEAD): "Sangat Kritis" | "Tinggi / Kritis" | "Padat Tinggi" | "Terkendali".
+   *  Label lama "Padat" sudah tidak ada. pnpBiasa/armBiasa kini median
+   *  pra-Lebaran 1 Jan–12 Mar 2026 (bukan mean Februari). */
   statusText: string;
   statusBadge: string;
   fieldAction: string;
+}
+
+/** Satu bulan tren provinsi: val = nilai metrik blok ini; vs_median = deviasi
+ *  terhadap baseline median pra-Lebaran (BUKAN MoM). brg/dom_moda/dom_pct
+ *  dibuang (brg == val; dom_* turunan dari modas). */
+export interface ProvinceMonthlyPoint {
+  m: number;
+  name: string;
+  short: string;
+  val: number;
+  mom: number | null;
+  vs_median: number | null;
+  is_peak: boolean;
+  modas: Record<ModaKey, number>;
+}
+
+export interface ProvinceMonthlyEntry {
+  provinsi: string;
+  total: number;
+  peak_month: string;
+  peak_month_num: number;
+  peak_vol: number;
+  /** Median harian pra-Lebaran x 30,4375 (ekuivalen bulanan). */
+  median_vol: number;
+  moda_baselines: Record<ModaKey, number>;
+  max_jump_month: string;
+  /** Lonjakan bulan puncak vs median (definisi baru; dulu MoM). */
+  max_jump_pct: number;
+  max_jump_vs_median_pct: number;
+  monthly: ProvinceMonthlyPoint[];
+}
+
+export interface ProvinceMonthlyMonth {
+  month: number;
+  name: string;
+  top_vol: { provinsi: string; vol: number }[];
+  top_growth: { provinsi: string; mom: number | null; vs_median: number | null; vol: number }[];
+}
+
+export interface ProvinceMonthlyBlock {
+  provinces: string[];
+  /** Kunci "ALL" + 38 provinsi (kunci duplikat "Seluruh Provinsi" dibuang). */
+  by_province: Record<string, ProvinceMonthlyEntry>;
+  by_month: Record<string, ProvinceMonthlyMonth>;
+}
+
+export type ProvinceMetricBlock = 'pnp_brg' | 'pnp_dat' | 'pnp_tot' | 'arm_brg' | 'arm_dat' | 'arm_tot';
+
+export type ProvinceMonthlyData = Record<ProvinceMetricBlock, ProvinceMonthlyBlock>;
+
+export type GeoJsonCoordinates = number | GeoJsonCoordinates[];
+
+export interface ProvinceGeoJSON {
+  type: string;
+  name?: string;
+  features: {
+    type: string;
+    properties: { id: string; KODE_PROV: string; PROVINSI: string };
+    geometry: { type: string; coordinates: GeoJsonCoordinates };
+  }[];
 }
 
 export interface DashboardData {
@@ -147,7 +305,7 @@ export interface DashboardData {
   monthly_summary: MonthlyRow[];
   lebaran_daily: DailyRow[];
   surge_summary: Record<ModaKey | 'TOTAL', SurgeModa>;
-  load_factor_stats: Record<ModaKey, LoadFactorModa>;
+  load_factor_stats: LoadFactorStats;
   top_hubs_peak: Record<ModaKey, HubRow[]>;
   top_hubs_ytd: Record<ModaKey, HubRow[]>;
   dow_summary: DailyRow[];
@@ -178,9 +336,9 @@ export interface DashboardData {
   forecast_nataru: ForecastNataru;
   timeline_2025: DailyRow[];
   simpul_recommendations: SimpulRecommendation[];
-  province_monthly_data: {
-    provinces: string[];
-    by_province: Record<string, unknown>;
-    by_month: Record<string, unknown>;
-  };
+  province_monthly_data: ProvinceMonthlyData;
+  /** GeoJSON batas 38 provinsi (koordinat dibulatkan 4 desimal).
+   *  Nama GeoJSON: "Aceh" (bundle: "D.I Aceh") dan "Daerah Istimewa
+   *  Yogyakarta" (bundle: "D.I Yogyakarta") — perlu alias saat join. */
+  province_geojson: ProvinceGeoJSON;
 }

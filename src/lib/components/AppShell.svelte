@@ -7,12 +7,12 @@
   import LayoutDashboard from 'lucide-svelte/icons/layout-dashboard';
   import Activity from 'lucide-svelte/icons/activity';
   import CalendarRange from 'lucide-svelte/icons/calendar-range';
-  import PieChart from 'lucide-svelte/icons/pie-chart';
   import Gauge from 'lucide-svelte/icons/gauge';
   import MapPin from 'lucide-svelte/icons/map-pin';
   import Table2 from 'lucide-svelte/icons/table-2';
   import MapIcon from 'lucide-svelte/icons/map';
   import CalendarClock from 'lucide-svelte/icons/calendar-clock';
+  import Wrench from 'lucide-svelte/icons/wrench';
   import BookOpen from 'lucide-svelte/icons/book-open';
   import Menu from 'lucide-svelte/icons/menu';
   import X from 'lucide-svelte/icons/x';
@@ -31,13 +31,13 @@
   const NAV = [
     { href: '/', label: 'Ringkasan', desc: 'Ikhtisar mobilitas nasional', Icon: LayoutDashboard },
     { href: '/kronologi', label: 'Kronologi Harian', desc: 'Tren 272 hari', Icon: Activity },
-    { href: '/lebaran', label: 'Puncak Lebaran', desc: 'Mudik & balik 2026', Icon: CalendarRange },
-    { href: '/pangsa', label: 'Pangsa Pasar', desc: 'Distribusi antar-moda', Icon: PieChart },
+    { href: '/lebaran', label: 'Lebaran 2026', desc: 'Mudik & balik 2026', Icon: CalendarRange },
     { href: '/load-factor', label: 'Load Factor', desc: 'Rasio beban armada', Icon: Gauge },
     { href: '/simpul', label: 'Simpul Top 30', desc: 'Hub tersibuk nasional', Icon: MapPin },
     { href: '/indikator', label: 'Matriks Indikator', desc: '13 indikator operasional', Icon: Table2 },
     { href: '/peta', label: 'Peta Spasial', desc: 'Sebaran 1.208 simpul', Icon: MapIcon },
-    { href: '/proyeksi', label: 'Proyeksi Nataru', desc: 'Forecast 100 hari', Icon: CalendarClock },
+    { href: '/proyeksi', label: 'Forecasting', desc: 'Proyeksi Nataru 2026/2027', Icon: CalendarClock },
+    { href: '/rekomendasi', label: 'Rekomendasi', desc: 'Tambah armada 1.010 simpul', Icon: Wrench },
     { href: '/dokumentasi', label: 'Tentang Data', desc: 'Metodologi & kamus rumus', Icon: BookOpen },
   ];
 

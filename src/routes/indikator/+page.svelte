@@ -1,5 +1,6 @@
 <script lang="ts">
   import { data } from '$lib/data';
+  import { MODA } from '$lib/moda';
   import { fmtInt, fmtCompact, fmtPct, fmtDate } from '$lib/format';
   import Card from '$lib/components/Card.svelte';
   import CardHeader from '$lib/components/CardHeader.svelte';
@@ -43,8 +44,27 @@
     return '#d97706';
   }
 
-  const ms = data.metrics_summary;
+  /* Bentuk baru metrics_summary: baseline (median pra-Lebaran), peak_desc, mudik_desc */
+  const ms = data.metrics_summary as unknown as Record<
+    MainKey,
+    MetricSummary & { baseline?: number; peak_desc?: string; mudik_desc?: string }
+  >;
+  const baseOf = (m: MetricSummary) => m.baseline;
+  const peakDescOf = (m: MetricSummary) => m.peak_desc;
+  const mudikDescOf = (m: MetricSummary) => m.mudik_desc;
   const meta = data.meta;
+
+  /* Pangsa pasar Normal vs Puncak (pengganti tab Pangsa Pasar yang dihapus v1) */
+  const surge = data.surge_summary;
+  const marRow = data.monthly_summary.find((r) => r.bulan === '2026-03');
+  const pangsaRows = $derived(
+    (['UDARA', 'KA', 'BUS', 'ASDP', 'LAUT'] as const).map((m) => {
+      const normal =
+        surge.TOTAL.baseline > 0 ? (surge[m].baseline / surge.TOTAL.baseline) * 100 : 0;
+      const peak = (marRow?.[`share_${m}`] as number | undefined) ?? 0;
+      return { m, normal, peak, delta: peak - normal };
+    }),
+  );
 
   const d = $derived.by(() => {
     const pnp = ms.pnp_tot;
@@ -59,11 +79,11 @@
     const rasioArm = armD.ytd / armB.ytd;
     const rasioArmPeak = armD.peak_val / armB.peak_val;
     const lfNas = pnp.ytd / arm.ytd;
-    const lfBase = pnp.baseline_feb / arm.baseline_feb;
+    const lfBase = baseOf(pnp) / baseOf(arm);
     const lfPeak = pnp.peak_val / arm.peak_val;
     const lfSurge = ((lfPeak - lfBase) / lfBase) * 100;
     const mudikShare = (pnp.mudik_val / pnp.ytd) * 100;
-    const peakGrowth = ((pnp.peak_val - pnp.baseline_feb) / pnp.baseline_feb) * 100;
+    const peakGrowth = ((pnp.peak_val - baseOf(pnp)) / baseOf(pnp)) * 100;
 
     const derived = [
       {
@@ -95,7 +115,7 @@
         label: 'Load Factor Puncak',
         formula: 'pnp_tot.peak_val ÷ arm_tot.peak_val',
         value: `${fmt1(lfPeak)} pnp/trip`,
-        desc: `Kepadatan pada hari puncak — ${fmtPct(lfSurge)} vs baseline Februari.`,
+        desc: `Kepadatan pada hari puncak — ${fmtPct(lfSurge)} vs baseline pra-Lebaran (1 Jan–12 Mar 2026).`,
         accent: '#dc2626',
       },
       {
@@ -109,9 +129,9 @@
       {
         id: 'peak_growth',
         label: 'Pertumbuhan Puncak vs Baseline',
-        formula: '(puncak − baseline Feb) ÷ baseline Feb',
+        formula: '(puncak − baseline pra-Lebaran) ÷ baseline pra-Lebaran',
         value: fmtPct(peakGrowth),
-        desc: 'Kenaikan hari tersibuk dibanding rata-rata harian Februari.',
+        desc: 'Kenaikan hari tersibuk dibanding median harian pra-Lebaran (1 Jan–12 Mar 2026).',
         accent: '#0891b2',
       },
       {
@@ -178,9 +198,9 @@
       },
       {
         indikator: 'Pertumbuhan Puncak vs Baseline',
-        formula: '(puncak − baseline Feb) ÷ baseline Feb',
+        formula: '(puncak − baseline pra-Lebaran) ÷ baseline pra-Lebaran',
         ytd: '–',
-        avg: `${fmtInt(pnp.baseline_feb)} /hari`,
+        avg: `${fmtInt(baseOf(pnp))} /hari`,
         puncak: `${fmtDate(pnp.peak_date)} • ${fmtInt(pnp.peak_val)}`,
         lonjakan: fmtPct(peakGrowth),
       },
@@ -204,7 +224,7 @@
     <h2 class="mt-0.5 text-xl font-extrabold tracking-tight text-ink">Matriks 13 Indikator</h2>
     <p class="mt-1 max-w-3xl text-[13px] text-ink-3">
       6 metrik dasar pergerakan penumpang &amp; armada plus 7 indikator turunan — YTD, rata-rata
-      harian, puncak, dan lonjakan vs baseline Februari 2026.
+      harian, puncak, dan lonjakan vs baseline median pra-Lebaran (1 Jan–12 Mar 2026).
     </p>
   </div>
 
@@ -237,13 +257,13 @@
             <p class="num mt-1 text-[14px] font-bold text-ink">{fmtCompact(m.avg)}</p>
           </div>
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-wider text-ink-3">Baseline Februari</p>
-            <p class="num mt-1 text-[14px] font-bold text-ink">{fmtCompact(m.baseline_feb)}</p>
+            <p class="text-[10px] font-bold uppercase tracking-wider text-ink-3">Baseline pra-Lebaran</p>
+            <p class="num mt-1 text-[14px] font-bold text-ink">{fmtCompact(baseOf(m))}</p>
           </div>
           <div class="col-span-2 rounded-xl bg-fill p-2.5">
             <div class="flex items-center justify-between gap-2">
               <p class="text-[10px] font-bold uppercase tracking-wider text-ink-3">
-                Puncak • {m.peak_tag}
+                Puncak • {peakDescOf(m)}
               </p>
               <Badge color={surgeColor(m.peak_surge_pct)}>{fmtPct(m.peak_surge_pct)}</Badge>
             </div>
@@ -255,7 +275,7 @@
           <div class="col-span-2 rounded-xl bg-fill p-2.5">
             <div class="flex items-center justify-between gap-2">
               <p class="text-[10px] font-bold uppercase tracking-wider text-ink-3">
-                Mudik • {m.mudik_tag}
+                Mudik • {mudikDescOf(m)}
               </p>
               <Badge color={surgeColor(m.mudik_surge_pct)}>{fmtPct(m.mudik_surge_pct)}</Badge>
             </div>
@@ -338,7 +358,48 @@
       </table>
     </div>
     <p class="mt-3 text-[12px] text-ink-3">
-      Lonjakan = persentase kenaikan vs rata-rata harian Februari 2026 (baseline hari normal).
+      Lonjakan = persentase kenaikan vs median harian pra-Lebaran 1 Jan–12 Mar 2026 (baseline hari normal).
+    </p>
+  </Card>
+
+  <!-- Pangsa pasar: Normal vs Puncak (pengganti tab Pangsa Pasar yang dihapus v1) -->
+  <Card class="p-4 sm:p-5">
+    <CardHeader
+      title="Pangsa Pasar: Normal vs Puncak"
+      subtitle="Tab Pangsa Pasar dihapus pada pembaruan v1 — perbandingan Normal vs Puncak dipertahankan di sini."
+    >
+      {#snippet icon()}<Users size={16} />{/snippet}
+    </CardHeader>
+    <div class="overflow-auto rounded-xl border border-line">
+      <table class="w-full min-w-[560px] text-left text-[13px]">
+        <thead>
+          <tr class="border-b border-line bg-fill">
+            <th class="whitespace-nowrap px-4 py-2.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-3">Moda</th>
+            <th class="num whitespace-nowrap px-4 py-2.5 text-right text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-3">Normal (Median %)</th>
+            <th class="num whitespace-nowrap px-4 py-2.5 text-right text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-3">Puncak Mar (%)</th>
+            <th class="num whitespace-nowrap px-4 py-2.5 text-right text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-3">Selisih (pp)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {#each pangsaRows as r (r.m)}
+            <tr class="border-b border-line transition-colors hover:bg-fill">
+              <td class="px-4 py-2.5 font-bold text-ink">
+                <span class="mr-2 inline-block size-2.5 rounded-full" style={`background: ${MODA[r.m].color}`}></span>
+                {MODA[r.m].label}
+              </td>
+              <td class="num px-4 py-2.5 text-right font-semibold text-ink-2">{fmt1(r.normal)}%</td>
+              <td class="num px-4 py-2.5 text-right font-semibold text-ink-2">{fmt1(r.peak)}%</td>
+              <td class="num px-4 py-2.5 text-right font-bold text-ink">
+                {r.delta >= 0 ? '+' : ''}{fmt1(r.delta)} pp
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-3 text-[12px] text-ink-3">
+      Normal = baseline median pra-Lebaran 1 Jan–12 Mar 2026 per moda dibagi total. Puncak = pangsa
+      bulan Maret 2026 (Lebaran).
     </p>
   </Card>
 
@@ -354,7 +415,7 @@
       </li>
       <li class="flex gap-2">
         <span class="mt-1.5 size-1.5 shrink-0 rounded-full bg-amber-400"></span>
-        <span><strong class="text-ink">Baseline Februari</strong> — rata-rata harian Februari sebagai acuan hari normal di luar musim mudik.</span>
+        <span><strong class="text-ink">Baseline pra-Lebaran</strong> — median harian 1 Jan–12 Mar 2026, bebas distorsi arus mudik.</span>
       </li>
       <li class="flex gap-2">
         <span class="mt-1.5 size-1.5 shrink-0 rounded-full bg-rose-400"></span>

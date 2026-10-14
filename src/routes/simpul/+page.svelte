@@ -72,6 +72,9 @@
     return v[Math.floor(v.length / 2)] || 1;
   });
 
+  /* Total daftar aktif SEBELUM filter pencarian — penyebut kolom skala volume */
+  const totalVal = $derived(base.reduce((s, r) => s + metricOf(r, sortBy, arah), 0));
+
   const recByModa = $derived(data.simpul_recommendations.filter((r) => r.moda === moda));
 
   const recIndex = $derived.by(() => {
@@ -319,10 +322,10 @@
     />
     {#if rows.length > 0}
       <div class="max-h-[540px] overflow-auto rounded-xl border border-line">
-        <table class="w-full min-w-[780px] text-left text-[13px]">
+        <table class="w-full min-w-[900px] text-left text-[13px]">
           <thead class="sticky top-0 z-10">
             <tr class="bg-panel-2">
-              {#each ['#', 'Simpul', 'Provinsi', `Penumpang (${ARAH_LABEL[arah]})`, `Armada (${ARAH_LABEL[arah]})`, 'P/A', 'Status'] as h}
+              {#each ['#', 'Simpul', 'Provinsi', `Penumpang (${ARAH_LABEL[arah]})`, `Armada (${ARAH_LABEL[arah]})`, 'P/A', 'Skala Volume Dibandingkan Total', 'Status'] as h}
                 <th class="whitespace-nowrap px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-ink-3">
                   {h}
                 </th>
@@ -334,10 +337,12 @@
               {@const rank = safePage * PAGE + i + 1}
               {@const pnp = metricOf(r, 'pnp', arah)}
               {@const arm = metricOf(r, 'arm', arah)}
+              {@const activeVal = sortBy === 'pnp' ? pnp : arm}
               {@const lf = arm > 0 ? pnp / arm : 0}
               {@const surge = surgeOf(r)}
               {@const st = densityStatus(surge)}
               {@const sel = selectedHub === r.nama_prasarana}
+              {@const pctNum = totalVal > 0 ? (activeVal / totalVal) * 100 : 0}
               <tr
                 onclick={() => handleSelect(r.nama_prasarana)}
                 class={`cursor-pointer border-t border-line transition-colors ${
@@ -359,6 +364,22 @@
                 <td class="num px-4 py-3 font-semibold text-ink-2">
                   {lf.toLocaleString('id-ID', { maximumFractionDigits: 1 })}
                 </td>
+                <td
+                  class="px-4 py-3"
+                  title={`${fmtInt(activeVal)} dari total ${fmtInt(totalVal)} (${totalVal > 0 ? ((activeVal / totalVal) * 100).toLocaleString('id-ID', { maximumFractionDigits: 1 }) : '0'}%)`}
+                >
+                  <div class="flex items-center gap-2">
+                    <div class="h-2 w-24 overflow-hidden rounded-full bg-fill">
+                      <div
+                        class="h-2 rounded-full"
+                        style={`width: ${Math.min(100, Math.max(1.5, pctNum))}%; background: ${MODA[moda].color}`}
+                      ></div>
+                    </div>
+                    <span class="num w-12 text-[11px] font-medium text-ink-2">
+                      {pctNum.toLocaleString('id-ID', { maximumFractionDigits: 1 })}%
+                    </span>
+                  </div>
+                </td>
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
                     <Badge color={st.color}>{st.label}</Badge>
@@ -375,6 +396,7 @@
           Menampilkan
           <b class="num text-ink-2">{safePage * PAGE + 1}–{Math.min(safePage * PAGE + PAGE, rows.length)}</b>
           dari <b class="num text-ink-2">{rows.length}</b> simpul
+          (Total: <b class="num text-ink-2">{fmtInt(totalVal)} {sortBy === 'pnp' ? 'penumpang' : 'trip armada'}</b>)
         </p>
         <div class="flex items-center gap-2">
           <button
