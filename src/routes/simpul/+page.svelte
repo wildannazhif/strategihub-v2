@@ -147,16 +147,20 @@
         horizontal: true,
         borderRadius: 6,
         barHeight: '60%',
-        dataLabels: { position: 'right' },
+        dataLabels: { position: 'top' },
       },
     },
     dataLabels: {
       enabled: true,
       formatter: (v: number) => fmtCompact(v),
-      offsetX: 22,
+      offsetX: 10,
+      textAnchor: 'start',
       style: { fontFamily: MONO, fontSize: '11px', colors: [ct.soft] },
     },
-    xaxis: { categories: chartNames },
+    xaxis: {
+      categories: chartNames,
+      max: Math.max(1, ...chartRows.map((r) => metricOf(r, sortBy, arah))) * 1.45,
+    },
     yaxis: {
       reversed: true,
       labels: {

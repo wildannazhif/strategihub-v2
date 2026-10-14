@@ -130,15 +130,16 @@
     chart: { toolbar: { show: false } },
     legend: { show: false },
     plotOptions: {
-      bar: { horizontal: true, distributed: true, borderRadius: 5, barHeight: '58%', dataLabels: { position: 'right' } },
+      bar: { horizontal: true, distributed: true, borderRadius: 5, barHeight: '58%', dataLabels: { position: 'top' } },
     },
     dataLabels: {
       enabled: true,
       formatter: (v: number | string) => fmtCompact(Number(v)),
-      offsetX: 22,
+      offsetX: 10,
+      textAnchor: 'start',
       style: { fontFamily: MONO, fontSize: '11px', fontWeight: 700, colors: [ct.soft] },
     },
-    xaxis: { categories: top5.map((s) => s.name), max: Math.max(...top5.map((s) => s.pnpPuncak)) * 1.22 },
+    xaxis: { categories: top5.map((s) => s.name), max: Math.max(...top5.map((s) => s.pnpPuncak)) * 1.45 },
     yaxis: {
       labels: {
         style: { fontFamily: FONT, colors: ct.soft },

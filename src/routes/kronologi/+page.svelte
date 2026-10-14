@@ -233,7 +233,10 @@
     },
     legend: { show: false },
     xaxis: { categories: dowRows.map((r) => r.dow as string) },
-    yaxis: { labels: { formatter: (v: number | string) => `${Math.round(Number(v) / 1e3)} rb` } },
+    yaxis: {
+      max: Math.max(1, ...dowRows.map((r) => valOf(metric, dir, r, 'TOTAL'))) * 1.22,
+      labels: { formatter: (v: number | string) => `${Math.round(Number(v) / 1e3)} rb` },
+    },
     tooltip: {
       custom: ({ dataPointIndex }: { dataPointIndex: number }) => {
         const r: DailyRow = dowRows[dataPointIndex];
