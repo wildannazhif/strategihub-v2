@@ -15,7 +15,6 @@
   import MapPin from 'lucide-svelte/icons/map-pin';
   import TrendingUp from 'lucide-svelte/icons/trending-up';
   import Activity from 'lucide-svelte/icons/activity';
-  import BarChart3 from 'lucide-svelte/icons/bar-chart-3';
 
   type Metric = 'pnp' | 'arm';
   type Direction = 'total' | 'dat' | 'brg';
@@ -184,35 +183,6 @@
     };
   });
 
-  /* ---------- Agregasi bulanan (dari harian, ikut metrik+arah) ---------- */
-  const monthAgg = $derived.by(() => {
-    const map = new Map<string, { key: string; label: string; vals: Record<string, number> }>();
-    for (const r of timeline) {
-      const key = r.date.slice(0, 7);
-      let e = map.get(key);
-      if (!e) {
-        const mo = Number(key.split('-')[1]);
-        e = { key, label: MONTH_ID[mo - 1] ?? key, vals: {} };
-        map.set(key, e);
-      }
-      for (const m of MODA_KEYS) e.vals[m] = (e.vals[m] ?? 0) + valOf(metric, dir, r, m);
-    }
-    return [...map.values()];
-  });
-
-  const monthlySeries = $derived<ApexOptions['series']>(
-    shownModas.map((m) => ({ name: MODA[m].short, data: monthAgg.map((e) => e.vals[m] ?? 0) })),
-  );
-
-  const monthlyOptions = $derived<ApexOptions>({
-    chart: { stacked: true },
-    colors: shownModas.map((m) => MODA[m].color),
-    legend: { position: 'top', horizontalAlign: 'left' },
-    plotOptions: { bar: { borderRadius: 3, columnWidth: '62%' } },
-    xaxis: { categories: monthAgg.map((e) => e.label.slice(0, 3)) },
-    tooltip: { y: { formatter: (v: number | string) => `${fmtInt(Number(v))} ${unitShort}` } },
-  });
-
   /* ---------- Chart provinsi: stacked per moda (ALL) / batang tunggal (satu moda) ---------- */
   const provSeries: ApexOptions['series'] = $derived.by(() => {
     if (!provEntry) return [];
@@ -300,17 +270,6 @@
       {#snippet icon()}<TrendingUp size={16} />{/snippet}
     </CardHeader>
     <Chart type="line" series={mainSeries} options={mainOptions} height={320} />
-  </Card>
-
-  <!-- Agregasi bulanan -->
-  <Card class="p-4">
-    <CardHeader
-      title="Total Bulanan per Moda"
-      subtitle={`${DIR_LABEL[dir].toLowerCase()} ${metric === 'pnp' ? 'penumpang' : 'armada'} — Januari hingga September 2026`}
-    >
-      {#snippet icon()}<BarChart3 size={16} />{/snippet}
-    </CardHeader>
-    <Chart type="bar" series={monthlySeries} options={monthlyOptions} height={260} />
   </Card>
 
   <!-- Tren provinsi -->
