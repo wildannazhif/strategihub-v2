@@ -13,6 +13,7 @@
   import CalendarClock from 'lucide-svelte/icons/calendar-clock';
   import Wrench from 'lucide-svelte/icons/wrench';
   import BookOpen from 'lucide-svelte/icons/book-open';
+  import RouteIcon from 'lucide-svelte/icons/route';
   import Menu from 'lucide-svelte/icons/menu';
   import X from 'lucide-svelte/icons/x';
   import TrainFront from 'lucide-svelte/icons/train-front';
@@ -37,6 +38,7 @@
     { href: '/proyeksi', label: 'Forecasting', desc: 'Proyeksi Nataru 2026/2027', Icon: CalendarClock },
     { href: '/rekomendasi', label: 'Rekomendasi', desc: 'Tambah armada 1.010 simpul', Icon: Wrench },
     { href: '/dokumentasi', label: 'Tentang Data', desc: 'Metodologi & kamus rumus', Icon: BookOpen },
+    { href: '/od-udara', label: 'OD Udara', desc: 'Peta rute & Sankey Sep 2026', Icon: RouteIcon },
   ];
 
   let open = $state(false);

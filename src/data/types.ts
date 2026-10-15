@@ -300,6 +300,78 @@ export interface ProvinceGeoJSON {
   }[];
 }
 
+/** OD Udara September 2026 — peta rute (sumber: v1 `peta_rute_od_interaktif.html`,
+ *  `mapData`, verbatim kecuali airports diubah dari object keyed-by-code
+ *  menjadi array urut kode agar sesuai merge loader v2). */
+export interface ODUdaraAirport {
+  /** Kode bandara; beberapa bandara perintis memakai kode semu `A##` (mis. `A11`), bukan kode IATA. */
+  code: string;
+  name: string;
+  lat: number;
+  lon: number;
+  dep_pax: number;
+  arr_pax: number;
+  dep_flt: number;
+  arr_flt: number;
+  total_pax: number;
+  total_flt: number;
+  /** Koordinat peta pre-komputasi (viewBox 0 0 1000 540, proyeksi equirectangular linier). */
+  px: number;
+  py: number;
+}
+
+export interface ODUdaraRoute {
+  oc: string;
+  /** Nama bandara asal (duplikat dari airports — dipertahankan verbatim dari v1). */
+  on: string;
+  olat: number;
+  olon: number;
+  dc: string;
+  dn: string;
+  dlat: number;
+  dlon: number;
+  flt: number;
+  pax: number;
+  /** Muatan kargo dalam KG (tooltip v1: `crg / 1000` → ton). */
+  crg: number;
+  /** Bagasi (kg, diduga) — tidak dipakai UI v1; dipertahankan verbatim. */
+  bag: number;
+  /** Jarak udara km (haversine dari koordinat, dibulatkan). */
+  dist: number;
+  /** `true` ⇔ `pax === 0` (rute kargo/ferry). Skema EXCLUDE membuang rute `zp`. */
+  zp: boolean;
+  /** Ujung busur = px/py bandara asal/tujuan (duplikat dari airports). */
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  /** Titik kontrol kurva Bézier kuadrat busur (pre-komputasi v1, dipertahankan verbatim). */
+  cx: number;
+  cy: number;
+}
+
+export interface ODUdaraMap {
+  airports: ODUdaraAirport[];
+  routes: ODUdaraRoute[];
+}
+
+/** OD Udara September 2026 — Sankey (sumber: v1 `sankey_diagram_od.html`, `rawData`).
+ *  Dua view dipertahankan terpisah: `hub_flows` (59 koridor antar-hub teratas)
+ *  dan `island_flows` (24 agregasi antar-pulau). Label node berbentuk
+ *  `"CGK (Jakarta)"` / `"Jawa"` — tanpa field kode terpisah. */
+export interface ODUdaraSankeyLink {
+  source: string;
+  target: string;
+  /** Volume penumpang (pax). */
+  value: number;
+  flights: number;
+}
+
+export interface ODUdaraSankey {
+  hub_flows: ODUdaraSankeyLink[];
+  island_flows: ODUdaraSankeyLink[];
+}
+
 export interface DashboardData {
   daily_timeline: DailyRow[];
   monthly_summary: MonthlyRow[];
@@ -341,4 +413,10 @@ export interface DashboardData {
    *  Nama GeoJSON: "Aceh" (bundle: "D.I Aceh") dan "Daerah Istimewa
    *  Yogyakarta" (bundle: "D.I Yogyakarta") — perlu alias saat join. */
   province_geojson: ProvinceGeoJSON;
+  /** OD Udara September 2026 — peta rute 232 bandara / 1.273 rute (chunks `od_udara_map.*`). */
+  od_udara_map: ODUdaraMap;
+  /** OD Udara September 2026 — Sankey hub (59) + antar-pulau (24) (chunk `od_udara_sankey.1`). */
+  od_udara_sankey: ODUdaraSankey;
+  /** OD Udara September 2026 — poligon daratan peta (chunk `od_udara_land.1`). */
+  od_udara_land: string;
 }
